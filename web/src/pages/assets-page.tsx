@@ -146,9 +146,7 @@ export function AssetsPage() {
     <div>
       <PageHeader
         title="Assets"
-        actions={
-          canWrite(role) && view === 'inventory' ? <Button onClick={openCreate}>New Asset</Button> : null
-        }
+        actions={canWrite(role) && view === 'inventory' ? <Button onClick={openCreate}>New Asset</Button> : null}
       />
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex rounded-[4px] bg-muted p-1">
@@ -327,7 +325,9 @@ export function AssetsPage() {
                   <div className="space-y-2 rounded-[4px] border bg-card p-3 text-xs">
                     {visible.displayName ? (
                       <div>
-                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">Name:</span>
+                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+                          Name:
+                        </span>
                         {visible.displayName}
                       </div>
                     ) : null}
@@ -339,7 +339,9 @@ export function AssetsPage() {
                     ) : null}
                     {visible.notes ? (
                       <div className="whitespace-pre-wrap">
-                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">Notes:</span>
+                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+                          Notes:
+                        </span>
                         {visible.notes}
                       </div>
                     ) : null}
@@ -384,9 +386,7 @@ export function AssetsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit Asset' : 'New Manual Asset'}</DialogTitle>
-            {editingId ? (
-              <DialogDescription>Type, key, and raw scan data stay read-only.</DialogDescription>
-            ) : null}
+            {editingId ? <DialogDescription>Type, key, and raw scan data stay read-only.</DialogDescription> : null}
           </DialogHeader>
           <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -452,4 +452,3 @@ export function AssetsPage() {
     </div>
   )
 }
-

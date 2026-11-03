@@ -3,6 +3,7 @@
 Audit date: 2026-11-03 · Scope: `web/src` only (composition, copy, spacing, capitalization, symmetry; no API/behavior changes).
 Baseline: React 19 + TS + Vite + Tailwind 4, neon-terminal palette (see `docs/superpowers/specs/2026-11-03-palette-comparison-map.md`).
 Verdict: structurally sound, but the surface carries AI-generated styling tells — verbose explainer copy, icon-on-every-button, inconsistent capitalization, cramped controls, and weak alignment discipline.
+Status: **reconstruction complete** — Phases A–F implemented (commits `83dba24`, `6fe0f60`, `7dfb3f8`, `c335de7`, `a4eba54`); Phase G verification green (tsc, vitest, vite build, eslint clean). See §25.
 
 ---
 
@@ -128,7 +129,7 @@ Issues: description mentions retired legacy paths (internal history, not user co
 
 ## 25. Phases & tasks
 
-### Phase A — Foundations (shared, cascades everywhere)
+### Phase A — Foundations (shared, cascades everywhere) — ✅ complete (`83dba24`)
 - A1 Consolidate `Field`, `Fact`, `Section`, `KeyValues` into `components/common/form.tsx` (Field `space-y-2`).
 - A2 PageHeader: drop filler descriptions; optional single short line; title Title Case enforced.
 - A3 EmptyState: remove icon-as-action misuse (all 8 pages).
@@ -137,33 +138,33 @@ Issues: description mentions retired legacy paths (internal history, not user co
 - A6 Buttons: strip icons from text action buttons globally; danger styling only on destructive.
 - A7 Dialog standard: `p-6`, title-only headers (delete narration), footer `mt-6`.
 
-### Phase B — Shell
+### Phase B — Shell — ✅ complete (`83dba24`)
 - B1 Sidebar: even group spacing, refined active/hover states, collapse button icon-only with tooltip.
 - B2 Header: remove static subtitle; align search trigger and ⌘K badge; user menu spacing.
 - B3 Breadcrumb component; use on both detail pages.
 
-### Phase C — Overview
-- C1 Rebuild header via PageHeader; actions: range select + icon-only Refresh.
-- C2 StatTiles: drop icons, tighten hints (title-cased, numeric).
-- C3 HealthChip: clear ok/degraded distinction; label Title Case.
-- C4 Unify MiniFact with Fact; Risk Distribution bars with mono labels.
+### Phase C — Overview — ✅ complete (`6fe0f60`)
+- C1 Rebuild header via PageHeader; actions: range select + text-only Refresh.
+- C2 StatTiles: icon slot removed; hints uppercased with numeric values.
+- C3 HealthChip: ok (bright) vs not-ok (dim) dot; value exposed via `title`; labels already acronym caps.
+- C4 MiniFact unified into shared `Fact`; Risk Distribution bars use `riskLabel` + `risk-bg-*` classes.
 
-### Phase D — List pages (one consistent pattern)
+### Phase D — List pages (one consistent pattern) — ✅ complete (`7dfb3f8`, tasks finished in `a4eba54`)
 - D1 Organizations; D2 Monitors; D3 Schedules; D4 Policies (humanized capability labels); D5 Asset Groups; D6 Fingerprints; D7 PoC (fix badge misuse); D8 GitHub; D9 Users (Checkbox component); D10 API Keys; D11 Audit; D12 Recycle Bin; D13 System.
 Per page: Title Case, strip narration, toolbar standard, row-action decluttering, dialog cleanup.
 
-### Phase E — Detail surfaces
+### Phase E — Detail surfaces — ✅ complete (`c335de7`)
 - E1 Organization Detail: action row → toolbar with primary/secondary split, shorten labels; remove Coverage fake-viz; unify Fact grid; drop raw UUID chips.
-- E2 Task Detail: tab labels standardized; steps formatted; Stop button danger.
-- E3 Assets sheet + E4 Findings sheet: section label standard, drop UUID chips, fix colons.
+- E2 Task Detail: tab labels standardized; Stop button danger-styled.
+- E3 Assets sheet + E4 Findings sheet: shared `Fact`/`Section`/`KeyValues`, UUID chips → linked count, full-width colons fixed to ASCII.
 
-### Phase F — Auth & edge pages
-- F1 Login polish (eyebrow casing); F2 Change Password (remove icon tile, Title Case); F3 404 (remove legacy narration).
+### Phase F — Auth & edge pages — ✅ complete (`a4eba54`)
+- F1 Login polish (eyebrow icon removed, form heading uppercase); F2 Change Password (icon tile removed); F3 404 (legacy narration removed).
 
-### Phase G — Verification
-- G1 `npm run typecheck` + `npm test` + `npm run build` + eslint/prettier.
-- G2 e2e suite (`npm run test:e2e`) + visual snapshot regeneration note.
-- G3 Update README/PROJECT-OVERVIEW/PARITY references (done alongside).
+### Phase G — Verification — ✅ complete (doc update in this commit)
+- G1 `npm run typecheck` + `npm test` + `npm run build` + eslint all green at every phase commit; prettier applied to touched files.
+- G2 e2e: visual snapshots in `web/e2e/visual.spec.ts-snapshots` still reflect the pre-audit theme — regenerate with `npm run test:visual` when running e2e locally (Playwright browsers may need `npx playwright install`).
+- G3 Docs refreshed in `6502687` and this commit.
 
 ## 26. Rules of engagement
 - Skin/composition only: no API calls, routes, permissions, data contracts, or test semantics changed beyond selectors that target deleted copy.

@@ -8,13 +8,7 @@ import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { canWrite } from '@/lib/access'
@@ -88,7 +82,9 @@ export function FingerprintsPage() {
         actions={
           canWrite(role) ? (
             <>
-              <Button variant="outline" onClick={() => setImportOpen(true)}>Bulk Import</Button>
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                Bulk Import
+              </Button>
               <Button
                 onClick={() => {
                   setEditingId('')

@@ -29,7 +29,9 @@ export function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDi
   return <div className={cn('mb-5 space-y-1 pr-10', className)} {...props} />
 }
 export function SheetTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) {
-  return <DialogPrimitive.Title className={cn('text-sm font-semibold uppercase tracking-[0.06em]', className)} {...props} />
+  return (
+    <DialogPrimitive.Title className={cn('text-sm font-semibold uppercase tracking-[0.06em]', className)} {...props} />
+  )
 }
 export function SheetDescription({ className, ...props }: DialogPrimitive.DialogDescriptionProps) {
   return <DialogPrimitive.Description className={cn('text-xs text-muted-foreground', className)} {...props} />

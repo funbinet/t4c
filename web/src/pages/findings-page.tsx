@@ -148,7 +148,12 @@ export function FindingsPage() {
                 ),
               },
               { key: 'severity', header: 'Severity', cell: (row) => <RiskBadge risk={row.finding?.severity} /> },
-              { key: 'kind', header: 'Type', cell: (row) => kindLabels[row.finding?.kind || ''] || row.finding?.kind || '—', hideOnTablet: true },
+              {
+                key: 'kind',
+                header: 'Type',
+                cell: (row) => kindLabels[row.finding?.kind || ''] || row.finding?.kind || '—',
+                hideOnTablet: true,
+              },
               { key: 'occurrences', header: 'Occurrences', cell: (row) => row.occurrences || 1 },
               {
                 key: 'orgs',
@@ -220,7 +225,11 @@ export function FindingsPage() {
                 )}
               </Section>
               <Section title="Structured Observations">
-                <KeyValues data={selected.finding?.data as Record<string, unknown> | undefined} primitivesOnly={false} max={25} />
+                <KeyValues
+                  data={selected.finding?.data as Record<string, unknown> | undefined}
+                  primitivesOnly={false}
+                  max={25}
+                />
               </Section>
             </div>
           ) : null}
@@ -229,4 +238,3 @@ export function FindingsPage() {
     </div>
   )
 }
-

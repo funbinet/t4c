@@ -115,7 +115,9 @@ export function OrganizationsPage() {
         actions={
           canWrite(role) ? (
             <>
-              <Button variant="outline" onClick={() => setImportOpen(true)}>Import CSV</Button>
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                Import CSV
+              </Button>
               <Button onClick={() => setCreateOpen(true)}>New Organization</Button>
             </>
           ) : null
@@ -324,4 +326,3 @@ export function OrganizationsPage() {
     </div>
   )
 }
-

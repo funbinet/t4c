@@ -56,10 +56,7 @@ export function APIKeysPage() {
   const rows = (keys.data?.items || []) as APIKey[]
   return (
     <div>
-      <PageHeader
-        title="API Keys"
-        actions={<Button onClick={() => setOpen(true)}>New Key</Button>}
-      />
+      <PageHeader title="API Keys" actions={<Button onClick={() => setOpen(true)}>New Key</Button>} />
       {keys.isLoading ? (
         <LoadingBlock />
       ) : keys.error ? (

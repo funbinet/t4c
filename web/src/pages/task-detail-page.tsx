@@ -148,9 +148,7 @@ export function TaskDetailPage() {
               Stop
             </Button>
             {['failed', 'partial'].includes(task.status || '') ? (
-              <Button onClick={() => action.mutate({ kind: 'retry' })}>
-                Retry
-              </Button>
+              <Button onClick={() => action.mutate({ kind: 'retry' })}>Retry</Button>
             ) : null}
           </div>
         ) : null}

@@ -10,13 +10,7 @@ import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Field } from '@/components/common/form'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatTime, roleLabel } from '@/lib/format'
@@ -70,12 +64,7 @@ export function UsersPage() {
   const rows = (users.data?.items || []) as User[]
   return (
     <div>
-      <PageHeader
-        title="Users"
-        actions={
-          <Button onClick={() => setOpen(true)}>New User</Button>
-        }
-      />
+      <PageHeader title="Users" actions={<Button onClick={() => setOpen(true)}>New User</Button>} />
       {users.isLoading ? (
         <LoadingBlock />
       ) : users.error ? (

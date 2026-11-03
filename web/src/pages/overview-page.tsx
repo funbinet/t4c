@@ -262,10 +262,7 @@ export function OverviewPage() {
                   {summary.data ? (
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       <Fact label="Root Domains" value={summary.data.confirmedDomains || 0} />
-                      <Fact
-                        label="Assets"
-                        value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)}
-                      />
+                      <Fact label="Assets" value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)} />
                       <Fact label="Current Risks" value={summary.data.currentFindings || 0} />
                       <Fact label="Tasks" value={summary.data.linkedTasks || 0} />
                     </div>

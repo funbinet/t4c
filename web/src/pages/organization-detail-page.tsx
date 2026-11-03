@@ -254,7 +254,7 @@ export function OrganizationDetailPage() {
           </div>
         </div>
         {canWrite(role) ? (
-<div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => {
                 setScanDomains(confirmed.slice(0, 10))
@@ -562,17 +562,17 @@ export function OrganizationDetailPage() {
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Region">
-              <Input
+                <Input
                   value={orgForm.region}
                   onChange={(event) => setOrgForm({ ...orgForm, region: event.target.value })}
-              />
-            </Field>
+                />
+              </Field>
               <Field label="Unified Social Credit Code">
-              <Input
+                <Input
                   value={orgForm.uscc}
                   onChange={(event) => setOrgForm({ ...orgForm, uscc: event.target.value })}
-              />
-            </Field>
+                />
+              </Field>
             </div>
           </div>
           <DialogFooter>
@@ -596,29 +596,29 @@ export function OrganizationDetailPage() {
           </DialogHeader>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Site Name">
-            <Input
+              <Input
                 value={domainForm.siteName}
                 onChange={(event) => setDomainForm({ ...domainForm, siteName: event.target.value })}
-            />
-          </Field>
+              />
+            </Field>
             <Field label="Homepage">
-            <Input
+              <Input
                 value={domainForm.homeSite}
                 onChange={(event) => setDomainForm({ ...domainForm, homeSite: event.target.value })}
-            />
-          </Field>
+              />
+            </Field>
             <Field label="ICP Number">
-            <Input
+              <Input
                 value={domainForm.icpNo}
                 onChange={(event) => setDomainForm({ ...domainForm, icpNo: event.target.value })}
-            />
-          </Field>
+              />
+            </Field>
             <Field label="Audit Date">
-            <Input
+              <Input
                 value={domainForm.auditDate}
                 onChange={(event) => setDomainForm({ ...domainForm, auditDate: event.target.value })}
-            />
-          </Field>
+              />
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDomainEditTarget(null)}>
