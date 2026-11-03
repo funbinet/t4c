@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRight, LockKeyhole, ShieldCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -95,13 +95,10 @@ export function LoginPage() {
             </div>
           </div>
           <div className="mb-7">
-            <div className="mono-label mb-2 flex items-center gap-2 !text-[11px] !text-mint">
-              <LockKeyhole className="size-4" />
-              Console sign-in
-            </div>
-            <h2 className="text-2xl font-semibold tracking-tight">Enter the attack surface workspace</h2>
+            <div className="mono-label mb-2 !text-[11px] !text-mint">Console Sign-In</div>
+            <h2 className="text-2xl font-semibold uppercase tracking-[0.06em]">Enter The Attack Surface Workspace</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Sign in with your platform account. You must change the initial password after your first sign-in.
+              You must change the initial password after your first sign-in.
             </p>
           </div>
           <form className="space-y-4" onSubmit={form.handleSubmit(submit)}>
@@ -125,8 +122,7 @@ export function LoginPage() {
               </div>
             ) : null}
             <Button className="w-full" size="lg" type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Signing in…' : 'Sign in'}
-              <ArrowRight />
+              {form.formState.isSubmitting ? 'Signing In…' : 'Sign In'}
             </Button>
           </form>
           <p className="mt-6 text-center text-[11px] leading-5 text-dim">

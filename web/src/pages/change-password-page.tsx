@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { KeyRound } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useAuth } from '@/app/auth'
@@ -40,14 +39,11 @@ export function ChangePasswordPage() {
     <div className="grid min-h-screen place-items-center bg-background p-5">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="mb-2 grid size-10 place-items-center rounded-[4px] bg-secondary text-primary">
-            <KeyRound className="size-5" />
-          </div>
-          <CardTitle className="text-lg">Change sign-in password</CardTitle>
+          <CardTitle className="text-lg">Change Sign-In Password</CardTitle>
           <CardDescription>
             {user?.mustChangePassword
-              ? 'This account must change its initial password first. You will need to sign in again afterward.'
-              : 'All existing sessions will be invalidated after the change.'}
+              ? 'Sign-in is required again after the change.'
+              : 'All sessions are invalidated after the change.'}
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Plus, Search, Square } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -8,18 +8,17 @@ import { StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
 import { Pagination } from '@/components/common/pagination'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
@@ -78,18 +77,10 @@ export function TasksPage() {
   return (
     <div>
       <PageHeader
-        title="Scan Tasks"
-        description="By default focuses on EASM tasks started from organizations and confirmed root domains; the raw task view keeps all scan and risk-cruise records."
-        actions={
-          canWrite(role) ? (
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus />
-              New Task
-            </Button>
-          ) : null
-        }
+        title="Tasks"
+        actions={canWrite(role) ? <Button onClick={() => setCreateOpen(true)}>New Task</Button> : null}
       />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex rounded-[4px] bg-muted p-1">
           <Button
             size="sm"
@@ -112,11 +103,11 @@ export function TasksPage() {
           />
         </form>
         <Select value={status || 'all'} onValueChange={(value) => setParam('status', value === 'all' ? '' : value)}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="min-w-36">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             {['queued', 'running', 'succeeded', 'partial', 'failed', 'canceled'].map((item) => (
               <SelectItem key={item} value={item}>
                 {item}
@@ -125,11 +116,11 @@ export function TasksPage() {
           </SelectContent>
         </Select>
         <Select value={kind || 'all'} onValueChange={(value) => setParam('kind', value === 'all' ? '' : value)}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="min-w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             {['domain', 'ip', 'risk_cruising', 'asset_site_update'].map((item) => (
               <SelectItem key={item} value={item}>
                 {item}
@@ -193,7 +184,6 @@ export function TasksPage() {
                         className="text-destructive"
                         onClick={() => cancel.mutate(row.id || '')}
                       >
-                        <Square />
                         Stop
                       </Button>
                     ) : null}
@@ -213,13 +203,10 @@ export function TasksPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New Scan Task</DialogTitle>
-            <DialogDescription>
-              Once queued, steps, assets, and risk events are visible on the task details page.
-            </DialogDescription>
+            <DialogTitle>New Task</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <Field label="Task Name (optional)">
+            <Field label="Task Name" hint="Optional.">
               <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -236,7 +223,7 @@ export function TasksPage() {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Policy ID (optional)">
+              <Field label="Policy ID" hint="Optional.">
                 <Input value={form.policyId} onChange={(event) => setForm({ ...form, policyId: event.target.value })} />
               </Field>
             </div>
@@ -258,14 +245,6 @@ export function TasksPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }
