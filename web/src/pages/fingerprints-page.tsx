@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Fingerprint as FingerprintIcon, Pencil, Plus, Trash2, Upload } from 'lucide-react'
+import { Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Fingerprint } from '@/api'
@@ -110,7 +110,11 @@ export function FingerprintsPage() {
         }
       />
       <div className="mb-3 max-w-sm">
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search fingerprint name or rule…" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search fingerprint name or rule…"
+        />
       </div>
       {fingerprints.isLoading ? (
         <LoadingBlock />
@@ -120,12 +124,7 @@ export function FingerprintsPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || row.name || ''}
-          empty={
-            <EmptyState
-              title="No fingerprints"
-              action={<FingerprintIcon className="mx-auto mt-2 size-5 text-muted-foreground" />}
-            />
-          }
+          empty={<EmptyState title="No fingerprints" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => row.name },
             {

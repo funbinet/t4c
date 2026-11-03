@@ -92,10 +92,10 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
   return (
     <nav className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-thin" aria-label="Main navigation">
-      {allGroups.map((group) => (
-        <div key={group.label} className="mb-4">
-          {!collapsed ? <div className="mono-label px-2 pb-1.5">{group.label}</div> : null}
-          <div className="space-y-0.5">
+      {allGroups.map((group, groupIndex) => (
+        <div key={group.label} className={groupIndex === 0 ? 'pt-1' : 'pt-5'}>
+          {!collapsed ? <div className="mono-label px-2 pb-2">{group.label}</div> : null}
+          <div className="space-y-1">
             {group.items.map((item) => {
               const Icon = item.icon
               const link = (
@@ -189,12 +189,13 @@ export function AppShell() {
         <div className="border-t border-border p-2">
           <Button
             variant="ghost"
-            size="sm"
-            className="w-full justify-center text-dim hover:bg-[rgba(0,250,0,0.06)] hover:text-mint"
+            size="icon"
+            title={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+            className="mx-auto flex text-dim hover:bg-[rgba(0,250,0,0.06)] hover:text-mint"
             onClick={() => setCollapsed((value) => !value)}
           >
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
-            {!collapsed ? <span>Collapse navigation</span> : <span className="sr-only">Expand navigation</span>}
+            <span className="sr-only">{collapsed ? 'Expand navigation' : 'Collapse navigation'}</span>
           </Button>
         </div>
       </aside>
@@ -243,7 +244,6 @@ export function AppShell() {
             </Button>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{title}</div>
-              <div className="mono-label hidden sm:block">Authorized external attack surface analysis</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -254,7 +254,7 @@ export function AppShell() {
               onClick={() => setSearchOpen(true)}
             >
               <Search />
-              Search<span className="ml-auto rounded border px-1.5 py-0.5 text-[10px]">⌘K</span>
+              Search<span className="mono-label ml-auto !text-[10px] normal-case tracking-normal">⌘K</span>
             </Button>
             <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setSearchOpen(true)}>
               <Search />

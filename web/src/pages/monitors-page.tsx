@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Activity, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
+import { Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Monitor } from '@/api'
@@ -126,9 +126,7 @@ export function MonitorsPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || ''}
-          empty={
-            <EmptyState title="No monitors" action={<Activity className="mx-auto mt-2 size-5 text-muted-foreground" />} />
-          }
+          empty={<EmptyState title="No monitors" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => row.name },
             { key: 'kind', header: 'Type', cell: (row) => row.kind },
@@ -194,7 +192,10 @@ export function MonitorsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit monitor' : 'New monitor'}</DialogTitle>
-            <DialogDescription>A monitor must reference a valid asset group. The next run time is recalculated from the new interval after editing.</DialogDescription>
+            <DialogDescription>
+              A monitor must reference a valid asset group. The next run time is recalculated from the new interval
+              after editing.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">

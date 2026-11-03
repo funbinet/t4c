@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Plus, Search, Square, Workflow } from 'lucide-react'
+import { Plus, Search, Square } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -151,7 +151,6 @@ export function TasksPage() {
               <EmptyState
                 title="No matching tasks"
                 description="Start a root-domain scan from an organization, or create a task manually."
-                action={<Workflow className="mx-auto mt-2 size-5 text-muted-foreground" />}
               />
             }
             columns={[

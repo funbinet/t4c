@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Schedule } from '@/api'
@@ -124,16 +124,15 @@ export function SchedulesPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || ''}
-          empty={
-            <EmptyState
-              title="No schedules"
-              action={<CalendarClock className="mx-auto mt-2 size-5 text-muted-foreground" />}
-            />
-          }
+          empty={<EmptyState title="No schedules" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => row.name },
             { key: 'kind', header: 'Type', cell: (row) => String(row.kind || '—') },
-            { key: 'target', header: 'Target', cell: (row) => <span className="mono">{String(row.target || '—')}</span> },
+            {
+              key: 'target',
+              header: 'Target',
+              cell: (row) => <span className="mono">{String(row.target || '—')}</span>,
+            },
             {
               key: 'cron',
               header: 'Cron',
@@ -174,7 +173,9 @@ export function SchedulesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit schedule' : 'New schedule'}</DialogTitle>
-            <DialogDescription>A schedule must reference a valid policy. The next run time is recalculated after saving.</DialogDescription>
+            <DialogDescription>
+              A schedule must reference a valid policy. The next run time is recalculated after saving.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">

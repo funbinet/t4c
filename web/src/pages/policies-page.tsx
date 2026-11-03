@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Settings2, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Policy } from '@/api'
@@ -133,12 +133,7 @@ export function PoliciesPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || row.name || ''}
-          empty={
-            <EmptyState
-              title="No scan policies"
-              action={<Settings2 className="mx-auto mt-2 size-5 text-muted-foreground" />}
-            />
-          }
+          empty={<EmptyState title="No scan policies" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => <span className="font-medium">{row.name}</span> },
             { key: 'description', header: 'Description', cell: (row) => row.description || '—', hideOnTablet: true },

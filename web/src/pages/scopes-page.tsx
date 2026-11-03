@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Boxes, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Scope } from '@/api'
@@ -98,9 +98,7 @@ export function ScopesPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || row.name || ''}
-          empty={
-            <EmptyState title="No asset groups" action={<Boxes className="mx-auto mt-2 size-5 text-muted-foreground" />} />
-          }
+          empty={<EmptyState title="No asset groups" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => row.name },
             { key: 'type', header: 'Type', cell: (row) => row.type },
@@ -143,7 +141,9 @@ export function ScopesPage() {
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit asset group' : 'New asset group'}</DialogTitle>
             <DialogDescription>
-              {editingId ? 'Changes to targets affect future tasks and monitors only. Historical links are not rebuilt.' : 'Separate targets with commas, spaces, or new lines.'}
+              {editingId
+                ? 'Changes to targets affect future tasks and monitors only. Historical links are not rebuilt.'
+                : 'Separate targets with commas, spaces, or new lines.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">

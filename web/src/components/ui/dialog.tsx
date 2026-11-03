@@ -11,7 +11,7 @@ export function DialogContent({ className, children, ...props }: DialogPrimitive
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-[2px]" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-[4px] border border-border bg-card p-5 shadow-[0_0_40px_rgba(0,250,0,0.08)] outline-none',
+          'fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-[4px] border border-border bg-card p-6 shadow-[0_0_40px_rgba(0,250,0,0.08)] outline-none',
           className,
         )}
         {...props}
@@ -35,5 +35,5 @@ export function DialogDescription({ className, ...props }: DialogPrimitive.Dialo
   return <DialogPrimitive.Description className={cn('text-xs text-muted-foreground', className)} {...props} />
 }
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('mt-5 flex justify-end gap-2', className)} {...props} />
+  return <div className={cn('mt-6 flex justify-end gap-2', className)} {...props} />
 }

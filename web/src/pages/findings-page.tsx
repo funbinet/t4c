@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { FileWarning, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, type FindingItem } from '@/api'
@@ -128,7 +128,6 @@ export function FindingsPage() {
                     ? 'No risks found under confirmed organization root domains yet.'
                     : 'No history or raw results match the current filters.'
                 }
-                action={<FileWarning className="mx-auto mt-2 size-5 text-muted-foreground" />}
               />
             }
             columns={[

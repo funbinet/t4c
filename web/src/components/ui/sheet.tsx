@@ -11,7 +11,7 @@ export function SheetContent({ className, children, ...props }: DialogPrimitive.
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-[2px]" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-full max-w-xl overflow-auto border-l border-border bg-card p-5 shadow-[0_0_40px_rgba(0,250,0,0.08)] outline-none sm:w-[520px]',
+          'fixed inset-y-0 right-0 z-50 w-full max-w-xl overflow-auto border-l border-border bg-card p-6 shadow-[0_0_40px_rgba(0,250,0,0.08)] outline-none sm:w-[520px]',
           className,
         )}
         {...props}
@@ -26,7 +26,7 @@ export function SheetContent({ className, children, ...props }: DialogPrimitive.
   )
 }
 export function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('mb-5 space-y-1 pr-8', className)} {...props} />
+  return <div className={cn('mb-5 space-y-1 pr-10', className)} {...props} />
 }
 export function SheetTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) {
   return <DialogPrimitive.Title className={cn('text-base font-semibold', className)} {...props} />

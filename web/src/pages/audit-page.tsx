@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { ScrollText } from 'lucide-react'
+
 import { useState } from 'react'
 import { api, type AuditEvent } from '@/api'
 import { DataTable } from '@/components/common/data-table'
@@ -16,7 +16,10 @@ export function AuditPage() {
   const rows = (audit.data?.items || []) as AuditEvent[]
   return (
     <div>
-      <PageHeader title="Audit log" description="Track authentication, organization ownership, scans, configuration, and administrative actions." />
+      <PageHeader
+        title="Audit log"
+        description="Track authentication, organization ownership, scans, configuration, and administrative actions."
+      />
       <div className="mb-3 max-w-sm">
         <Input
           value={q}
@@ -36,16 +39,15 @@ export function AuditPage() {
           <DataTable
             rows={rows}
             rowKey={(row) => row.id || `${row.action}-${row.createdAt}`}
-            empty={
-              <EmptyState
-                title="No audit events"
-                action={<ScrollText className="mx-auto mt-2 size-5 text-muted-foreground" />}
-              />
-            }
+            empty={<EmptyState title="No audit events" />}
             columns={[
               { key: 'actor', header: 'Actor', cell: (row) => row.actor || '—' },
               { key: 'action', header: 'Action', cell: (row) => <span className="mono">{row.action}</span> },
-              { key: 'resource', header: 'Resource', cell: (row) => <span className="mono">{row.resource || '—'}</span> },
+              {
+                key: 'resource',
+                header: 'Resource',
+                cell: (row) => <span className="mono">{row.resource || '—'}</span>,
+              },
               { key: 'ip', header: 'IP', cell: (row) => row.ip || '—', hideOnTablet: true },
               { key: 'time', header: 'Time', cell: (row) => formatTime(row.createdAt) },
             ]}

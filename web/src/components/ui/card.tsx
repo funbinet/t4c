@@ -22,5 +22,5 @@ export function CardDescription({ className, ...props }: HTMLAttributes<HTMLPara
   return <p className={cn('text-xs text-muted-foreground', className)} {...props} />
 }
 export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('p-4 pt-0', className)} {...props} />
+  return <div className={cn('p-6 pt-0', className)} {...props} />
 }

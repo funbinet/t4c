@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Copy, FileKey2, Plus, Trash2 } from 'lucide-react'
+import { Copy, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type APIKey } from '@/api'
@@ -75,12 +75,7 @@ export function APIKeysPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || row.name || ''}
-          empty={
-            <EmptyState
-              title="No API keys"
-              action={<FileKey2 className="mx-auto mt-2 size-5 text-muted-foreground" />}
-            />
-          }
+          empty={<EmptyState title="No API keys" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => <span className="font-medium">{row.name}</span> },
             {
@@ -153,7 +148,9 @@ export function APIKeysPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Save API key</DialogTitle>
-            <DialogDescription>This secret is shown only once. It cannot be read again after you close this dialog.</DialogDescription>
+            <DialogDescription>
+              This secret is shown only once. It cannot be read again after you close this dialog.
+            </DialogDescription>
           </DialogHeader>
           <Textarea readOnly value={secret} className="min-h-28 font-mono text-xs" />
           <DialogFooter>

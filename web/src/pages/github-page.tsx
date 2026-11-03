@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { GitBranch, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/api'
@@ -124,12 +124,7 @@ export function GitHubPage() {
             <DataTable
               rows={findings.data?.items || []}
               rowKey={(row: any) => row.id || row.hashMd5}
-              empty={
-                <EmptyState
-                  title="No leak results"
-                  action={<GitBranch className="mx-auto mt-2 size-5 text-muted-foreground" />}
-                />
-              }
+              empty={<EmptyState title="No leak results" />}
               columns={[
                 {
                   key: 'repo',

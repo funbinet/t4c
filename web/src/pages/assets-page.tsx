@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Crosshair, Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -230,7 +230,6 @@ export function AssetsPage() {
               <EmptyState
                 title="No matching assets"
                 description="Adjust the filters, or confirm root domains for an organization and start a scan first."
-                action={<Crosshair className="mx-auto mt-2 size-5 text-muted-foreground" />}
               />
             }
             columns={[

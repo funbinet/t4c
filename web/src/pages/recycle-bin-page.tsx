@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { RotateCcw, Search, Trash2 } from 'lucide-react'
+import { RotateCcw, Search } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/api'
@@ -55,7 +55,10 @@ export function RecycleBinPage() {
 
   return (
     <div>
-      <PageHeader title="Recycle bin" description="Restore soft-deleted organizations, assets, automation settings, and users. Restoring is restricted to administrators." />
+      <PageHeader
+        title="Recycle bin"
+        description="Restore soft-deleted organizations, assets, automation settings, and users. Restoring is restricted to administrators."
+      />
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <div className="relative min-w-0 flex-1 sm:max-w-sm">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -98,12 +101,7 @@ export function RecycleBinPage() {
           <DataTable
             rows={rows}
             rowKey={(row) => `${row.type}-${row.id}`}
-            empty={
-              <EmptyState
-                title="Recycle bin is empty"
-                action={<Trash2 className="mx-auto mt-2 size-5 text-muted-foreground" />}
-              />
-            }
+            empty={<EmptyState title="Recycle bin is empty" />}
             columns={[
               { key: 'type', header: 'Type', cell: (row) => resourceLabels[row.type] || row.type },
               { key: 'label', header: 'Record', cell: (row) => <span className="font-medium">{row.label}</span> },

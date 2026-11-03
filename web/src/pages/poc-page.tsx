@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Radar, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type PocPlugin } from '@/api'
@@ -77,12 +77,7 @@ export function PocPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.name || ''}
-          empty={
-            <EmptyState
-              title="No plugin metadata"
-              action={<Radar className="mx-auto mt-2 size-5 text-muted-foreground" />}
-            />
-          }
+          empty={<EmptyState title="No plugin metadata" />}
           columns={[
             { key: 'name', header: 'Plugin', cell: (row) => <span className="mono font-medium">{row.name}</span> },
             {

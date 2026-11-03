@@ -44,7 +44,7 @@ export function DataTable<T>({
                   <th
                     key={column.key}
                     className={cn(
-                      'px-3 py-2.5 font-medium',
+                      'px-4 py-3 font-medium',
                       column.className,
                       column.hideOnTablet && 'hidden xl:table-cell',
                     )}
@@ -61,7 +61,7 @@ export function DataTable<T>({
                     <td
                       key={column.key}
                       className={cn(
-                        'px-3 py-3 align-middle',
+                        'px-4 py-3 align-middle',
                         column.className,
                         column.hideOnTablet && 'hidden xl:table-cell',
                       )}

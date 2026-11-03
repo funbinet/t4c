@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2, Users } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type User } from '@/api'
@@ -89,9 +89,7 @@ export function UsersPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || row.username || ''}
-          empty={
-            <EmptyState title="No users" action={<Users className="mx-auto mt-2 size-5 text-muted-foreground" />} />
-          }
+          empty={<EmptyState title="No users" />}
           columns={[
             { key: 'username', header: 'Username', cell: (row) => <span className="font-medium">{row.username}</span> },
             {

@@ -8,10 +8,7 @@ export function useReveal<T extends HTMLElement>() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      typeof IntersectionObserver === 'undefined'
-    ) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof IntersectionObserver === 'undefined') {
       el.classList.add('reveal-in')
       return
     }
