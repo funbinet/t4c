@@ -1,0 +1,299 @@
+package httpapi
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/funbinet/t4c/internal/domain"
+	"github.com/funbinet/t4c/internal/modules/easm"
+	"github.com/funbinet/t4c/internal/platform/httpx"
+)
+
+type EASMService interface {
+	LookupDomain(ctx context.Context, rawDomain, actor string) (*easm.LookupResult, error)
+	EnqueueRefresh(ctx context.Context, orgID string, actor string) (*domain.ICPJob, error)
+	GetICPJob(ctx context.Context, id string) (*domain.ICPJob, error)
+	ConfirmDomains(ctx context.Context, orgID string, domains []string, actor string) (int, error)
+	Map(ctx context.Context, orgID *string, risk string) (*easm.MapSnapshot, error)
+	Graph(ctx context.Context, orgID string, depth, limit int) (*easm.GraphSnapshot, error)
+	Summary(ctx context.Context, orgID string) (*easm.OrganizationSummary, error)
+	Assets(ctx context.Context, orgID *string, filter easm.AssetFilter) (*easm.AssetPage, error)
+	Asset(ctx context.Context, orgID *string, id string) (*easm.AssetItem, error)
+	Findings(ctx context.Context, orgID *string, filter easm.FindingFilter) (*easm.FindingPage, error)
+	FindingHistory(ctx context.Context, orgID string, findingID string) ([]domain.Finding, error)
+	CreateScans(ctx context.Context, orgID string, rootDomains []string, options domain.TaskOptions, policyID, scopeID, actor string) ([]domain.Task, []easm.ScanError, error)
+	Health(ctx context.Context) easm.Health
+	Overview(ctx context.Context, since time.Time) (*easm.Overview, error)
+	Search(ctx context.Context, query string, limit int) (*easm.SearchResult, error)
+}
+
+func (s *Server) handleListOrganizations(w http.ResponseWriter, r *http.Request) {
+	limit := 50
+	if raw := r.URL.Query().Get("limit"); raw != "" {
+		if n, err := strconv.Atoi(raw); err == nil && n > 0 {
+			limit = n
+		}
+	}
+	items, err := s.Store.ListOrganizations(r.Context(), r.URL.Query().Get("query"), limit)
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *Server) handleCreateOrganization(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		CanonicalName string   `json:"canonicalName"`
+		Aliases       []string `json:"aliases"`
+		Region        string   `json:"region"`
+		USCC          string   `json:"uscc"`
+	}
+	if !httpx.DecodeJSON(w, r, &req) {
+		return
+	}
+	org := &domain.Organization{
+		CanonicalName: strings.TrimSpace(req.CanonicalName), Aliases: req.Aliases,
+		Region: req.Region, USCC: req.USCC, Status: domain.OrgStatusActive,
+	}
+	if err := s.Store.CreateOrganization(r.Context(), org); err != nil {
+		httpx.WriteProblem(w, r, http.StatusBadRequest, "organization_create_failed", err.Error())
+		return
+	}
+	_ = s.Store.AppendGraphOutbox(r.Context(), "organization", org.ID, domain.OutboxOpUpsert)
+	p := principalFrom(r.Context())
+	s.Store.AddAudit(r.Context(), domain.AuditEvent{
+		Actor: p.Username, Action: "organization.create", Resource: org.ID,
+		Detail: map[string]any{"name": org.CanonicalName},
+	})
+	httpx.WriteJSON(w, http.StatusCreated, org)
+}
+
+func (s *Server) handleGetOrganization(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	org, err := s.Store.GetOrganization(r.Context(), id)
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	if org == nil {
+		httpx.WriteProblem(w, r, http.StatusNotFound, "organization_not_found", "organization not found")
+		return
+	}
+	domains, err := s.Store.ListOrganizationDomains(r.Context(), id, r.URL.Query().Get("status"))
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"organization": org, "domains": domains})
+}
+
+func (s *Server) handleLookupDomain(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Domain string `json:"domain"`
+	}
+	if !httpx.DecodeJSON(w, r, &req) {
+		return
+	}
+	if _, err := easm.NormalizeRootDomain(req.Domain); err != nil {
+		httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_domain", "domain is invalid")
+		return
+	}
+	p := principalFrom(r.Context())
+	out, err := s.EASM.LookupDomain(r.Context(), req.Domain, p.Username)
+	if err != nil {
+		writeEASMProblem(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (s *Server) handleRefreshICP(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	p := principalFrom(r.Context())
+	job, err := s.EASM.EnqueueRefresh(r.Context(), id, p.Username)
+	if err != nil {
+		writeEASMProblem(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, job)
+}
+
+func (s *Server) handleGetICPJob(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	job, err := s.EASM.GetICPJob(r.Context(), id)
+	if err != nil {
+		writeEASMProblem(w, r, err)
+		return
+	}
+	if job == nil {
+		httpx.WriteProblem(w, r, http.StatusNotFound, "icp_job_not_found", "ICP job not found")
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, job)
+}
+
+func (s *Server) handleListOrgDomains(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	items, err := s.Store.ListOrganizationDomains(r.Context(), id, r.URL.Query().Get("status"))
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *Server) handleConfirmDomains(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	var req struct {
+		Domains []string `json:"domains"`
+	}
+	if !httpx.DecodeJSON(w, r, &req) {
+		return
+	}
+	if len(req.Domains) == 0 {
+		httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_domains", "domains are required")
+		return
+	}
+	p := principalFrom(r.Context())
+	n, err := s.EASM.ConfirmDomains(r.Context(), id, req.Domains, p.Username)
+	if err != nil {
+		writeEASMProblem(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"changed": n})
+}
+
+func (s *Server) handleImportDomains(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	var req struct {
+		Domains []string `json:"domains"`
+	}
+	if !httpx.DecodeJSON(w, r, &req) {
+		return
+	}
+	if len(req.Domains) == 0 {
+		httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_domains", "domains are required")
+		return
+	}
+	org, err := s.Store.GetOrganization(r.Context(), id)
+	if err != nil || org == nil {
+		httpx.WriteProblem(w, r, http.StatusNotFound, "organization_not_found", "organization not found")
+		return
+	}
+	p := principalFrom(r.Context())
+	var items []domain.OrganizationDomain
+	var rejected []string
+	for _, raw := range req.Domains {
+		root, err := easm.NormalizeRootDomain(raw)
+		if err != nil {
+			rejected = append(rejected, raw)
+			continue
+		}
+		od := &domain.OrganizationDomain{
+			OrganizationID: id, RootDomain: root, Source: "manual",
+			Confidence: domain.ConfidenceHigh, Status: domain.DomainStatusCandidate,
+		}
+		if err := s.Store.UpsertOrganizationDomain(r.Context(), od); err != nil {
+			rejected = append(rejected, root)
+			continue
+		}
+		items = append(items, *od)
+	}
+	s.Store.AddAudit(r.Context(), domain.AuditEvent{
+		Actor: p.Username, Action: "easm.domain_import", Resource: id,
+		Detail: map[string]any{"imported": len(items), "rejected": rejected},
+	})
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items, "imported": len(items), "rejected": rejected})
+}
+
+func (s *Server) handleEASMMap(w http.ResponseWriter, r *http.Request) {
+	var orgID *string
+	rawOrg := r.URL.Query().Get("orgId")
+	if pathOrg := rPathParam(r, "id"); pathOrg != "" {
+		rawOrg = pathOrg
+	}
+	if raw := rawOrg; raw != "" {
+		id, err := domain.ParseID(raw)
+		if err != nil {
+			httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_org_id", "invalid organization id")
+			return
+		}
+		orgID = &id
+	}
+	out, err := s.EASM.Map(r.Context(), orgID, r.URL.Query().Get("risk"))
+	if err != nil {
+		writeEASMProblem(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (s *Server) handleEASMGraph(w http.ResponseWriter, r *http.Request) {
+	rawOrg := r.URL.Query().Get("orgId")
+	if pathOrg := rPathParam(r, "id"); pathOrg != "" {
+		rawOrg = pathOrg
+	}
+	id, err := domain.ParseID(rawOrg)
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_org_id", "orgId is required")
+		return
+	}
+	depth, _ := strconv.Atoi(r.URL.Query().Get("depth"))
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	out, err := s.EASM.Graph(r.Context(), id, depth, limit)
+	if err != nil {
+		writeEASMProblem(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (s *Server) handleEASMHealth(w http.ResponseWriter, r *http.Request) {
+	httpx.WriteJSON(w, http.StatusOK, s.EASM.Health(r.Context()))
+}
+
+func writeEASMProblem(w http.ResponseWriter, r *http.Request, err error) {
+	switch {
+	case errors.Is(err, easm.ErrICPCookieExpired):
+		httpx.WriteProblem(w, r, http.StatusFailedDependency, "icp_cookie_expired", "ICP query credential is invalid or expired")
+	case errors.Is(err, easm.ErrICPRateLimited):
+		httpx.WriteProblem(w, r, http.StatusTooManyRequests, "icp_rate_limited", "ICP provider rate limited the request")
+	case errors.Is(err, easm.ErrICPNoAttribution):
+		httpx.WriteProblem(w, r, http.StatusNotFound, "icp_not_found", "no ICP attribution found")
+	case errors.Is(err, easm.ErrICPUnavailable):
+		httpx.WriteProblem(w, r, http.StatusServiceUnavailable, "icp_unavailable", "ICP provider is unavailable")
+	case errors.Is(err, domain.ErrDomainAlreadyConfirmed):
+		httpx.WriteProblem(w, r, http.StatusConflict, "domain_already_confirmed", "root domain already has a confirmed owner")
+	case errors.Is(err, easm.ErrOrganizationNotFound):
+		httpx.WriteProblem(w, r, http.StatusNotFound, "organization_not_found", "organization not found")
+	case errors.Is(err, easm.ErrGraphUnavailable):
+		httpx.WriteProblem(w, r, http.StatusServiceUnavailable, "graph_unavailable", "relationship graph is unavailable")
+	case errors.Is(err, easm.ErrInvalidDepth):
+		httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_depth", "graph depth must be between 1 and 3")
+	default:
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "easm_error", err.Error())
+	}
+}

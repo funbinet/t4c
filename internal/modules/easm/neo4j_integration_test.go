@@ -1,0 +1,106 @@
+package easm
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/funbinet/t4c/internal/domain"
+	"github.com/funbinet/t4c/internal/platform/config"
+)
+
+func TestNeo4jProjectionRoundTrip(t *testing.T) {
+	uri := os.Getenv("T4C_TEST_NEO4J_URI")
+	if uri == "" {
+		t.Skip("set T4C_TEST_NEO4J_URI to run Neo4j integration tests")
+	}
+	cfg := config.Neo4jConfig{URI: uri, User: os.Getenv("T4C_TEST_NEO4J_USER"), Password: os.Getenv("T4C_TEST_NEO4J_PASSWORD"), Database: os.Getenv("T4C_TEST_NEO4J_DATABASE")}
+	if cfg.User == "" {
+		cfg.User = "neo4j"
+	}
+	if cfg.Database == "" {
+		cfg.Database = "neo4j"
+	}
+	reader, err := NewNeo4jReader(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reader == nil {
+		t.Fatal("reader is nil")
+	}
+	defer reader.Close(context.Background())
+	writer, err := NewNeo4jWriter(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if writer == nil {
+		t.Fatal("writer is nil")
+	}
+	defer writer.Close(context.Background())
+	orgID := domain.MustID()
+	org := domain.Organization{ID: orgID, CanonicalName: "EASM integration " + orgID, Status: domain.OrgStatusActive}
+	root := fmt.Sprintf("easm-%d.invalid", time.Now().UnixNano())
+	if err := writer.MergeOrganization(context.Background(), org); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.MergeOrganizationDomain(context.Background(), domain.OrganizationDomain{
+		ID: domain.MustID(), OrganizationID: orgID, RootDomain: root,
+		Source: "integration", Confidence: domain.ConfidenceHigh, Status: domain.DomainStatusConfirmed,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	assetID := domain.MustID()
+	if err := writer.MergeAsset(context.Background(), domain.Asset{
+		ID: assetID, Kind: domain.AssetDomain, Key: root, Data: map[string]any{"ips": []any{"1.1.1.1"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	subdomain := "www." + root
+	subdomainAssetID := domain.MustID()
+	if err := writer.MergeAsset(context.Background(), domain.Asset{
+		ID: subdomainAssetID, Kind: domain.AssetDomain, Key: subdomain, Data: map[string]any{"ips": []any{"1.1.1.2"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	findingID := domain.MustID()
+	if err := writer.MergeFinding(context.Background(), domain.Finding{
+		ID: findingID, Kind: domain.FindingWIH, DedupeKey: findingID,
+		Title: "timezone regression", Severity: "info", Target: root,
+		CreatedAt: time.Now().Local(),
+	}); err != nil {
+		t.Fatal(err)
+	}
+	defer writer.DeleteEntityEdges(context.Background(), "finding", findingID)
+	defer writer.DeleteEntityEdges(context.Background(), "organization", orgID)
+	if err := reader.Probe(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	nodes, edges, _, err := reader.ReadOrganizationGraph(context.Background(), orgID, 1, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) < 2 || len(edges) < 1 {
+		t.Fatalf("unexpected graph nodes=%+v edges=%+v", nodes, edges)
+	}
+	foundDomain := false
+	foundSubdomain := false
+	foundSubdomainEdge := false
+	for _, node := range nodes {
+		if node.Type == "domain" && node.EntityID == assetID {
+			foundDomain = true
+		}
+		if node.Type == "domain" && node.Label == subdomain {
+			foundSubdomain = true
+		}
+	}
+	for _, edge := range edges {
+		if edge.Type == "SUBDOMAIN_OF" {
+			foundSubdomainEdge = true
+		}
+	}
+	if !foundDomain || !foundSubdomain || !foundSubdomainEdge {
+		t.Fatalf("subdomain graph missing: nodes=%+v edges=%+v", nodes, edges)
+	}
+}

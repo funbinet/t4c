@@ -1,0 +1,50 @@
+# EASM Operations
+
+## Pages
+
+- `/easm`: map and graph overview.
+- `/easm/organizations`: organization list, CSV import and manual creation.
+- `/easm/organizations/:id`: domain review, assets, current findings, tasks and reports.
+- `/easm/assets`, `/easm/findings`, `/easm/tasks`: cross-organization EASM views.
+
+## Ownership review
+
+Manual and CSV domain imports create `candidate` rows. They do not appear in the map, graph or organization statistics until an operator confirms them. Rejecting or moving a confirmed domain keeps the original row and its ICP evidence. Reassignment is transactional and writes graph outbox events for both the old and new rows.
+
+## External integrations
+
+Neo4j, ICP_Query and GeoIP are optional external services. Start them outside
+the default Docker Compose stack, then load their endpoints into the native T4C
+process:
+
+```bash
+cp deploy/.env.easm.example deploy/.env.easm
+set -a
+source deploy/.env.easm
+set +a
+mkdir -p deploy/secrets deploy/geoip
+# Place an authorized Chinaz cookie at deploy/secrets/chinaz.cookie with mode 0600.
+# Optionally override T4C_ICP_CHINAZ_COOKIE_FILE and the GeoIP paths for the host.
+```
+
+T4C itself does not depend on Python. ICP_Query remains an external query
+service and must not be exposed outside the trusted host or management network.
+
+## Live smoke
+
+```bash
+T4C_BASE_URL=http://127.0.0.1:5003 \
+E2E_USERNAME=operator E2E_PASSWORD='...' \
+EASM_LIVE_DOMAIN='authorized.example.edu.cn' \
+EASM_LIVE_SCAN=1 \
+./scripts/easm-live-smoke.sh
+```
+
+The smoke script never prints passwords or provider cookies. Scanning is opt-in through `EASM_LIVE_SCAN=1`; use only an explicitly authorized domain and bounded scan options.
+
+## Failure modes
+
+- ICP cookie expired: lookup returns `icp_cookie_expired`; confirmed domains, assets and reports remain available.
+- ICP_Query unavailable: refresh jobs fail while existing organization data remains visible.
+- GeoIP missing: unlocated assets are counted, never plotted at fake coordinates.
+- Neo4j unavailable: graph is disabled; map, lists, assets and findings remain available.

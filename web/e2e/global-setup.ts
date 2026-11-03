@@ -1,0 +1,18 @@
+import { request } from '@playwright/test'
+
+export default async function globalSetup() {
+  const baseURL = process.env.E2E_BASE_URL || 'http://127.0.0.1:5003'
+  const context = await request.newContext({ baseURL, ignoreHTTPSErrors: true })
+  try {
+    const response = await context.get('/readyz', { timeout: 10_000 })
+    if (!response.ok()) {
+      throw new Error(`T4C is not ready at ${baseURL}: /readyz returned HTTP ${response.status()}`)
+    }
+  } catch (error) {
+    throw new Error(
+      `Cannot reach T4C at ${baseURL}. Start infrastructure with "make infra-up" and run "./t4c all --config config.yaml", or set E2E_BASE_URL. Cause: ${String(error)}`,
+    )
+  } finally {
+    await context.dispose()
+  }
+}

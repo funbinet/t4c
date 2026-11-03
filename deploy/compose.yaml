@@ -1,0 +1,58 @@
+name: t4c
+
+# Infrastructure only. Run the T4C binary natively via systemd; the console is
+# embedded in the binary. Ports bind to loopback for the host-native process.
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: t4c-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: t4c
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-t4cpassword}"
+      POSTGRES_DB: t4c
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U t4c -d t4c"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [t4c]
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: t4c-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-t4cpassword}"
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory-policy
+      - noeviction
+      - --requirepass
+      - "${REDIS_PASSWORD:-t4cpassword}"
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", 'REDISCLI_AUTH="$${REDIS_PASSWORD}" redis-cli ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [t4c]
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  t4c:
+    driver: bridge

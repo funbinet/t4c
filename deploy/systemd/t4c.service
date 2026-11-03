@@ -1,0 +1,31 @@
+[Unit]
+Description=T4C single-node server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=t4c
+Group=t4c
+WorkingDirectory=/opt/t4c
+EnvironmentFile=-/etc/t4c/t4c.env
+Environment=T4C_STORAGE_DATA_DIR=/var/lib/t4c
+Environment=T4C_STORAGE_SCREENSHOTS_DIR=/var/lib/t4c/screenshots
+Environment=T4C_STORAGE_EXPORTS_DIR=/var/lib/t4c/exports
+Environment=T4C_STORAGE_ASSETS_DIR=/opt/t4c/assets
+ExecStart=/opt/t4c/t4c all --config /etc/t4c/config.yaml
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+LimitNOFILE=65536
+UMask=0027
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/t4c
+
+[Install]
+WantedBy=multi-user.target
