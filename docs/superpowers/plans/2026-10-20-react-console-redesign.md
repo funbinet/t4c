@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Chinese-only UI and light theme only.
+- Chinese-only UI and light theme only. (Superseded 2026-11-03: English UI, dark neon-terminal palette — see `docs/UI-AUDIT.md`.)
 - No Project domain model and no compatibility redirects or API aliases.
 - Preserve cookie auth, refresh, CSRF, RBAC, masking, and server-side authorization.
 - Use Node 22 for frontend installation and verification.
