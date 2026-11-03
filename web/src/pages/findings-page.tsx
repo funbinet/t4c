@@ -63,7 +63,7 @@ export function FindingsPage() {
         description="Shows current risks deduplicated by the latest finding, keeping historical counts and raw scan results. Critical and high severities rank first for organization risk."
       />
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex flex-wrap rounded-md bg-muted p-1">
+        <div className="flex flex-wrap rounded-[4px] bg-muted p-1">
           {views.map((item) => (
             <Button
               key={item.value}
@@ -124,7 +124,9 @@ export function FindingsPage() {
               <EmptyState
                 title="No matching risks"
                 description={
-                  view === 'current' ? 'No risks found under confirmed organization root domains yet.' : 'No history or raw results match the current filters.'
+                  view === 'current'
+                    ? 'No risks found under confirmed organization root domains yet.'
+                    : 'No history or raw results match the current filters.'
                 }
                 action={<FileWarning className="mx-auto mt-2 size-5 text-muted-foreground" />}
               />
@@ -143,7 +145,12 @@ export function FindingsPage() {
               { key: 'severity', header: 'Severity', cell: (row) => <RiskBadge risk={row.finding?.severity} /> },
               { key: 'kind', header: 'Type', cell: (row) => row.finding?.kind || '—', hideOnTablet: true },
               { key: 'occurrences', header: 'Occurrences', cell: (row) => row.occurrences || 1 },
-              { key: 'orgs', header: 'Organizations', cell: (row) => row.organizationIds?.length || 0, hideOnTablet: true },
+              {
+                key: 'orgs',
+                header: 'Organizations',
+                cell: (row) => row.organizationIds?.length || 0,
+                hideOnTablet: true,
+              },
               {
                 key: 'created',
                 header: 'Last Seen',
@@ -193,7 +200,7 @@ export function FindingsPage() {
                   <div className="space-y-2">
                     {history.slice(0, 10).map((item, index) =>
                       item ? (
-                        <div key={item.id || index} className="rounded-md border p-2.5 text-xs">
+                        <div key={item.id || index} className="rounded-[4px] border p-2.5 text-xs">
                           <div className="flex justify-between gap-2">
                             <span className="font-medium">{item.title}</span>
                             <RiskBadge risk={item.severity} />
@@ -220,7 +227,7 @@ export function FindingsPage() {
 
 function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-md border bg-[#fbfcfe] p-2.5">
+    <div className="rounded-[4px] border bg-card p-2.5">
       <div className="text-[10px] text-muted-foreground">{label}</div>
       <div className="mt-1 text-xs font-medium">{value}</div>
     </div>
@@ -238,7 +245,7 @@ function KeyValues({ data }: { data?: Record<string, unknown> }) {
   const entries = data ? Object.entries(data).slice(0, 25) : []
   if (!entries.length) return <div className="text-xs text-muted-foreground">No structured fields</div>
   return (
-    <dl className="divide-y rounded-md border text-xs">
+    <dl className="divide-y rounded-[4px] border text-xs">
       {entries.map(([key, value]) => (
         <div key={key} className="grid grid-cols-[110px_1fr] gap-2 px-3 py-2">
           <dt className="truncate text-muted-foreground">{key}</dt>

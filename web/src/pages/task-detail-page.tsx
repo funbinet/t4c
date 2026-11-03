@@ -95,7 +95,11 @@ export function TaskDetailPage() {
     },
     onSuccess: (_, variables) => {
       toast.success(
-        variables.kind === 'cancel' ? 'Task stopped' : variables.kind === 'retry' ? 'Task resubmitted' : 'Sync triggered',
+        variables.kind === 'cancel'
+          ? 'Task stopped'
+          : variables.kind === 'retry'
+            ? 'Task resubmitted'
+            : 'Sync triggered',
       )
       void queryClient.invalidateQueries({ queryKey: ['task', id] })
     },
@@ -177,7 +181,7 @@ export function TaskDetailPage() {
             <Fact label="Policy" value={task.policyId || 'Default'} />
           </div>
           {task.error ? (
-            <div className="mt-3 rounded-md border border-[#f1b8b2] bg-[#fff8f7] px-3 py-2 text-xs text-[#8f1c13]">
+            <div className="mt-3 rounded-[4px] border border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.06)] px-3 py-2 text-xs text-destructive">
               {task.error}
             </div>
           ) : null}
@@ -205,7 +209,7 @@ export function TaskDetailPage() {
                     .slice()
                     .reverse()
                     .map((event, index) => (
-                      <div key={`${event.createdAt}-${index}`} className="rounded-md border p-2.5 text-xs">
+                      <div key={`${event.createdAt}-${index}`} className="rounded-[4px] border p-2.5 text-xs">
                         <div className="flex justify-between gap-2">
                           <span className="font-medium">{event.type || 'event'}</span>
                           <span className="text-[10px] text-muted-foreground">{relativeTime(event.createdAt)}</span>
@@ -227,7 +231,7 @@ export function TaskDetailPage() {
             <CardContent className="pt-4">
               <div className="space-y-2">
                 {steps.map((step) => (
-                  <div key={step.id} className="rounded-md border p-3">
+                  <div key={step.id} className="rounded-[4px] border p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-medium">

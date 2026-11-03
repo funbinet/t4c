@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useReveal } from '@/components/common/reveal'
 
 export function PageHeader({
   title,
@@ -9,8 +10,9 @@ export function PageHeader({
   description?: string
   actions?: ReactNode
 }) {
+  const ref = useReveal<HTMLDivElement>()
   return (
-    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div ref={ref} className="reveal mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
         {description ? (

@@ -11,7 +11,19 @@ export function Providers({ children }: { children: ReactNode }) {
       <TooltipProvider delayDuration={200}>
         <AuthProvider>
           {children}
-          <Toaster position="top-right" richColors closeButton />
+          <Toaster
+            position="top-right"
+            closeButton
+            toastOptions={{
+              style: {
+                background: 'rgba(10, 10, 10, 0.9)',
+                border: '1px solid rgba(0, 250, 0, 0.2)',
+                color: '#eaffea',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '4px',
+              },
+            }}
+          />
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

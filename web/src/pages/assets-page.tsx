@@ -157,7 +157,7 @@ export function AssetsPage() {
         }
       />
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex rounded-md bg-muted p-1">
+        <div className="flex rounded-[4px] bg-muted p-1">
           <Button
             size="sm"
             variant={view === 'surface' ? 'default' : 'ghost'}
@@ -322,7 +322,7 @@ export function AssetsPage() {
                 </div>
               ) : null}
               {visible.restoreReason === 'scan_rediscovery' && visible.restoredAt ? (
-                <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                <div className="rounded-[4px] border border-[rgba(180,255,180,0.3)] bg-[rgba(180,255,180,0.06)] px-3 py-2 text-xs text-mint">
                   Re-discovered by a scan and automatically restored on {formatTime(visible.restoredAt)}.
                 </div>
               ) : null}
@@ -335,7 +335,7 @@ export function AssetsPage() {
               </div>
               {visible.displayName || visible.displayUrl || visible.notes || visible.tags?.length ? (
                 <Section title="Maintenance Info">
-                  <div className="space-y-2 rounded-md border bg-[#fbfcfe] p-3 text-xs">
+                  <div className="space-y-2 rounded-[4px] border bg-card p-3 text-xs">
                     {visible.displayName ? <div>Name: {visible.displayName}</div> : null}
                     {visible.displayUrl ? <div className="mono break-all">URL：{visible.displayUrl}</div> : null}
                     {visible.notes ? <div className="whitespace-pre-wrap">Notes: {visible.notes}</div> : null}
@@ -465,7 +465,7 @@ export function AssetsPage() {
 
 function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-md border bg-[#fbfcfe] p-2.5">
+    <div className="rounded-[4px] border bg-card p-2.5">
       <div className="text-[10px] text-muted-foreground">{label}</div>
       <div className="mt-1 text-xs font-medium">{value}</div>
     </div>
@@ -487,7 +487,7 @@ function KeyValues({ data }: { data?: Record<string, unknown> }) {
     : []
   if (!entries.length) return <div className="text-xs text-muted-foreground">No structured observation fields</div>
   return (
-    <dl className="divide-y rounded-md border text-xs">
+    <dl className="divide-y rounded-[4px] border text-xs">
       {entries.map(([key, value]) => (
         <div key={key} className="grid grid-cols-[120px_1fr] gap-2 px-3 py-2">
           <dt className="truncate text-muted-foreground">{key}</dt>

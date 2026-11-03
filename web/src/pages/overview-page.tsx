@@ -88,7 +88,9 @@ export function OverviewPage() {
             Attack Surface Overview
           </div>
           <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">External Attack Surface Overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Start from organizations and current risks, then drill into the map, relationship graph, and asset lists.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Start from organizations and current risks, then drill into the map, relationship graph, and asset lists.
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Select value={range} onValueChange={setRange}>
@@ -170,8 +172,8 @@ export function OverviewPage() {
                 <button
                   key={org.organizationId}
                   className={cn(
-                    'mb-1 w-full rounded-md border border-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted',
-                    selectedOrg === org.organizationId && 'border-[#bfd4ee] bg-[#f1f6fc]',
+                    'mb-1 w-full rounded-[4px] border border-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted',
+                    selectedOrg === org.organizationId && 'border-[rgba(0,250,0,0.35)] bg-[rgba(0,250,0,0.08)]',
                   )}
                   onClick={() => selectOrg(org.organizationId)}
                 >
@@ -200,7 +202,7 @@ export function OverviewPage() {
 
         <Card className="order-1 flex min-h-[520px] flex-col overflow-hidden xl:order-2 xl:min-h-0">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
-            <div className="flex items-center gap-1 rounded-md bg-muted p-1">
+            <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
               <Button size="sm" variant={visual === 'map' ? 'default' : 'ghost'} onClick={() => setVisual('map')}>
                 <MapIcon />
                 Map
@@ -231,7 +233,7 @@ export function OverviewPage() {
               map.isLoading ? (
                 <LoadingBlock label="Locating assets…" />
               ) : map.error ? (
-                <div className="grid h-full min-h-[360px] place-items-center rounded-lg border bg-card p-6 text-center">
+                <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
                   <div>
                     <MapIcon className="mx-auto mb-2 size-6 text-muted-foreground" />
                     <div className="text-sm font-medium">Map temporarily unavailable</div>
@@ -244,11 +246,13 @@ export function OverviewPage() {
                 <SurfaceMap snapshot={map.data} onSelect={(_id, orgIds) => orgIds[0] && selectOrg(orgIds[0])} />
               )
             ) : graph.error ? (
-              <div className="grid h-full min-h-[360px] place-items-center rounded-lg border bg-card p-6 text-center">
+              <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
                 <div>
                   <Network className="mx-auto mb-2 size-6 text-muted-foreground" />
                   <div className="text-sm font-medium">Graph temporarily unavailable</div>
-                  <p className="mt-1 text-xs text-muted-foreground">You can continue analysis through the organization, asset, and risk lists.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    You can continue analysis through the organization, asset, and risk lists.
+                  </p>
                 </div>
               </div>
             ) : graph.isLoading ? (
@@ -290,7 +294,10 @@ export function OverviewPage() {
                   {summary.data ? (
                     <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                       <MiniFact label="Root Domains" value={summary.data.confirmedDomains || 0} />
-                      <MiniFact label="Assets" value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)} />
+                      <MiniFact
+                        label="Assets"
+                        value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)}
+                      />
                       <MiniFact label="Current Risks" value={summary.data.currentFindings || 0} />
                       <MiniFact label="Tasks" value={summary.data.linkedTasks || 0} />
                     </div>
@@ -318,7 +325,9 @@ export function OverviewPage() {
                   ))}
                 </div>
               ) : (
-                <div className="py-10 text-center text-xs text-muted-foreground">No risks in the selected time range</div>
+                <div className="py-10 text-center text-xs text-muted-foreground">
+                  No risks in the selected time range
+                </div>
               )}
             </CardContent>
           </Card>
@@ -346,7 +355,7 @@ export function OverviewPage() {
         </div>
       </div>
       {data.truncated ? (
-        <div className="mt-3 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-[11px] text-muted-foreground">
+        <div className="mt-3 flex items-center gap-2 rounded-[4px] border bg-card px-3 py-2 text-[11px] text-muted-foreground">
           <AlertTriangle className="size-3.5" />
           Data exceeds the display limit; some organizations are omitted from the ranking and canvas.
         </div>
@@ -359,14 +368,14 @@ function HealthChip({ label, value }: { label: string; value?: string }) {
   const ok = value === 'ok'
   return (
     <span className="inline-flex items-center gap-1 rounded-full border bg-card px-2 py-1 text-[10px] text-muted-foreground">
-      <span className={cn('size-1.5 rounded-full', ok ? 'bg-[#12b76a]' : 'bg-[#f79009]')} />
+      <span className={cn('size-1.5 rounded-full', ok ? 'bg-[#00fa00]' : 'bg-[#3d8c3d]')} />
       {label}
     </span>
   )
 }
 function MiniFact({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md bg-muted px-2.5 py-2">
+    <div className="rounded-[4px] bg-muted px-2.5 py-2">
       <div className="text-[10px] text-muted-foreground">{label}</div>
       <div className="mt-0.5 text-base font-semibold tabular-nums">{value}</div>
     </div>

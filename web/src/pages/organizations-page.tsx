@@ -193,7 +193,11 @@ export function OrganizationsPage() {
                 ),
               hideOnTablet: true,
             },
-            { key: 'risk', header: 'Highest Risk', cell: (row) => <RiskBadge risk={riskByOrg.get(row.id || '')?.risk} /> },
+            {
+              key: 'risk',
+              header: 'Highest Risk',
+              cell: (row) => <RiskBadge risk={riskByOrg.get(row.id || '')?.risk} />,
+            },
             {
               key: 'assets',
               header: 'Exposed Assets',
@@ -239,7 +243,9 @@ export function OrganizationsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Organization</DialogTitle>
-            <DialogDescription>After creation you can add candidate root domains and run ICP ownership lookups.</DialogDescription>
+            <DialogDescription>
+              After creation you can add candidate root domains and run ICP ownership lookups.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Organization Name">
@@ -276,10 +282,11 @@ export function OrganizationsPage() {
           <DialogHeader>
             <DialogTitle>Import Organizations CSV</DialogTitle>
             <DialogDescription>
-              Required column: canonicalName. Optional columns: aliases, region, uscc, rootDomains. Separate multiple aliases with | and multiple root domains with semicolons.
+              Required column: canonicalName. Optional columns: aliases, region, uscc, rootDomains. Separate multiple
+              aliases with | and multiple root domains with semicolons.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-md border bg-muted/40 p-3 text-[11px] leading-5 text-muted-foreground">
+          <div className="rounded-[4px] border bg-muted/40 p-3 text-[11px] leading-5 text-muted-foreground">
             <div className="mono">canonicalName,aliases,region,uscc,rootDomains</div>
             <div className="mono">Acme College,College A|College B,SH,12510000...,guc.edu.cn;example.edu.cn</div>
           </div>
@@ -303,7 +310,9 @@ export function OrganizationsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Organization</DialogTitle>
-            <DialogDescription>Name, aliases, region, and Unified Social Credit Code sync to organization governance and the graph.</DialogDescription>
+            <DialogDescription>
+              Name, aliases, region, and Unified Social Credit Code sync to organization governance and the graph.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Organization Name">

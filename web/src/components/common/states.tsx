@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 
 export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="grid min-h-40 place-items-center rounded-lg border bg-card">
+    <div className="grid min-h-40 place-items-center rounded-[4px] border bg-card">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <LoaderCircle className="size-4 animate-spin" />
         {label}
@@ -22,7 +22,7 @@ export function EmptyState({
   action?: React.ReactNode
 }) {
   return (
-    <div className="grid min-h-48 place-items-center rounded-lg border border-dashed bg-card px-6 text-center">
+    <div className="grid min-h-48 place-items-center rounded-[4px] border border-dashed bg-card px-6 text-center">
       <div>
         <Inbox className="mx-auto mb-3 size-7 text-muted-foreground" />
         <div className="text-sm font-medium">{title}</div>
@@ -36,12 +36,12 @@ export function EmptyState({
 export function ErrorState({ error, retry }: { error: unknown; retry?: () => void }) {
   const message = error instanceof Error ? error.message : 'Request failed. Please try again.'
   return (
-    <div className="rounded-lg border border-[#f1b8b2] bg-[#fff8f7] p-4">
+    <div className="rounded-[4px] border border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.06)] p-4">
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 size-4 text-destructive" />
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium text-[#8f1c13]">Failed to load data</div>
-          <p className="mt-1 break-words text-xs leading-5 text-[#7a302a]">{message}</p>
+          <div className="text-sm font-medium text-destructive">Failed to load data</div>
+          <p className="mt-1 break-words text-xs leading-5 text-[#ff9d9d]">{message}</p>
         </div>
         {retry ? (
           <Button size="sm" variant="outline" onClick={retry}>

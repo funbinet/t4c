@@ -9,7 +9,10 @@ export function TooltipContent({ className, sideOffset = 6, ...props }: TooltipP
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         sideOffset={sideOffset}
-        className={cn('z-50 rounded bg-slate-900 px-2 py-1 text-[11px] text-white shadow', className)}
+        className={cn(
+          'z-50 rounded-[3px] border border-border bg-secondary px-2 py-1 text-[11px] text-foreground shadow-[0_4px_20px_rgba(0,0,0,0.8)]',
+          className,
+        )}
         {...props}
       />
     </TooltipPrimitive.Portal>

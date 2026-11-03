@@ -9,11 +9,11 @@ import type { GraphSnapshot } from '@/api'
 echarts.use([GraphChart, TooltipComponent, CanvasRenderer])
 
 const colors: Record<string, string> = {
-  critical: '#b42318',
-  high: '#d9480f',
-  medium: '#a15c00',
-  low: '#2563a5',
-  info: '#64748b',
+  critical: '#ff6b6b',
+  high: '#00fa00',
+  medium: '#00cc00',
+  low: '#66cc66',
+  info: '#3d8c3d',
 }
 
 export function AssetGraph({ snapshot, onSelect }: { snapshot?: GraphSnapshot; onSelect?: (node: any) => void }) {
@@ -34,17 +34,17 @@ export function AssetGraph({ snapshot, onSelect }: { snapshot?: GraphSnapshot; o
             show: true,
             position: 'right',
             fontSize: 10,
-            color: '#475569',
+            color: '#66cc66',
             formatter: (params: any) => (params.data?.showLabel ? params.name : ''),
           },
-          lineStyle: { color: '#c9d3df', width: 1, curveness: 0.08 },
-          emphasis: { focus: 'adjacency', lineStyle: { width: 2, color: '#7c9fc9' } },
+          lineStyle: { color: 'rgba(0, 250, 0, 0.2)', width: 1, curveness: 0.08 },
+          emphasis: { focus: 'adjacency', lineStyle: { width: 2, color: '#39ff14' } },
           data: nodes.map((node, index) => ({
             id: node.id,
             name: node.label,
             symbolSize: node.type === 'organization' ? 26 : node.type === 'domain' ? 18 : 12,
             showLabel: index < 20 || Boolean(node.risk),
-            itemStyle: { color: node.cdn ? '#8aa0b8' : colors[node.risk || 'info'] || '#64748b' },
+            itemStyle: { color: node.cdn ? '#3d8c3d' : colors[node.risk || 'info'] || '#3d8c3d' },
             ...node,
           })),
           links: edges.map((edge) => ({ source: edge.source, target: edge.target, name: edge.type })),
@@ -54,7 +54,10 @@ export function AssetGraph({ snapshot, onSelect }: { snapshot?: GraphSnapshot; o
   }, [snapshot])
 
   return (
-    <div data-testid="asset-graph" className="relative h-full min-h-[260px] w-full cursor-grab overflow-hidden rounded-lg border bg-card active:cursor-grabbing">
+    <div
+      data-testid="asset-graph"
+      className="relative h-full min-h-[260px] w-full cursor-grab overflow-hidden rounded-[4px] border bg-card active:cursor-grabbing"
+    >
       <ReactECharts
         option={option}
         notMerge

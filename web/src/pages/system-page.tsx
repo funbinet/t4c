@@ -14,7 +14,10 @@ export function SystemPage() {
   const data = info.data as SystemInfo
   return (
     <div>
-      <PageHeader title="System" description="Runtime status, scanner versions, observability, and API documentation." />
+      <PageHeader
+        title="System"
+        description="Runtime status, scanner versions, observability, and API documentation."
+      />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -48,7 +51,7 @@ export function SystemPage() {
                   href={href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-between rounded-md border px-3 py-2 hover:bg-muted"
+                  className="flex items-center justify-between rounded-[4px] border px-3 py-2 hover:bg-muted"
                 >
                   <span>{label}</span>
                   <ExternalLink className="size-3.5 text-muted-foreground" />
@@ -64,7 +67,7 @@ export function SystemPage() {
           <CardContent>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {Object.entries(data.scanners || {}).map(([name, version]) => (
-                <div key={name} className="rounded-md border bg-[#fbfcfe] p-3">
+                <div key={name} className="rounded-[4px] border bg-card p-3">
                   <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{name}</div>
                   <div className="mono mt-1 text-xs font-medium">{String(version)}</div>
                 </div>

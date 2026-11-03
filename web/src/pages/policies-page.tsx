@@ -182,7 +182,9 @@ export function PoliciesPage() {
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit scan policy' : 'New scan policy'}</DialogTitle>
             <DialogDescription>
-              {editingId ? 'New tasks and schedules will use the updated configuration after saving.' : 'Domain enumeration, port and service detection, and site fingerprinting are enabled by default.'}
+              {editingId
+                ? 'New tasks and schedules will use the updated configuration after saving.'
+                : 'Domain enumeration, port and service detection, and site fingerprinting are enabled by default.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -194,7 +196,7 @@ export function PoliciesPage() {
             </Field>
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(options).map(([key, checked]) => (
-                <label key={key} className="flex items-center gap-2 rounded-md border px-3 py-2 text-xs">
+                <label key={key} className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
                   <Checkbox
                     checked={checked}
                     onCheckedChange={(value) => setOptions({ ...options, [key]: Boolean(value) })}

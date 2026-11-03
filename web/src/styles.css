@@ -20,38 +20,73 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --color-brand: var(--brand);
+  --color-brand-600: var(--brand-600);
+  --color-accent-600: var(--accent-600);
+  --color-accent-bright: var(--accent-bright);
+  --color-mint: var(--mint);
+  --color-dim: var(--dim);
+  --color-error: var(--error);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* §2 Core palette (dark theme) + §3 light-section palette — exact blueprint values */
 :root {
-  --background: #f6f7f9;
-  --foreground: #172033;
-  --card: #ffffff;
-  --card-foreground: #172033;
-  --popover: #ffffff;
-  --popover-foreground: #172033;
-  --primary: #214e8a;
-  --primary-foreground: #ffffff;
-  --secondary: #eef2f7;
-  --secondary-foreground: #23324a;
-  --muted: #f0f2f5;
-  --muted-foreground: #667085;
-  --accent: #e8eef7;
-  --accent-foreground: #1b3f70;
-  --destructive: #b42318;
-  --border: #e1e5eb;
-  --input: #d8dee8;
-  --ring: #214e8a;
-  --radius: 0.5rem;
-  --risk-critical: #b42318;
-  --risk-high: #d9480f;
-  --risk-medium: #a15c00;
-  --risk-low: #2563a5;
-  --risk-info: #667085;
-  --success: #027a48;
+  --background: #000000;
+  --foreground: #eaffea;
+  --card: #0a0a0a;
+  --card-foreground: #eaffea;
+  --popover: #0a0a0a;
+  --popover-foreground: #eaffea;
+  --primary: #00fa00;
+  --primary-foreground: #000000;
+  --secondary: #111111;
+  --secondary-foreground: #eaffea;
+  --muted: #111111;
+  --muted-foreground: #66cc66;
+  --accent: #111111;
+  --accent-foreground: #eaffea;
+  --destructive: #ff6b6b;
+  --border: rgba(0, 250, 0, 0.12);
+  --input: rgba(0, 250, 0, 0.16);
+  --ring: #39ff14;
+  --radius: 4px;
+  --brand: #003d00;
+  --brand-600: #005c00;
+  --accent-600: #00cc00;
+  --accent-bright: #39ff14;
+  --mint: #b4ffb4;
+  --dim: #3d8c3d;
+  --error: #ff6b6b;
+  --risk-critical: #ff6b6b;
+  --risk-high: #00fa00;
+  --risk-medium: #00cc00;
+  --risk-low: #66cc66;
+  --risk-info: #3d8c3d;
+  --light-bg-top: #e6f7f0;
+  --light-bg-bottom: #d9ede5;
+  --light-accent: #00a870;
+  --light-accent-2: #00c896;
+  --light-ink: #0a1a12;
+  --light-deep: #001a00;
+
+  /* §4 Gradients — exact blueprint definitions */
+  --grad-access: linear-gradient(180deg, #00fa00 0%, #39ff14 42%, #ffffff 100%);
+  --grad-button: linear-gradient(170deg, #00fa00 0%, #00cc00 100%);
+  --grad-light: linear-gradient(180deg, #e6f7f0 0%, #d9ede5 100%);
+  --grad-rule-dark: linear-gradient(90deg, #00a870, #00fa00);
+  --grad-rule-light: linear-gradient(90deg, #00a870, #00c896);
+  --grad-rule-fade: linear-gradient(90deg, #00c896, #0a1a12);
+  --grad-hero: radial-gradient(ellipse at 60% 40%, #001a00 0%, #000500 50%, #000000 100%);
+  --grad-glass: linear-gradient(
+    160deg,
+    rgba(0, 250, 0, 0.14) 0%,
+    rgba(0, 250, 0, 0.06) 45%,
+    rgba(0, 250, 0, 0.03) 100%
+  );
 }
 
 * {
@@ -59,7 +94,8 @@
 }
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -87,12 +123,43 @@ select {
 }
 
 ::selection {
-  background: #cfe0f7;
+  background: var(--primary);
+  color: #000000;
 }
 
 *:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* §2 film grain over every surface */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+}
+
+/* green-tinted scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  border-radius: 4px;
+  border: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-600);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -108,6 +175,181 @@ select {
 
 .mono {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+
+/* mono label — §2 dim, for eyebrows / section labels / data captions */
+.mono-label {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* signature gradient text (§4 --grad-access) */
+.text-gradient {
+  background: var(--grad-access);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* glass material — warm glass fill + blur + green hairline */
+.glass {
+  background-image: var(--grad-glass);
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+/* document-style flat panel — paper, 4px register, green hairline */
+.doc-panel {
+  background: var(--background);
+  background-image: linear-gradient(180deg, #050505 0%, #000000 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* §3 light breather band (for future marketing/contrast sections) */
+.light-band {
+  background: var(--grad-light);
+  color: var(--light-ink);
+}
+.light-band .mono-label {
+  color: var(--light-accent);
+}
+
+/* dark data-grid — green-tinted hairlines */
+.data-grid {
+  background-image:
+    linear-gradient(to right, rgba(0, 250, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 250, 0, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* liquid border — rotating conic highlight ring */
+@property --lb-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.liquid-border {
+  position: relative;
+}
+.liquid-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--lb-angle, 0deg),
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.5) 12%,
+    rgba(180, 255, 180, 0.12) 22%,
+    rgba(255, 255, 255, 0.02) 34%,
+    rgba(0, 250, 0, 0.35) 55%,
+    rgba(255, 255, 255, 0.02) 68%,
+    rgba(255, 255, 255, 0.5) 82%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: lb-spin 6s linear infinite;
+}
+.liquid-border:hover::before {
+  animation-duration: 2.5s;
+}
+@keyframes lb-spin {
+  to {
+    --lb-angle: 360deg;
+  }
+}
+
+/* glow-fx — cursor-follow ring glow; requires --glow-x/--glow-y from useGlowFollow */
+.glow-fx {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  position: relative;
+}
+.glow-fx::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background:
+    radial-gradient(240px circle at var(--glow-x) var(--glow-y), rgba(102, 255, 187, 0.55), transparent 60%),
+    radial-gradient(320px circle at var(--glow-x) var(--glow-y), rgba(0, 92, 0, 0.6), transparent 65%),
+    repeating-conic-gradient(
+      from var(--glow-x, 0deg) at var(--glow-x) var(--glow-y),
+      rgba(0, 250, 0, 0.25) 0deg 6deg,
+      transparent 6deg 12deg
+    );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.glow-fx.is-glowing::after {
+  opacity: 1;
+}
+
+/* reveal-on-scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.reveal-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* scroll progress bar — neon on black */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 60;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, #00a870, #00fa00, #39ff14);
+  box-shadow: 0 0 8px rgba(0, 250, 0, 0.55);
+  pointer-events: none;
+}
+
+/* underline / rule on dark */
+.rule-dark {
+  background: var(--grad-rule-dark);
+}
+.rule-light {
+  background: var(--grad-rule-light);
 }
 
 .risk-critical {
@@ -126,14 +368,7 @@ select {
   color: var(--risk-info);
 }
 
-.data-grid {
-  background-image:
-    linear-gradient(to right, rgb(33 78 138 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(33 78 138 / 0.05) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--brand) transparent;
 }

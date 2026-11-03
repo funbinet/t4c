@@ -419,7 +419,12 @@ export function OrganizationDetailPage() {
                 <DataTable
                   rows={domainItems}
                   rowKey={(row) => row.id || row.rootDomain || ''}
-                  empty={<EmptyState title="No filed root domains" description="Add candidate domains or run an ICP reverse lookup." />}
+                  empty={
+                    <EmptyState
+                      title="No filed root domains"
+                      description="Add candidate domains or run an ICP reverse lookup."
+                    />
+                  }
                   columns={[
                     {
                       key: 'select',
@@ -510,7 +515,9 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Candidate Root Domains</DialogTitle>
-            <DialogDescription>Separate entries with spaces, newlines, or commas. New domains enter the pending state.</DialogDescription>
+            <DialogDescription>
+              Separate entries with spaces, newlines, or commas. New domains enter the pending state.
+            </DialogDescription>
           </DialogHeader>
           <Textarea
             value={domainText}
@@ -531,11 +538,13 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Start Organization Scan</DialogTitle>
-            <DialogDescription>Creates one EASM scan task per confirmed root domain; select up to 10 at a time.</DialogDescription>
+            <DialogDescription>
+              Creates one EASM scan task per confirmed root domain; select up to 10 at a time.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             {confirmed.map((domain) => (
-              <label key={domain} className="flex items-center gap-2 rounded-md border px-3 py-2 text-xs">
+              <label key={domain} className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
                 <Checkbox
                   checked={scanDomains.includes(domain)}
                   onCheckedChange={(checked) =>
@@ -563,7 +572,8 @@ export function OrganizationDetailPage() {
           <DialogHeader>
             <DialogTitle>Remove Candidate Root Domain</DialogTitle>
             <DialogDescription>
-              {rejectTarget?.rootDomain} will be removed from this organization's candidate ownership, and the reason is recorded.
+              {rejectTarget?.rootDomain} will be removed from this organization's candidate ownership, and the reason is
+              recorded.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
@@ -591,7 +601,9 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Organization</DialogTitle>
-            <DialogDescription>Saving refreshes the organization in the governance list and on the map.</DialogDescription>
+            <DialogDescription>
+              Saving refreshes the organization in the governance list and on the map.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
@@ -688,9 +700,11 @@ export function OrganizationDetailPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Ownership Evidence</DialogTitle>
-            <DialogDescription>Raw evidence masks sensitive fields for everyone except operators and admins.</DialogDescription>
+            <DialogDescription>
+              Raw evidence masks sensitive fields for everyone except operators and admins.
+            </DialogDescription>
           </DialogHeader>
-          <pre className="max-h-[55vh] overflow-auto rounded-md bg-slate-950 p-3 text-[11px] leading-5 text-slate-100">
+          <pre className="mono max-h-[55vh] overflow-auto rounded-[4px] border border-border bg-black p-3 text-[11px] leading-5 text-mint">
             {JSON.stringify(evidenceView, null, 2)}
           </pre>
         </DialogContent>
@@ -765,7 +779,11 @@ function FindingTab({ query, organizationId }: { query: ReturnType<typeof useQue
                 </div>
               ),
             },
-            { key: 'severity', header: 'Severity', cell: (row: FindingItem) => <RiskBadge risk={row.finding?.severity} /> },
+            {
+              key: 'severity',
+              header: 'Severity',
+              cell: (row: FindingItem) => <RiskBadge risk={row.finding?.severity} />,
+            },
             { key: 'occurrences', header: 'Count', cell: (row: FindingItem) => row.occurrences || 1 },
             { key: 'time', header: 'Last Seen', cell: (row: FindingItem) => formatTime(row.finding?.createdAt) },
             {

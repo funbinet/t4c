@@ -41,6 +41,7 @@ import { isAdmin } from '@/lib/access'
 import { roleLabel } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { CommandPalette } from './command-palette'
+import { ScrollProgress } from '@/components/common/scroll-progress'
 
 type NavItem = { to: string; label: string; icon: typeof Activity; end?: boolean }
 type NavGroup = { label: string; items: NavItem[] }
@@ -93,11 +94,7 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
     <nav className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-thin" aria-label="Main navigation">
       {allGroups.map((group) => (
         <div key={group.label} className="mb-4">
-          {!collapsed ? (
-            <div className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-              {group.label}
-            </div>
-          ) : null}
+          {!collapsed ? <div className="mono-label px-2 pb-1.5">{group.label}</div> : null}
           <div className="space-y-0.5">
             {group.items.map((item) => {
               const Icon = item.icon
@@ -109,8 +106,8 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      'flex h-9 items-center gap-2.5 rounded-md px-2.5 text-xs font-medium text-slate-300 transition-colors hover:bg-white/8 hover:text-white',
-                      isActive && 'bg-white/10 text-white shadow-[inset_2px_0_0_#7aa7e8]',
+                      'flex h-9 items-center gap-2.5 rounded-[4px] px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-[rgba(0,250,0,0.06)] hover:text-mint',
+                      isActive && 'bg-[rgba(0,250,0,0.1)] text-mint shadow-[inset_2px_0_0_var(--primary)]',
                       collapsed && 'justify-center px-0',
                     )
                   }
@@ -174,26 +171,26 @@ export function AppShell() {
     <div className="min-h-screen bg-background xl:h-dvh xl:min-h-0 xl:overflow-hidden">
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-slate-800 bg-[#0f1c2e] text-slate-100 transition-[width] lg:flex',
+          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-black/95 text-ink transition-[width] lg:flex',
           collapsed ? 'w-[68px]' : 'w-[236px]',
         )}
       >
         <div
-          className={cn('flex h-16 items-center border-b border-white/8', collapsed ? 'justify-center' : 'gap-3 px-4')}
+          className={cn('flex h-16 items-center border-b border-border', collapsed ? 'justify-center' : 'gap-3 px-4')}
         >
-          <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-lg object-contain shadow-sm" />
+          <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain shadow-sm" />
           {!collapsed ? (
             <div className="min-w-0">
-              <div className="text-sm font-semibold tracking-wide text-white">T4C</div>
+              <div className="text-sm font-semibold tracking-wide text-ink">T4C</div>
             </div>
           ) : null}
         </div>
         <NavContent collapsed={collapsed} />
-        <div className="border-t border-white/8 p-2">
+        <div className="border-t border-border p-2">
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-center text-slate-400 hover:bg-white/8 hover:text-white"
+            className="w-full justify-center text-dim hover:bg-[rgba(0,250,0,0.06)] hover:text-mint"
             onClick={() => setCollapsed((value) => !value)}
           >
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
@@ -205,14 +202,14 @@ export function AppShell() {
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
-            className="absolute inset-0 bg-slate-950/35"
+            className="absolute inset-0 bg-black/70"
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col bg-[#0f1c2e] text-white shadow-2xl">
-            <div className="flex h-16 items-center justify-between border-b border-white/8 px-4">
+          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col border-r border-border bg-black text-ink shadow-2xl">
+            <div className="flex h-16 items-center justify-between border-b border-border px-4">
               <div className="flex items-center gap-3">
-                <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-lg object-contain" />
+                <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain" />
                 <div>
                   <div className="font-semibold">T4C</div>
                 </div>
@@ -220,7 +217,7 @@ export function AppShell() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-slate-300 hover:bg-white/10 hover:text-white"
+                className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-mint"
                 onClick={() => setMobileOpen(false)}
               >
                 <X />
@@ -238,7 +235,7 @@ export function AppShell() {
           collapsed ? 'lg:pl-[68px]' : 'lg:pl-[236px]',
         )}
       >
-        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-white/95 px-4 backdrop-blur sm:px-6">
+        <header className="glass sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <Menu />
@@ -246,9 +243,7 @@ export function AppShell() {
             </Button>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{title}</div>
-              <div className="hidden text-[11px] text-muted-foreground sm:block">
-                Authorized external attack surface analysis
-              </div>
+              <div className="mono-label hidden sm:block">Authorized external attack surface analysis</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -268,7 +263,7 @@ export function AppShell() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="max-w-44">
-                  <span className="grid size-6 place-items-center rounded-full bg-secondary text-[11px] font-semibold">
+                  <span className="grid size-6 place-items-center rounded-full bg-[rgba(0,250,0,0.12)] text-[11px] font-semibold text-mint">
                     {user?.username?.slice(0, 1).toUpperCase() || 'A'}
                   </span>
                   <span className="hidden truncate sm:inline">{user?.username || 'Account'}</span>
@@ -297,6 +292,7 @@ export function AppShell() {
         </main>
       </div>
       <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
+      <ScrollProgress />
     </div>
   )
 }

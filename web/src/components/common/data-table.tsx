@@ -26,14 +26,19 @@ export function DataTable<T>({
   scrollable?: boolean
 }) {
   if (loading)
-    return <div className="rounded-lg border bg-card p-8 text-center text-xs text-muted-foreground">Loading…</div>
+    return <div className="rounded-[4px] border bg-card p-8 text-center text-xs text-muted-foreground">Loading…</div>
   if (!rows.length) return <>{empty}</>
   return (
     <>
-      <div className={cn('hidden overflow-hidden rounded-lg border bg-card md:block', scrollable && 'max-h-[calc(100vh-18rem)] overflow-y-auto scrollbar-thin')}>
+      <div
+        className={cn(
+          'hidden overflow-hidden rounded-[4px] border bg-card md:block',
+          scrollable && 'max-h-[calc(100vh-18rem)] overflow-y-auto scrollbar-thin',
+        )}
+      >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-xs">
-            <thead className="sticky top-0 z-10 border-b bg-[#fafbfc] text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
+            <thead className="mono-label sticky top-0 z-10 border-b bg-[#050505] !text-[11px]">
               <tr>
                 {columns.map((column) => (
                   <th
@@ -51,7 +56,7 @@ export function DataTable<T>({
             </thead>
             <tbody className="divide-y">
               {rows.map((row) => (
-                <tr key={rowKey(row)} className="transition-colors hover:bg-[#fafbfc]">
+                <tr key={rowKey(row)} className="transition-colors hover:bg-[#111111]">
                   {columns.map((column) => (
                     <td
                       key={column.key}
@@ -72,7 +77,7 @@ export function DataTable<T>({
       </div>
       <div className="space-y-2 md:hidden">
         {rows.map((row) => (
-          <div key={rowKey(row)} className="rounded-lg border bg-card p-3">
+          <div key={rowKey(row)} className="rounded-[4px] border bg-card p-3">
             <dl className="space-y-2">
               {columns
                 .filter((column) => !column.hideOnMobile)

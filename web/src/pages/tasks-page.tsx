@@ -90,7 +90,7 @@ export function TasksPage() {
         }
       />
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex rounded-md bg-muted p-1">
+        <div className="flex rounded-[4px] bg-muted p-1">
           <Button
             size="sm"
             variant={origin === 'surface' ? 'default' : 'ghost'}
@@ -215,7 +215,9 @@ export function TasksPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Scan Task</DialogTitle>
-            <DialogDescription>Once queued, steps, assets, and risk events are visible on the task details page.</DialogDescription>
+            <DialogDescription>
+              Once queued, steps, assets, and risk events are visible on the task details page.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Task Name (optional)">

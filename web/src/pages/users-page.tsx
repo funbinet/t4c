@@ -103,7 +103,11 @@ export function UsersPage() {
                 </Badge>
               ),
             },
-            { key: 'mustChange', header: 'Must change password', cell: (row) => (row.mustChangePassword ? 'Yes' : 'No') },
+            {
+              key: 'mustChange',
+              header: 'Must change password',
+              cell: (row) => (row.mustChangePassword ? 'Yes' : 'No'),
+            },
             { key: 'disabled', header: 'Status', cell: (row) => (row.disabled ? 'Disabled' : 'Active') },
             { key: 'created', header: 'Created', cell: (row) => formatTime(row.createdAt), hideOnTablet: true },
             {
@@ -179,7 +183,9 @@ export function UsersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit user</DialogTitle>
-            <DialogDescription>Usernames cannot be changed. If you set a temporary password, the user must change it at next sign-in.</DialogDescription>
+            <DialogDescription>
+              Usernames cannot be changed. If you set a temporary password, the user must change it at next sign-in.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Role">
@@ -194,7 +200,7 @@ export function UsersPage() {
                 </SelectContent>
               </Select>
             </Field>
-            <label className="flex items-center gap-2 rounded-md border px-3 py-2 text-xs">
+            <label className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
               <input
                 type="checkbox"
                 checked={editForm.disabled}

@@ -40,7 +40,7 @@ export function ChangePasswordPage() {
     <div className="grid min-h-screen place-items-center bg-background p-5">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="mb-2 grid size-10 place-items-center rounded-lg bg-secondary text-primary">
+          <div className="mb-2 grid size-10 place-items-center rounded-[4px] bg-secondary text-primary">
             <KeyRound className="size-5" />
           </div>
           <CardTitle className="text-lg">Change sign-in password</CardTitle>
@@ -84,7 +84,7 @@ export function ChangePasswordPage() {
               ) : null}
             </div>
             {form.formState.errors.root ? (
-              <div className="rounded-md border border-[#f1b8b2] bg-[#fff8f7] px-3 py-2 text-xs text-[#8f1c13]">
+              <div className="rounded-[4px] border border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.06)] px-3 py-2 text-xs text-destructive">
                 {form.formState.errors.root.message}
               </div>
             ) : null}

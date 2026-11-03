@@ -5,7 +5,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
   return (
     <textarea
       className={cn(
-        'flex min-h-24 w-full rounded-md border border-input bg-card px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+        'flex min-h-24 w-full rounded-[4px] border border-input bg-secondary px-3 py-2 text-sm shadow-xs outline-none transition-colors placeholder:text-dim focus-visible:border-accent-bright disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
