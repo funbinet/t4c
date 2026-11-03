@@ -17,6 +17,7 @@ Status: **reconstruction complete** — Phases A–F implemented (commits `83dba
 | Spacing | Toolbar rows `gap-3`; selects height-matched (`h-9`) with `min-w` instead of cramped fixed `w-32`; form fields `space-y-2`; dialogs `p-6`, footer `mt-6`; table cells `px-4 py-3`. |
 | Alignment | One header pattern (PageHeader), one breadcrumb, one toolbar, one stat grid. Table Actions right-aligned; all else left-aligned. Data pages left-aligned; only full-screen forms (login, change-password, 404) centered. |
 | Mobile | Filter toolbars scroll horizontally instead of wrapping into staircases; action groups collapse to a row; tables use the existing card fallback; nothing overflows (e2e already asserts this). |
+| Background | One global backdrop everywhere — the login-hero stack: `--grad-hero` gradient + `data-grid` at 40% + `ParticleField` animation, rendered fixed behind all routes by `components/layout/app-background.tsx` (mounted in `app/router.tsx`). No per-page or split backgrounds, no pitch-black roots: page roots stay transparent, shell surfaces read as glass (`bg-black/65 backdrop-blur-md` sidebar, `glass` header) over the ambient layer. Cards/sheets/dialogs stay opaque for readability. |
 
 ---
 

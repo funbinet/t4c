@@ -9,7 +9,6 @@ import { useGlowFollow } from '@/components/common/glow'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ParticleField } from '@/components/visuals/particle-field'
 import { safeNext } from '@/lib/access'
 import t4cLogo from '@/assets/t4c.png'
 
@@ -43,15 +42,12 @@ export function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_0.95fr]">
+    <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
       <section
         ref={glowRef}
         className="glow-fx liquid-border relative hidden overflow-hidden p-12 text-ink lg:flex lg:flex-col lg:justify-between"
       >
-        {/* hero backdrop + green data grid + particle field (back.md layer stack) */}
-        <div className="absolute inset-0" style={{ background: 'var(--grad-hero)' }} />
-        <div className="data-grid absolute inset-0 opacity-40" />
-        <ParticleField className="absolute inset-0 size-full" />
+        {/* gradient + grid + particles come from the global AppBackground layer */}
         <div className="relative flex items-center gap-3">
           <img src={t4cLogo} alt="T4C logo" className="size-11 shrink-0 rounded-[4px] object-contain" />
           <div>
@@ -84,7 +80,7 @@ export function LoginPage() {
           </span>
         </div>
       </section>
-      <section className="data-grid relative flex items-center justify-center px-5 py-10 sm:px-10">
+      <section className="relative flex items-center justify-center px-5 py-10 sm:px-10">
         <div className="glass w-full max-w-md rounded-[4px] p-8 sm:p-10">
           <div className="mb-8 lg:hidden">
             <div className="flex items-center gap-3">

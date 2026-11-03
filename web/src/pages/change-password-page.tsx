@@ -36,7 +36,7 @@ export function ChangePasswordPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-background p-5">
+    <div className="grid min-h-screen place-items-center p-5">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-lg">Change Sign-In Password</CardTitle>

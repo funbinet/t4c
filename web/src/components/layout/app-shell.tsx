@@ -168,10 +168,10 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-background xl:h-dvh xl:min-h-0 xl:overflow-hidden">
+    <div className="min-h-screen xl:h-dvh xl:min-h-0 xl:overflow-hidden">
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-black/95 text-ink transition-[width] lg:flex',
+          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-black/65 text-ink backdrop-blur-md transition-[width] lg:flex',
           collapsed ? 'w-[68px]' : 'w-[236px]',
         )}
       >
@@ -207,7 +207,7 @@ export function AppShell() {
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col border-r border-border bg-black text-ink shadow-2xl">
+          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col border-r border-border bg-black/85 text-ink shadow-2xl backdrop-blur-md">
             <div className="flex h-16 items-center justify-between border-b border-border px-4">
               <div className="flex items-center gap-3">
                 <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain" />

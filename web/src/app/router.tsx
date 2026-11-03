@@ -2,6 +2,7 @@ import { lazy, Suspense, type ReactNode } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AdminRoute, ProtectedRoute } from './auth'
 import { AppShell } from '@/components/layout/app-shell'
+import { AppBackground } from '@/components/layout/app-background'
 import { LoadingBlock } from '@/components/common/states'
 
 const LoginPage = lazy(() => import('@/pages/login-page').then((module) => ({ default: module.LoginPage })))
@@ -79,5 +80,10 @@ const router = createBrowserRouter([
 ])
 
 export function AppRouter() {
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <AppBackground />
+      <RouterProvider router={router} />
+    </>
+  )
 }
