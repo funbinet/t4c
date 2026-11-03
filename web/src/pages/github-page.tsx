@@ -1,23 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatTime } from '@/lib/format'
 import { canWrite } from '@/lib/access'
@@ -90,8 +88,7 @@ export function GitHubPage() {
   return (
     <div>
       <PageHeader
-        title="GitHub Intelligence"
-        description="Search public code for domains, credential leaks, and sensitive keywords, with a deduplicated history."
+        title="GitHub"
         actions={
           canWrite(role) ? (
             <Button
@@ -103,7 +100,6 @@ export function GitHubPage() {
                 setOpen(true)
               }}
             >
-              <Plus />
               {tab === 'monitors' ? 'New Monitor' : 'New Search'}
             </Button>
           ) : null
@@ -182,17 +178,15 @@ export function GitHubPage() {
                     canWrite(role) ? (
                       <div className="flex justify-end gap-1">
                         <Button size="sm" variant="ghost" onClick={() => editMonitor(row)}>
-                          <Pencil />
                           Edit
                         </Button>
                         <ConfirmDialog
                           title="Delete GitHub monitor"
-                          description="The monitor will be moved to the recycle bin and stop future searches; historical findings are kept."
-                          confirmLabel="Move to recycle bin"
+                          description="Moved to the recycle bin. Historical findings are kept."
+                          confirmLabel="Move To Recycle Bin"
                           onConfirm={() => remove.mutate(row.id)}
                           trigger={
                             <Button size="sm" variant="ghost" className="text-destructive">
-                              <Trash2 />
                               Delete
                             </Button>
                           }
@@ -211,7 +205,6 @@ export function GitHubPage() {
             <DialogTitle>
               {editingId ? 'Edit GitHub Monitor' : tab === 'monitors' ? 'New GitHub Monitor' : 'New Code Search'}
             </DialogTitle>
-            <DialogDescription>Searches run with the GitHub token configured for the platform.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Keyword">
@@ -243,14 +236,6 @@ export function GitHubPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

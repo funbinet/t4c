@@ -14,10 +14,7 @@ export function SystemPage() {
   const data = info.data as SystemInfo
   return (
     <div>
-      <PageHeader
-        title="System"
-        description="Runtime status, scanner versions, observability, and API documentation."
-      />
+      <PageHeader title="System" />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -29,13 +26,13 @@ export function SystemPage() {
             <Row label="Queue driver" value={String(data.queueDriver || '—')} />
             <Row
               label="Health"
-              value={ready.data ? <Badge variant="success">ready</Badge> : <Badge variant="warning">degraded</Badge>}
+              value={ready.data ? <Badge variant="success">Ready</Badge> : <Badge variant="warning">Degraded</Badge>}
             />
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>APIs and monitoring</CardTitle>
+            <CardTitle>APIs &amp; Monitoring</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             {[
@@ -82,7 +79,7 @@ export function SystemPage() {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between border-b pb-2 last:border-0">
-      <span className="text-muted-foreground">{label}</span>
+      <span className="text-[11px] uppercase tracking-[0.04em] text-muted-foreground">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   )

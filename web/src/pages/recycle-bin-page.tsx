@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { RotateCcw, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/api'
@@ -55,11 +55,8 @@ export function RecycleBinPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Recycle bin"
-        description="Restore soft-deleted organizations, assets, automation settings, and users. Restoring is restricted to administrators."
-      />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <PageHeader title="Recycle Bin" />
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="relative min-w-0 flex-1 sm:max-w-sm">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -79,11 +76,11 @@ export function RecycleBinPage() {
             setPage(1)
           }}
         >
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="min-w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             {Object.entries(resourceLabels).map(([value, label]) => (
               <SelectItem key={value} value={value}>
                 {label}
@@ -117,7 +114,6 @@ export function RecycleBinPage() {
                     disabled={restore.isPending}
                     onClick={() => restore.mutate({ type: row.type, id: row.id })}
                   >
-                    <RotateCcw />
                     Restore
                   </Button>
                 ),

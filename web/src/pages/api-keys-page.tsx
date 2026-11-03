@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Copy, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type APIKey } from '@/api'
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import {
   Dialog,
@@ -17,7 +17,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { formatTime } from '@/lib/format'
 
@@ -58,14 +57,8 @@ export function APIKeysPage() {
   return (
     <div>
       <PageHeader
-        title="API Key"
-        description="Create API keys for automation scripts and external integrations. The secret is shown only once at creation."
-        actions={
-          <Button onClick={() => setOpen(true)}>
-            <Plus />
-            New key
-          </Button>
-        }
+        title="API Keys"
+        actions={<Button onClick={() => setOpen(true)}>New Key</Button>}
       />
       {keys.isLoading ? (
         <LoadingBlock />
@@ -111,7 +104,6 @@ export function APIKeysPage() {
                       className="text-destructive"
                       onClick={() => remove.mutate(row.id || '')}
                     >
-                      <Trash2 />
                       Revoke
                     </Button>
                   </div>
@@ -123,14 +115,13 @@ export function APIKeysPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New API key</DialogTitle>
-            <DialogDescription>Scopes are comma-separated, for example read,scan.</DialogDescription>
+            <DialogTitle>New API Key</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">
               <Input value={name} onChange={(e) => setName(e.target.value)} />
             </Field>
-            <Field label="Scopes">
+            <Field label="Scopes" hint="Comma-separated, for example read,scan.">
               <Input value={scopes} onChange={(e) => setScopes(e.target.value)} />
             </Field>
           </div>
@@ -147,10 +138,8 @@ export function APIKeysPage() {
       <Dialog open={Boolean(secret)} onOpenChange={(next) => !next && setSecret('')}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Save API key</DialogTitle>
-            <DialogDescription>
-              This secret is shown only once. It cannot be read again after you close this dialog.
-            </DialogDescription>
+            <DialogTitle>Save API Key</DialogTitle>
+            <DialogDescription>Shown only once. It cannot be read again after this dialog closes.</DialogDescription>
           </DialogHeader>
           <Textarea readOnly value={secret} className="min-h-28 font-mono text-xs" />
           <DialogFooter>
@@ -161,21 +150,12 @@ export function APIKeysPage() {
                 toast.success('Copied')
               }}
             >
-              <Copy />
               Copy
             </Button>
-            <Button onClick={() => setSecret('')}>I've saved it</Button>
+            <Button onClick={() => setSecret('')}>Done</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

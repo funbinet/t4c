@@ -1,24 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Schedule } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatTime } from '@/lib/format'
 import { canWrite } from '@/lib/access'
@@ -91,8 +89,7 @@ export function SchedulesPage() {
   return (
     <div>
       <PageHeader
-        title="Scheduled tasks"
-        description="Manage recurring Cron scans and future one-off tasks."
+        title="Schedules"
         actions={
           canWrite(role) ? (
             <Button
@@ -110,8 +107,7 @@ export function SchedulesPage() {
                 setOpen(true)
               }}
             >
-              <Plus />
-              New schedule
+              New Schedule
             </Button>
           ) : null
         }
@@ -148,17 +144,15 @@ export function SchedulesPage() {
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
                     <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      <Pencil />
                       Edit
                     </Button>
                     <ConfirmDialog
                       title="Delete schedule"
-                      description="The schedule will be moved to the recycle bin and stop running. Historical scan tasks are kept."
-                      confirmLabel="Move to recycle bin"
+                      description="Moved to the recycle bin. Historical scan tasks are kept."
+                      confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
                         <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
                           Delete
                         </Button>
                       }
@@ -172,17 +166,14 @@ export function SchedulesPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit schedule' : 'New schedule'}</DialogTitle>
-            <DialogDescription>
-              A schedule must reference a valid policy. The next run time is recalculated after saving.
-            </DialogDescription>
+            <DialogTitle>{editingId ? 'Edit Schedule' : 'New Schedule'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Schedule type">
+              <Field label="Schedule">
                 <Select value={form.kind} onValueChange={(value) => setForm({ ...form, kind: value })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -193,7 +184,7 @@ export function SchedulesPage() {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Task type">
+              <Field label="Task">
                 <Select value={form.taskKind} onValueChange={(value) => setForm({ ...form, taskKind: value })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -251,14 +242,6 @@ export function SchedulesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

@@ -1,23 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Scope } from '@/api'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { canWrite } from '@/lib/access'
@@ -73,8 +71,7 @@ export function ScopesPage() {
   return (
     <div>
       <PageHeader
-        title="Asset groups"
-        description="Keep the existing workflow of grouping assets by domain or IP range."
+        title="Asset Groups"
         actions={
           canWrite(role) ? (
             <Button
@@ -84,8 +81,7 @@ export function ScopesPage() {
                 setOpen(true)
               }}
             >
-              <Plus />
-              New asset group
+              New Asset Group
             </Button>
           ) : null
         }
@@ -115,17 +111,15 @@ export function ScopesPage() {
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
                     <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      <Pencil />
                       Edit
                     </Button>
                     <ConfirmDialog
                       title="Delete asset group"
-                      description="The asset group will be moved to the recycle bin. It cannot be deleted while referenced by active monitors."
-                      confirmLabel="Move to recycle bin"
+                      description="Moved to the recycle bin. Blocked while referenced by active monitors."
+                      confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
                         <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
                           Delete
                         </Button>
                       }
@@ -139,12 +133,7 @@ export function ScopesPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit asset group' : 'New asset group'}</DialogTitle>
-            <DialogDescription>
-              {editingId
-                ? 'Changes to targets affect future tasks and monitors only. Historical links are not rebuilt.'
-                : 'Separate targets with commas, spaces, or new lines.'}
-            </DialogDescription>
+            <DialogTitle>{editingId ? 'Edit Asset Group' : 'New Asset Group'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">
@@ -161,7 +150,7 @@ export function ScopesPage() {
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Targets">
+            <Field label="Targets" hint="Separate targets with commas, spaces, or new lines.">
               <Textarea value={form.targets} onChange={(e) => setForm({ ...form, targets: e.target.value })} />
             </Field>
           </div>
@@ -178,14 +167,6 @@ export function ScopesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

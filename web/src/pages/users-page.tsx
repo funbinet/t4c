@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type User } from '@/api'
@@ -9,16 +8,16 @@ import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { Field } from '@/components/common/form'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatTime, roleLabel } from '@/lib/format'
 
@@ -72,13 +71,9 @@ export function UsersPage() {
   return (
     <div>
       <PageHeader
-        title="User management"
-        description="Manage viewer, operator, and admin accounts. Require users to change the initial password at first sign-in."
+        title="Users"
         actions={
-          <Button onClick={() => setOpen(true)}>
-            <Plus />
-            New user
-          </Button>
+          <Button onClick={() => setOpen(true)}>New User</Button>
         }
       />
       {users.isLoading ? (
@@ -103,34 +98,36 @@ export function UsersPage() {
             },
             {
               key: 'mustChange',
-              header: 'Must change password',
+              header: 'Must Change Password',
               cell: (row) => (row.mustChangePassword ? 'Yes' : 'No'),
             },
-            { key: 'disabled', header: 'Status', cell: (row) => (row.disabled ? 'Disabled' : 'Active') },
+            {
+              key: 'disabled',
+              header: 'Status',
+              cell: (row) => (
+                <span className="uppercase tracking-[0.04em]">{row.disabled ? 'Disabled' : 'Active'}</span>
+              ),
+            },
             { key: 'created', header: 'Created', cell: (row) => formatTime(row.createdAt), hideOnTablet: true },
             {
               key: 'actions',
               header: 'Actions',
               cell: (row) => (
-                <div className="flex justify-end">
-                  <div className="flex justify-end gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      <Pencil />
-                      Edit
-                    </Button>
-                    <ConfirmDialog
-                      title="Delete user"
-                      description="The user will be moved to the recycle bin and all sessions revoked immediately. You cannot delete the current user or the last active administrator."
-                      confirmLabel="Move to recycle bin"
-                      onConfirm={() => remove.mutate(row.id || '')}
-                      trigger={
-                        <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
-                          Delete
-                        </Button>
-                      }
-                    />
-                  </div>
+                <div className="flex justify-end gap-1">
+                  <Button size="sm" variant="ghost" onClick={() => edit(row)}>
+                    Edit
+                  </Button>
+                  <ConfirmDialog
+                    title="Delete user"
+                    description="Moved to the recycle bin; sessions are revoked. The current user and the last active administrator cannot be deleted."
+                    confirmLabel="Move To Recycle Bin"
+                    onConfirm={() => remove.mutate(row.id || '')}
+                    trigger={
+                      <Button size="sm" variant="ghost" className="text-destructive">
+                        Delete
+                      </Button>
+                    }
+                  />
                 </div>
               ),
             },
@@ -140,8 +137,7 @@ export function UsersPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New user</DialogTitle>
-            <DialogDescription>Share the initial password through a secure channel after creation.</DialogDescription>
+            <DialogTitle>New User</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Username">
@@ -180,10 +176,7 @@ export function UsersPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit user</DialogTitle>
-            <DialogDescription>
-              Usernames cannot be changed. If you set a temporary password, the user must change it at next sign-in.
-            </DialogDescription>
+            <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Role">
@@ -198,15 +191,14 @@ export function UsersPage() {
                 </SelectContent>
               </Select>
             </Field>
-            <label className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
-              <input
-                type="checkbox"
+            <label className="flex items-center gap-2 rounded-[4px] border px-3 py-2.5 text-xs uppercase tracking-[0.04em]">
+              <Checkbox
                 checked={editForm.disabled}
-                onChange={(event) => setEditForm({ ...editForm, disabled: event.target.checked })}
+                onCheckedChange={(value) => setEditForm({ ...editForm, disabled: Boolean(value) })}
               />
               Disable this user
             </label>
-            <Field label="Temporary password (optional)">
+            <Field label="Temporary Password" hint="The user must change it at next sign-in.">
               <Input
                 type="password"
                 value={editForm.password}
@@ -227,14 +219,6 @@ export function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

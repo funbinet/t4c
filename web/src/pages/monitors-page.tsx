@@ -1,28 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Monitor } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatTime } from '@/lib/format'
 import { canWrite } from '@/lib/access'
 import { useAuth } from '@/app/auth'
+
+const kindLabels: Record<string, string> = {
+  domain: 'Domain',
+  ip: 'IP',
+  site_update: 'Site Update',
+  wih_update: 'WIH Update',
+}
 
 export function MonitorsPage() {
   const { role } = useAuth()
@@ -94,8 +99,7 @@ export function MonitorsPage() {
   return (
     <div>
       <PageHeader
-        title="Recurring monitors"
-        description="Create recurring tasks for domains, IPs, sites, or WIH changes."
+        title="Monitors"
         actions={
           canWrite(role) ? (
             <Button
@@ -112,8 +116,7 @@ export function MonitorsPage() {
                 setOpen(true)
               }}
             >
-              <Plus />
-              New monitor
+              New Monitor
             </Button>
           ) : null
         }
@@ -129,7 +132,7 @@ export function MonitorsPage() {
           empty={<EmptyState title="No monitors" />}
           columns={[
             { key: 'name', header: 'Name', cell: (row) => row.name },
-            { key: 'kind', header: 'Type', cell: (row) => row.kind },
+            { key: 'kind', header: 'Type', cell: (row) => kindLabels[row.kind || ''] || row.kind },
             { key: 'target', header: 'Target', cell: (row) => <span className="mono">{row.target}</span> },
             { key: 'status', header: 'Status', cell: (row) => <StatusBadge status={row.status} /> },
             { key: 'next', header: 'Next run', cell: (row) => formatTime(row.nextRunAt), hideOnTablet: true },
@@ -140,7 +143,6 @@ export function MonitorsPage() {
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
                     <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      <Pencil />
                       Edit
                     </Button>
                     <Button
@@ -148,7 +150,6 @@ export function MonitorsPage() {
                       variant="ghost"
                       onClick={() => action.mutate({ id: row.id || '', action: 'run' })}
                     >
-                      <Play />
                       Run
                     </Button>
                     <Button
@@ -158,26 +159,15 @@ export function MonitorsPage() {
                         action.mutate({ id: row.id || '', action: row.status === 'active' ? 'pause' : 'resume' })
                       }
                     >
-                      {row.status === 'active' ? (
-                        <>
-                          <Pause />
-                          Pause
-                        </>
-                      ) : (
-                        <>
-                          <Play />
-                          Resume
-                        </>
-                      )}
+                      {row.status === 'active' ? 'Pause' : 'Resume'}
                     </Button>
                     <ConfirmDialog
                       title="Delete monitor"
-                      description="The monitor will be moved to the recycle bin and stop scheduling. Historical runs are kept."
-                      confirmLabel="Move to recycle bin"
+                      description="Moved to the recycle bin. Historical runs are kept."
+                      confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
                         <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
                           Delete
                         </Button>
                       }
@@ -191,11 +181,7 @@ export function MonitorsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit monitor' : 'New monitor'}</DialogTitle>
-            <DialogDescription>
-              A monitor must reference a valid asset group. The next run time is recalculated from the new interval
-              after editing.
-            </DialogDescription>
+            <DialogTitle>{editingId ? 'Edit Monitor' : 'New Monitor'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">
@@ -208,9 +194,9 @@ export function MonitorsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {['domain', 'ip', 'site_update', 'wih_update'].map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {item}
+                    {Object.entries(kindLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -241,7 +227,7 @@ export function MonitorsPage() {
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Policy ID (optional)">
+            <Field label="Policy">
               <Select
                 value={form.policyId || 'none'}
                 onValueChange={(value) => setForm({ ...form, policyId: value === 'none' ? '' : value })}
@@ -250,7 +236,7 @@ export function MonitorsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Use the task default policy</SelectItem>
+                  <SelectItem value="none">Task Default Policy</SelectItem>
                   {policyRows.map((policy) => (
                     <SelectItem key={policy.id || ''} value={policy.id || ''}>
                       {policy.name}
@@ -275,14 +261,6 @@ export function MonitorsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

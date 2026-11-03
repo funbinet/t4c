@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { FileUp, Pencil, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api, type Organization } from '@/api'
 import { RiskBadge, StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { PageHeader } from '@/components/common/page-header'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -19,7 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { formatTime } from '@/lib/format'
 import { canWrite } from '@/lib/access'
 import { useAuth } from '@/app/auth'
 
@@ -110,24 +111,17 @@ export function OrganizationsPage() {
   return (
     <div>
       <PageHeader
-        title="Organization Governance"
-        description="Maintain filed root domains, ownership evidence, risk coverage, and scan tasks per organization. Organizations are the backbone of the T4C attack surface workspace."
+        title="Organizations"
         actions={
           canWrite(role) ? (
             <>
-              <Button variant="outline" onClick={() => setImportOpen(true)}>
-                <FileUp />
-                Import CSV
-              </Button>
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus />
-                New Organization
-              </Button>
+              <Button variant="outline" onClick={() => setImportOpen(true)}>Import CSV</Button>
+              <Button onClick={() => setCreateOpen(true)}>New Organization</Button>
             </>
           ) : null
         }
       />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <form
           className="relative min-w-0 flex-1 sm:max-w-sm"
           onSubmit={(event) => {
@@ -143,11 +137,9 @@ export function OrganizationsPage() {
             className="pl-8"
           />
         </form>
-        <Button variant="outline" onClick={() => void orgs.refetch()}>
-          <RefreshCw />
-          Refresh
-        </Button>
-        <span className="ml-auto text-[11px] text-muted-foreground">{rows.length} organizations</span>
+        <span className="ml-auto text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+          {rows.length} organizations
+        </span>
       </div>
       {orgs.isLoading ? (
         <LoadingBlock />
@@ -162,12 +154,7 @@ export function OrganizationsPage() {
               title="No organizations yet"
               description="Import a CSV with organization names and root domains, or create a single organization first."
               action={
-                canWrite(role) ? (
-                  <Button onClick={() => setImportOpen(true)}>
-                    <FileUp />
-                    Import Organizations
-                  </Button>
-                ) : undefined
+                canWrite(role) ? <Button onClick={() => setImportOpen(true)}>Import Organizations</Button> : undefined
               }
             />
           }
@@ -207,7 +194,7 @@ export function OrganizationsPage() {
             {
               key: 'updated',
               header: 'Last Updated',
-              cell: (row) => (row.updatedAt ? new Date(row.updatedAt).toLocaleDateString('zh-CN') : '—'),
+              cell: (row) => (row.updatedAt ? formatTime(row.updatedAt) : '—'),
               hideOnTablet: true,
             },
             {
@@ -217,17 +204,15 @@ export function OrganizationsPage() {
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
                     <Button size="sm" variant="ghost" onClick={() => editOrganization(row)}>
-                      <Pencil />
                       Edit
                     </Button>
                     <ConfirmDialog
                       title="Delete organization"
-                      description="The organization will be moved to the recycle bin; its domains and task history are not permanently deleted. Deletion is blocked while tasks are queued or running."
-                      confirmLabel="Move to recycle bin"
+                      description="Moved to the recycle bin. Blocked while tasks are queued or running."
+                      confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
                         <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
                           Delete
                         </Button>
                       }
@@ -243,9 +228,6 @@ export function OrganizationsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New Organization</DialogTitle>
-            <DialogDescription>
-              After creation you can add candidate root domains and run ICP ownership lookups.
-            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Organization Name">
@@ -282,8 +264,7 @@ export function OrganizationsPage() {
           <DialogHeader>
             <DialogTitle>Import Organizations CSV</DialogTitle>
             <DialogDescription>
-              Required column: canonicalName. Optional columns: aliases, region, uscc, rootDomains. Separate multiple
-              aliases with | and multiple root domains with semicolons.
+              Required column: canonicalName. Optional: aliases, region, uscc, rootDomains.
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-[4px] border bg-muted/40 p-3 text-[11px] leading-5 text-muted-foreground">
@@ -310,9 +291,6 @@ export function OrganizationsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Organization</DialogTitle>
-            <DialogDescription>
-              Name, aliases, region, and Unified Social Credit Code sync to organization governance and the graph.
-            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Organization Name">
@@ -347,11 +325,3 @@ export function OrganizationsPage() {
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
-    </div>
-  )
-}

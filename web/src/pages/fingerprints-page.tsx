@@ -1,23 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Fingerprint } from '@/api'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { canWrite } from '@/lib/access'
 import { useAuth } from '@/app/auth'
@@ -87,14 +85,10 @@ export function FingerprintsPage() {
     <div>
       <PageHeader
         title="Fingerprints"
-        description="Boolean expression rules cover body, header, title, and icon_hash for site identification."
         actions={
           canWrite(role) ? (
             <>
-              <Button variant="outline" onClick={() => setImportOpen(true)}>
-                <Upload />
-                Bulk import
-              </Button>
+              <Button variant="outline" onClick={() => setImportOpen(true)}>Bulk Import</Button>
               <Button
                 onClick={() => {
                   setEditingId('')
@@ -102,8 +96,7 @@ export function FingerprintsPage() {
                   setOpen(true)
                 }}
               >
-                <Plus />
-                Add fingerprint
+                New Fingerprint
               </Button>
             </>
           ) : null
@@ -139,17 +132,15 @@ export function FingerprintsPage() {
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
                     <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      <Pencil />
                       Edit
                     </Button>
                     <ConfirmDialog
                       title="Delete fingerprint"
-                      description="The fingerprint will be moved to the recycle bin and no longer loaded for site identification."
-                      confirmLabel="Move to recycle bin"
+                      description="Moved to the recycle bin and no longer loaded for site identification."
+                      confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
                         <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
                           Delete
                         </Button>
                       }
@@ -163,14 +154,13 @@ export function FingerprintsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit fingerprint' : 'Add fingerprint'}</DialogTitle>
-            <DialogDescription>Uses WIH boolean expressions. Rules are revalidated before saving.</DialogDescription>
+            <DialogTitle>{editingId ? 'Edit Fingerprint' : 'New Fingerprint'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </Field>
-            <Field label="Rule">
+            <Field label="Rule" hint="WIH boolean expression.">
               <Textarea
                 value={form.rule}
                 onChange={(e) => setForm({ ...form, rule: e.target.value })}
@@ -194,14 +184,14 @@ export function FingerprintsPage() {
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Bulk import fingerprints</DialogTitle>
-            <DialogDescription>Supports YAML or JSON rule arrays.</DialogDescription>
+            <DialogTitle>Bulk Import Fingerprints</DialogTitle>
           </DialogHeader>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="min-h-64 font-mono text-xs"
             placeholder={'- name: Example\n  rule: body="example"'}
+            aria-label="Fingerprint rules (YAML or JSON)"
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>
@@ -213,14 +203,6 @@ export function FingerprintsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

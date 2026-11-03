@@ -16,10 +16,7 @@ export function AuditPage() {
   const rows = (audit.data?.items || []) as AuditEvent[]
   return (
     <div>
-      <PageHeader
-        title="Audit log"
-        description="Track authentication, organization ownership, scans, configuration, and administrative actions."
-      />
+      <PageHeader title="Audit Log" />
       <div className="mb-3 max-w-sm">
         <Input
           value={q}

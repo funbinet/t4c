@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Policy } from '@/api'
 import { DataTable } from '@/components/common/data-table'
 import { PageHeader } from '@/components/common/page-header'
+import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
@@ -12,17 +12,25 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { policySummary } from '@/lib/format'
 import { canWrite } from '@/lib/access'
 import { useAuth } from '@/app/auth'
+
+const capabilityLabels: Record<keyof typeof defaults, string> = {
+  domainBrute: 'Domain Brute',
+  portScan: 'Port Scan',
+  serviceDetection: 'Service Detection',
+  siteIdentify: 'Site Identify',
+  fileLeak: 'File Leak',
+  webInfoHunter: 'Web Info Hunter',
+  nucleiScan: 'Nuclei Scan',
+}
 
 const defaults = {
   domainBrute: true,
@@ -105,8 +113,7 @@ export function PoliciesPage() {
   return (
     <div>
       <PageHeader
-        title="Scan policies"
-        description="Combine domain, IP, site, and PoC capabilities for reuse by tasks, schedules, and monitors."
+        title="Scan Policies"
         actions={
           canWrite(role) ? (
             <Button
@@ -119,8 +126,7 @@ export function PoliciesPage() {
                 setOpen(true)
               }}
             >
-              <Plus />
-              New policy
+              New Policy
             </Button>
           ) : null
         }
@@ -139,7 +145,7 @@ export function PoliciesPage() {
             { key: 'description', header: 'Description', cell: (row) => row.description || '—', hideOnTablet: true },
             {
               key: 'config',
-              header: 'Enabled capabilities',
+              header: 'Capabilities',
               cell: (row) => (
                 <span className="text-muted-foreground">{policySummary(row.config as Record<string, any>)}</span>
               ),
@@ -151,17 +157,15 @@ export function PoliciesPage() {
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
                     <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      <Pencil />
                       Edit
                     </Button>
                     <ConfirmDialog
                       title="Delete scan policy"
-                      description="The policy will be moved to the recycle bin. It cannot be deleted while referenced by active monitors or unfinished schedules."
-                      confirmLabel="Move to recycle bin"
+                      description="Moved to the recycle bin. Blocked while referenced by active monitors or schedules."
+                      confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
                         <Button size="sm" variant="ghost" className="text-destructive">
-                          <Trash2 />
                           Delete
                         </Button>
                       }
@@ -175,12 +179,7 @@ export function PoliciesPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit scan policy' : 'New scan policy'}</DialogTitle>
-            <DialogDescription>
-              {editingId
-                ? 'New tasks and schedules will use the updated configuration after saving.'
-                : 'Domain enumeration, port and service detection, and site fingerprinting are enabled by default.'}
-            </DialogDescription>
+            <DialogTitle>{editingId ? 'Edit Scan Policy' : 'New Scan Policy'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Field label="Name">
@@ -189,14 +188,17 @@ export function PoliciesPage() {
             <Field label="Description">
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="min-h-16" />
             </Field>
-            <div className="grid grid-cols-2 gap-2">
-              {Object.entries(options).map(([key, checked]) => (
-                <label key={key} className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
+            <div className="grid grid-cols-2 gap-3">
+              {Object.entries(capabilityLabels).map(([key, label]) => (
+                <label
+                  key={key}
+                  className="flex items-center gap-2 rounded-[4px] border px-3 py-2.5 text-xs uppercase tracking-[0.04em]"
+                >
                   <Checkbox
-                    checked={checked}
+                    checked={options[key as keyof typeof options]}
                     onCheckedChange={(value) => setOptions({ ...options, [key]: Boolean(value) })}
                   />
-                  {key}
+                  {label}
                 </label>
               ))}
             </div>
@@ -214,14 +216,6 @@ export function PoliciesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
     </div>
   )
 }

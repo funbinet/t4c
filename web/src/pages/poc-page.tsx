@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type PocPlugin } from '@/api'
@@ -39,18 +38,16 @@ export function PocPage() {
   return (
     <div>
       <PageHeader
-        title="PoC plugins"
-        description="Inspect metadata for native Go PoCs, protocol detection, and weak-password checks."
+        title="PoC Plugins"
         actions={
           isAdmin(role) ? (
             <Button onClick={() => sync.mutate()} disabled={sync.isPending}>
-              <RefreshCw />
-              Sync metadata
+              Sync Metadata
             </Button>
           ) : null
         }
       />
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="mb-3 flex flex-wrap gap-3">
         <Input
           className="max-w-sm"
           value={search}
@@ -58,11 +55,11 @@ export function PocPage() {
           placeholder="Search plugin, application, or vulnerability…"
         />
         <Select value={kind} onValueChange={setKind}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="min-w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="poc">PoC</SelectItem>
             <SelectItem value="sniffer">Protocol detection</SelectItem>
             <SelectItem value="brute">Weak passwords</SelectItem>
@@ -83,14 +80,10 @@ export function PocPage() {
             {
               key: 'type',
               header: 'Type',
-              cell: (row) => (
-                <Badge variant={row.type === 'poc' ? 'info' : row.type === 'brute' ? 'danger' : 'success'}>
-                  {row.type}
-                </Badge>
-              ),
+              cell: (row) => <Badge variant={row.type === 'poc' ? 'info' : 'outline'}>{row.type}</Badge>,
             },
             { key: 'app', header: 'Application', cell: (row) => row.appName || '—', hideOnTablet: true },
-            { key: 'vuln', header: 'Vulnerability / capability', cell: (row) => row.vulName || '—' },
+            { key: 'vuln', header: 'Vulnerability', cell: (row) => row.vulName || '—' },
             { key: 'schemes', header: 'Protocols', cell: (row) => row.schemes?.join(', ') || '—', hideOnTablet: true },
           ]}
         />
