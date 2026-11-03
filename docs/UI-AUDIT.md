@@ -10,7 +10,7 @@ Verdict: structurally sound, but the surface carries AI-generated styling tells 
 
 | Standard | Rule |
 |---|---|
-| Capitalization | **Title Case** for page titles, card titles, buttons, dialog titles, tab labels, table headers, nav labels. Sentence case, one short line max, only for genuinely ambiguous form hints. No marketing narration. |
+| Capitalization | **ALL CAPS** for every piece of static reading content: page titles, card titles, buttons, dialog titles, tab labels, table headers, nav labels, form labels, section labels, empty-state titles. Dynamic/generated outputs (server values, names, keys, targets, statuses, timestamps, error messages, toasts) render exactly as produced — never force-cased. Implemented via `text-transform: uppercase` at the component layer, not by editing strings. |
 | Copy discipline | Delete every explainer description that narrates system internals ("…are the backbone of the T4C attack surface workspace"). Page = title. Dialog = title. Nothing else unless required. |
 | Icons | Only where they carry meaning: nav items, search field, status dots, external-link affordance. No icons on text action buttons (Edit/Delete/Run/Stop/Refresh), no icon-only empty states, no decorative stat-tile icons. |
 | Spacing | Toolbar rows `gap-3`; selects height-matched (`h-9`) with `min-w` instead of cramped fixed `w-32`; form fields `space-y-2`; dialogs `p-6`, footer `mt-6`; table cells `px-4 py-3`. |

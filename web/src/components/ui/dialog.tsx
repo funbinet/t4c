@@ -29,7 +29,7 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
   return <div className={cn('mb-4 space-y-1', className)} {...props} />
 }
 export function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) {
-  return <DialogPrimitive.Title className={cn('text-base font-semibold', className)} {...props} />
+  return <DialogPrimitive.Title className={cn('text-sm font-semibold uppercase tracking-[0.06em]', className)} {...props} />
 }
 export function DialogDescription({ className, ...props }: DialogPrimitive.DialogDescriptionProps) {
   return <DialogPrimitive.Description className={cn('text-xs text-muted-foreground', className)} {...props} />

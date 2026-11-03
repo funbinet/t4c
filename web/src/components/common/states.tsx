@@ -1,4 +1,5 @@
-import { AlertTriangle, Inbox, LoaderCircle } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { AlertTriangle, LoaderCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
@@ -19,13 +20,12 @@ export function EmptyState({
 }: {
   title: string
   description?: string
-  action?: React.ReactNode
+  action?: ReactNode
 }) {
   return (
     <div className="grid min-h-48 place-items-center rounded-[4px] border border-dashed bg-card px-6 text-center">
       <div>
-        <Inbox className="mx-auto mb-3 size-7 text-muted-foreground" />
-        <div className="text-sm font-medium">{title}</div>
+        <div className="text-xs font-semibold uppercase tracking-[0.06em]">{title}</div>
         {description ? <p className="mt-1 max-w-md text-xs leading-5 text-muted-foreground">{description}</p> : null}
         {action ? <div className="mt-4">{action}</div> : null}
       </div>
@@ -40,7 +40,7 @@ export function ErrorState({ error, retry }: { error: unknown; retry?: () => voi
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 size-4 text-destructive" />
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium text-destructive">Failed to load data</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-destructive">Failed to load data</div>
           <p className="mt-1 break-words text-xs leading-5 text-[#ff9d9d]">{message}</p>
         </div>
         {retry ? (

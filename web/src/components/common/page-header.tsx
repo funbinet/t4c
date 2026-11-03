@@ -14,7 +14,7 @@ export function PageHeader({
   return (
     <div ref={ref} className="reveal mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
+        <h1 className="text-lg font-semibold uppercase tracking-[0.06em] sm:text-xl">{title}</h1>
         {description ? (
           <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground sm:text-sm">{description}</p>
         ) : null}

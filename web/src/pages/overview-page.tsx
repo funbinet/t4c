@@ -1,15 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  Activity,
-  AlertTriangle,
-  ArrowUpRight,
-  Building2,
-  Crosshair,
-  Map as MapIcon,
-  Network,
-  RefreshCw,
-  ShieldAlert,
-} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
@@ -18,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RiskBadge } from '@/components/common/badges'
+import { Fact } from '@/components/common/form'
+import { PageHeader } from '@/components/common/page-header'
 import { ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { AssetGraph } from '@/components/visuals/asset-graph'
@@ -26,11 +17,11 @@ import { formatNumber, formatTime, relativeTime, riskLabel } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const ranges = [
-  { value: '24h', label: 'Last 24 hours' },
-  { value: '7d', label: 'Last 7 days' },
-  { value: '30d', label: 'Last 30 days' },
-  { value: '90d', label: 'Last 90 days' },
-  { value: 'all', label: 'All time' },
+  { value: '24h', label: 'Last 24 Hours' },
+  { value: '7d', label: 'Last 7 Days' },
+  { value: '30d', label: 'Last 30 Days' },
+  { value: '90d', label: 'Last 90 Days' },
+  { value: 'all', label: 'All Time' },
 ]
 
 export function OverviewPage() {
@@ -81,81 +72,62 @@ export function OverviewPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-5 flex shrink-0 flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
-        <div>
-          <div className="mb-1 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.12em] text-primary">
-            <Activity className="size-3.5" />
-            Attack Surface Overview
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">External Attack Surface Overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Start from organizations and current risks, then drill into the map, relationship graph, and asset lists.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Select value={range} onValueChange={setRange}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ranges.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            onClick={() => {
-              overview.refetch()
-              map.refetch()
-            }}
-          >
-            <RefreshCw />
-            Refresh
-          </Button>
-          <Button asChild>
-            <Link to="/organizations">
-              <Building2 />
-              Organization Workspace
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Attack Surface Overview"
+        actions={
+          <>
+            <Select value={range} onValueChange={setRange}>
+              <SelectTrigger className="min-w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ranges.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              onClick={() => {
+                overview.refetch()
+                map.refetch()
+              }}
+            >
+              Refresh
+            </Button>
+          </>
+        }
+      />
 
       <div className="mb-4 grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-5">
         <StatTile
           label="Organizations"
           value={formatNumber(data.summary.organizations)}
-          hint={`${formatNumber(data.summary.confirmedDomains)} confirmed root domain(s)`}
-          icon={<Building2 className="size-4" />}
+          hint={`${formatNumber(data.summary.confirmedDomains)} confirmed root domains`}
         />
         <StatTile
           label="Exposed Assets"
           value={formatNumber(
             (data.summary.domainAssets || 0) + (data.summary.ipAssets || 0) + (data.summary.services || 0),
           )}
-          hint={`${formatNumber(data.summary.unlocatedAssets)} unlocated IP(s)`}
-          icon={<Crosshair className="size-4" />}
+          hint={`${formatNumber(data.summary.unlocatedAssets)} unlocated IPs`}
         />
         <StatTile
           label="Current Risks"
           value={formatNumber(data.summary.currentFindings)}
-          hint={`Critical/High ${formatNumber(critical)}`}
-          icon={<ShieldAlert className="size-4" />}
+          hint={`${formatNumber(critical)} critical and high`}
         />
         <StatTile
           label="Running Tasks"
           value={formatNumber((data.tasks.running || 0) + (data.tasks.queued || 0))}
           hint={`${formatNumber(data.tasks.succeeded || 0)} completed`}
-          icon={<Activity className="size-4" />}
         />
         <StatTile
           label="Data Freshness"
           value={relativeTime(data.updatedAt)}
           hint={formatTime(data.updatedAt)}
-          icon={<RefreshCw className="size-4" />}
           testId="overview-freshness"
         />
       </div>
@@ -189,7 +161,7 @@ export function OverviewPage() {
                 </button>
               ))
             ) : (
-              <div className="px-3 py-12 text-center text-xs text-muted-foreground">
+              <div className="px-3 py-12 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
                 No organization data
                 <br />
                 <Link className="mt-2 inline-block text-primary hover:underline" to="/organizations">
@@ -204,7 +176,6 @@ export function OverviewPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
             <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
               <Button size="sm" variant={visual === 'map' ? 'default' : 'ghost'} onClick={() => setVisual('map')}>
-                <MapIcon />
                 Map
               </Button>
               <Button
@@ -213,7 +184,6 @@ export function OverviewPage() {
                 disabled={!selectedOrg}
                 onClick={() => setVisual('graph')}
               >
-                <Network />
                 Graph
               </Button>
             </div>
@@ -235,10 +205,9 @@ export function OverviewPage() {
               ) : map.error ? (
                 <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
                   <div>
-                    <MapIcon className="mx-auto mb-2 size-6 text-muted-foreground" />
-                    <div className="text-sm font-medium">Map temporarily unavailable</div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Organization lists, assets, and risks keep working. Check the GeoIP or map data service.
+                    <div className="text-xs font-semibold uppercase tracking-[0.06em]">Map unavailable</div>
+                    <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
+                      GeoIP or map data service is not responding.
                     </p>
                   </div>
                 </div>
@@ -248,10 +217,9 @@ export function OverviewPage() {
             ) : graph.error ? (
               <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
                 <div>
-                  <Network className="mx-auto mb-2 size-6 text-muted-foreground" />
-                  <div className="text-sm font-medium">Graph temporarily unavailable</div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    You can continue analysis through the organization, asset, and risk lists.
+                  <div className="text-xs font-semibold uppercase tracking-[0.06em]">Graph unavailable</div>
+                  <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
+                    Select an organization with graph data.
                   </p>
                 </div>
               </div>
@@ -269,13 +237,13 @@ export function OverviewPage() {
               />
             )}
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2 text-[10px] text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2 text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
             <span>
               {map.data
-                ? `Unlocated assets ${formatNumber(map.data.unlocatedAssets)} · unlocated organizations ${formatNumber(map.data.unlocatedOrganizations)}`
-                : 'Geographic data not loaded yet'}
+                ? `Unlocated assets ${formatNumber(map.data.unlocatedAssets)} · organizations ${formatNumber(map.data.unlocatedOrganizations)}`
+                : 'Geographic data not loaded'}
             </span>
-            <span>{map.data?.truncated ? 'Data truncated' : 'Map and organization filters share context'}</span>
+            {map.data?.truncated ? <span>Data truncated</span> : null}
           </div>
         </Card>
 
@@ -288,25 +256,22 @@ export function OverviewPage() {
               {selectedOrg ? (
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm font-semibold">{selectedRisk?.name || 'Organization Details'}</div>
+                    <div className="text-sm font-semibold">{selectedRisk?.name || 'Organization'}</div>
                     <RiskBadge risk={selectedRisk?.risk} />
                   </div>
                   {summary.data ? (
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                      <MiniFact label="Root Domains" value={summary.data.confirmedDomains || 0} />
-                      <MiniFact
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Fact label="Root Domains" value={summary.data.confirmedDomains || 0} />
+                      <Fact
                         label="Assets"
                         value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)}
                       />
-                      <MiniFact label="Current Risks" value={summary.data.currentFindings || 0} />
-                      <MiniFact label="Tasks" value={summary.data.linkedTasks || 0} />
+                      <Fact label="Current Risks" value={summary.data.currentFindings || 0} />
+                      <Fact label="Tasks" value={summary.data.linkedTasks || 0} />
                     </div>
                   ) : null}
                   <Button asChild className="mt-4 w-full" variant="outline">
-                    <Link to={`/organizations/${selectedOrg}`}>
-                      Open Organization Workspace
-                      <ArrowUpRight />
-                    </Link>
+                    <Link to={`/organizations/${selectedOrg}`}>Open Organization</Link>
                   </Button>
                 </div>
               ) : data.recentFindings.length ? (
@@ -318,14 +283,14 @@ export function OverviewPage() {
                         <RiskBadge risk={item.finding?.severity} />
                       </div>
                       <div className="mt-1 truncate text-[11px] text-muted-foreground">{item.finding?.target}</div>
-                      <div className="mt-1 text-[10px] text-muted-foreground">
-                        {relativeTime(item.finding?.createdAt)} · {item.occurrences || 1} occurrence(s)
+                      <div className="mt-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+                        {relativeTime(item.finding?.createdAt)} · {item.occurrences || 1} occurrences
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-10 text-center text-xs text-muted-foreground">
+                <div className="py-10 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
                   No risks in the selected time range
                 </div>
               )}
@@ -355,9 +320,8 @@ export function OverviewPage() {
         </div>
       </div>
       {data.truncated ? (
-        <div className="mt-3 flex items-center gap-2 rounded-[4px] border bg-card px-3 py-2 text-[11px] text-muted-foreground">
-          <AlertTriangle className="size-3.5" />
-          Data exceeds the display limit; some organizations are omitted from the ranking and canvas.
+        <div className="mt-3 rounded-[4px] border bg-card px-3 py-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+          Data exceeds the display limit; some organizations are omitted.
         </div>
       ) : null}
     </div>
@@ -367,17 +331,12 @@ export function OverviewPage() {
 function HealthChip({ label, value }: { label: string; value?: string }) {
   const ok = value === 'ok'
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border bg-card px-2 py-1 text-[10px] text-muted-foreground">
+    <span
+      title={ok ? 'OK' : (value ?? 'Unknown')}
+      className="inline-flex items-center gap-1 rounded-full border bg-card px-2 py-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground"
+    >
       <span className={cn('size-1.5 rounded-full', ok ? 'bg-[#00fa00]' : 'bg-[#3d8c3d]')} />
       {label}
     </span>
-  )
-}
-function MiniFact({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-[4px] bg-muted px-2.5 py-2">
-      <div className="text-[10px] text-muted-foreground">{label}</div>
-      <div className="mt-0.5 text-base font-semibold tabular-nums">{value}</div>
-    </div>
   )
 }

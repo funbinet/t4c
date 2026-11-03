@@ -28,7 +28,7 @@ export function ConfirmDialog({
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[4px] border border-border bg-card p-6 shadow-[0_0_40px_rgba(0,250,0,0.08)]">
         <div>
-          <AlertDialogTitle className="text-base font-semibold">{title}</AlertDialogTitle>
+          <AlertDialogTitle className="text-sm font-semibold uppercase tracking-[0.06em]">{title}</AlertDialogTitle>
           <AlertDialogDescription className="mt-2 text-xs leading-5 text-muted-foreground">
             {description}
           </AlertDialogDescription>

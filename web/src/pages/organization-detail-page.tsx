@@ -2,13 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   Download,
-  FileClock,
-  Globe2,
   Pencil,
   Play,
   PlusCircle,
   RefreshCw,
-  ShieldAlert,
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -322,7 +319,6 @@ export function OrganizationDetailPage() {
           label="Confirmed Root Domains"
           value={summary.data?.confirmedDomains || 0}
           hint={`${summary.data?.candidateDomains || 0} pending`}
-          icon={<Globe2 className="size-4" />}
         />
         <StatTile label="Domain Assets" value={formatNumber(summary.data?.domainAssets)} />
         <StatTile
@@ -335,13 +331,11 @@ export function OrganizationDetailPage() {
           label="Current Risks"
           value={formatNumber(summary.data?.currentFindings)}
           hint={`${summary.data?.criticalFindings || 0} critical · ${summary.data?.highFindings || 0} high`}
-          icon={<ShieldAlert className="size-4" />}
         />
         <StatTile
           label="Latest Scan"
           value={relativeTime(summary.data?.lastScanAt)}
           hint={`${summary.data?.linkedTasks || 0} linked task(s)`}
-          icon={<FileClock className="size-4" />}
         />
       </div>
 

@@ -16,7 +16,7 @@ export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return <div className={cn('flex flex-col gap-1.5 p-4', className)} {...props} />
 }
 export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn('text-sm font-semibold tracking-tight', className)} {...props} />
+  return <h3 className={cn('text-xs font-semibold uppercase tracking-[0.08em]', className)} {...props} />
 }
 export function CardDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
   return <p className={cn('text-xs text-muted-foreground', className)} {...props} />
