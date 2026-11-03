@@ -12,7 +12,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { formatTime, relativeTime } from '@/lib/format'
+import { Fact, KeyValues, Section } from '@/components/common/form'
+import { formatTime, relativeTime, riskLabel } from '@/lib/format'
+
+const kindLabels: Record<string, string> = {
+  vuln: 'Vuln',
+  nuclei: 'Nuclei',
+  wih: 'WIH',
+  file_leak: 'File Leak',
+  protocol: 'Protocol',
+}
 
 const views = [
   { value: 'current', label: 'Current Risks' },
@@ -58,11 +67,8 @@ export function FindingsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Current Risks"
-        description="Shows current risks deduplicated by the latest finding, keeping historical counts and raw scan results. Critical and high severities rank first for organization risk."
-      />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <PageHeader title="Risks" />
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap rounded-[4px] bg-muted p-1">
           {views.map((item) => (
             <Button
@@ -85,27 +91,27 @@ export function FindingsPage() {
           />
         </form>
         <Select value={severity || 'all'} onValueChange={(value) => setParam('severity', value === 'all' ? '' : value)}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="min-w-36">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All severities</SelectItem>
+            <SelectItem value="all">All Severities</SelectItem>
             {['critical', 'high', 'medium', 'low', 'info'].map((item) => (
               <SelectItem key={item} value={item}>
-                {item}
+                {riskLabel(item)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={kind || 'all'} onValueChange={(value) => setParam('kind', value === 'all' ? '' : value)}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="min-w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            {['vuln', 'nuclei', 'wih', 'file_leak', 'protocol'].map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
+            <SelectItem value="all">All Types</SelectItem>
+            {Object.entries(kindLabels).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -142,7 +148,7 @@ export function FindingsPage() {
                 ),
               },
               { key: 'severity', header: 'Severity', cell: (row) => <RiskBadge risk={row.finding?.severity} /> },
-              { key: 'kind', header: 'Type', cell: (row) => row.finding?.kind || '—', hideOnTablet: true },
+              { key: 'kind', header: 'Type', cell: (row) => kindLabels[row.finding?.kind || ''] || row.finding?.kind || '—', hideOnTablet: true },
               { key: 'occurrences', header: 'Occurrences', cell: (row) => row.occurrences || 1 },
               {
                 key: 'orgs',
@@ -179,7 +185,7 @@ export function FindingsPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <Fact label="Severity" value={<RiskBadge risk={selected.finding?.severity} />} />
-                <Fact label="Type" value={selected.finding?.kind || '—'} />
+                <Fact label="Type" value={kindLabels[selected.finding?.kind || ''] || selected.finding?.kind || '—'} />
                 <Fact label="First Seen" value={formatTime(selected.finding?.createdAt)} />
                 <Fact label="Occurrences" value={selected.occurrences || 1} />
               </div>
@@ -210,11 +216,11 @@ export function FindingsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-muted-foreground">No history records or no organization context</div>
+                  <div className="text-xs text-muted-foreground">No history records</div>
                 )}
               </Section>
               <Section title="Structured Observations">
-                <KeyValues data={selected.finding?.data as Record<string, unknown> | undefined} />
+                <KeyValues data={selected.finding?.data as Record<string, unknown> | undefined} primitivesOnly={false} max={25} />
               </Section>
             </div>
           ) : null}
@@ -224,33 +230,3 @@ export function FindingsPage() {
   )
 }
 
-function Fact({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-[4px] border bg-card p-2.5">
-      <div className="text-[10px] text-muted-foreground">{label}</div>
-      <div className="mt-1 text-xs font-medium">{value}</div>
-    </div>
-  )
-}
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{title}</div>
-      {children}
-    </div>
-  )
-}
-function KeyValues({ data }: { data?: Record<string, unknown> }) {
-  const entries = data ? Object.entries(data).slice(0, 25) : []
-  if (!entries.length) return <div className="text-xs text-muted-foreground">No structured fields</div>
-  return (
-    <dl className="divide-y rounded-[4px] border text-xs">
-      {entries.map(([key, value]) => (
-        <div key={key} className="grid grid-cols-[110px_1fr] gap-2 px-3 py-2">
-          <dt className="truncate text-muted-foreground">{key}</dt>
-          <dd className="break-all">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
-        </div>
-      ))}
-    </dl>
-  )
-}

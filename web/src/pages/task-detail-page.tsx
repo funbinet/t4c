@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Download, RefreshCw, RotateCcw, Square } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { download } from '@/api/client'
 import { RiskBadge, StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
+import { Breadcrumb, Fact } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -120,16 +120,7 @@ export function TaskDetailPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
-        <Button asChild size="sm" variant="ghost">
-          <Link to="/tasks">
-            <ArrowLeft />
-            Task List
-          </Link>
-        </Button>
-        <span>/</span>
-        <span className="truncate">{task.name || task.id}</span>
-      </div>
+      <Breadcrumb items={[{ label: 'Tasks', to: '/tasks' }, { label: task.name || task.id || '' }]} />
       <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -141,26 +132,23 @@ export function TaskDetailPage() {
           </div>
         </div>
         {canWrite(role) ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" onClick={() => exportTask.mutate()}>
-              <Download />
               Export
             </Button>
             <Button variant="outline" onClick={() => action.mutate({ kind: 'sync' })}>
-              <RefreshCw />
               Sync
             </Button>
             <Button
               variant="outline"
+              className="text-destructive"
               disabled={['succeeded', 'failed', 'canceled', 'partial'].includes(task.status || '')}
               onClick={() => action.mutate({ kind: 'cancel' })}
             >
-              <Square />
               Stop
             </Button>
             {['failed', 'partial'].includes(task.status || '') ? (
               <Button onClick={() => action.mutate({ kind: 'retry' })}>
-                <RotateCcw />
                 Retry
               </Button>
             ) : null}
@@ -189,10 +177,10 @@ export function TaskDetailPage() {
       </Card>
       <Tabs value={tab} onValueChange={switchTab}>
         <TabsList className="flex flex-wrap">
-          <TabsTrigger value="events">Live Events</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="steps">Steps</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
-          <TabsTrigger value="ips">IP</TabsTrigger>
+          <TabsTrigger value="ips">IPs</TabsTrigger>
           <TabsTrigger value="sites">Sites</TabsTrigger>
           <TabsTrigger value="vulns">Findings</TabsTrigger>
           <TabsTrigger value="wih">WIH</TabsTrigger>
@@ -221,7 +209,7 @@ export function TaskDetailPage() {
                     ))}
                 </div>
               ) : (
-                <EmptyState title="No live events yet" description="Events stream in over SSE once the task starts." />
+                <EmptyState title="No events yet" />
               )}
             </CardContent>
           </Card>
@@ -268,14 +256,6 @@ export function TaskDetailPage() {
   )
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="text-[10px] text-muted-foreground">{label}</div>
-      <div className="mt-1 font-medium">{value}</div>
-    </div>
-  )
-}
 function ObservationTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
   if (query.isLoading) return <LoadingBlock />
   const rows = query.data?.items || []

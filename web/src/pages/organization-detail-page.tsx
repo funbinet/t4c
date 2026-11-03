@@ -1,13 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  ArrowLeft,
-  Download,
-  Pencil,
-  Play,
-  PlusCircle,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -15,6 +6,7 @@ import { api, type EasmAsset, type FindingItem, type OrganizationDomain, type Ta
 import { download } from '@/api/client'
 import { RiskBadge, StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
+import { Breadcrumb, Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -248,16 +240,7 @@ export function OrganizationDetailPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/organizations">
-            <ArrowLeft />
-            Organizations
-          </Link>
-        </Button>
-        <span>/</span>
-        <span>{org.canonicalName}</span>
-      </div>
+      <Breadcrumb items={[{ label: 'Organizations', to: '/organizations' }, { label: org.canonicalName || '' }]} />
       <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -267,39 +250,11 @@ export function OrganizationDetailPage() {
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {org.region ? <span>Region: {org.region}</span> : null}
             {org.aliases?.length ? <span>Aliases: {org.aliases.join(' / ')}</span> : null}
-            {org.uscc ? <span className="mono">USCC：{org.uscc}</span> : null}
+            {org.uscc ? <span className="mono">USCC: {org.uscc}</span> : null}
           </div>
         </div>
         {canWrite(role) ? (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => refreshICP.mutate()} disabled={refreshICP.isPending}>
-              <RefreshCw />
-              Reverse-Lookup Filed Domains
-            </Button>
-            <Button variant="outline" onClick={() => setAddOpen(true)}>
-              <PlusCircle />
-              Add Root Domain
-            </Button>
-            <Button variant="outline" onClick={() => exportReport.mutate('xlsx')}>
-              <Download />
-              Export
-            </Button>
-            <Button variant="outline" onClick={openEditOrganization}>
-              <Pencil />
-              Edit
-            </Button>
-            <ConfirmDialog
-              title="Delete organization"
-              description="The organization will be moved to the recycle bin; confirmed domains and task history are kept. Deletion is blocked while tasks are queued or running."
-              confirmLabel="Move to recycle bin"
-              onConfirm={() => deleteOrganization.mutate()}
-              trigger={
-                <Button variant="outline" className="text-destructive">
-                  <Trash2 />
-                  Delete
-                </Button>
-              }
-            />
+<div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => {
                 setScanDomains(confirmed.slice(0, 10))
@@ -307,9 +262,31 @@ export function OrganizationDetailPage() {
               }}
               disabled={!confirmed.length}
             >
-              <Play />
               Start Scan
             </Button>
+            <Button variant="outline" onClick={() => refreshICP.mutate()} disabled={refreshICP.isPending}>
+              ICP Lookup
+            </Button>
+            <Button variant="outline" onClick={() => setAddOpen(true)}>
+              Add Root Domain
+            </Button>
+            <Button variant="outline" onClick={() => exportReport.mutate('xlsx')}>
+              Export
+            </Button>
+            <Button variant="outline" onClick={openEditOrganization}>
+              Edit
+            </Button>
+            <ConfirmDialog
+              title="Delete organization"
+              description="Moved to the recycle bin. Blocked while tasks are queued or running."
+              confirmLabel="Move To Recycle Bin"
+              onConfirm={() => deleteOrganization.mutate()}
+              trigger={
+                <Button variant="outline" className="text-destructive">
+                  Delete
+                </Button>
+              }
+            />
           </div>
         ) : null}
       </div>
@@ -335,7 +312,7 @@ export function OrganizationDetailPage() {
         <StatTile
           label="Latest Scan"
           value={relativeTime(summary.data?.lastScanAt)}
-          hint={`${summary.data?.linkedTasks || 0} linked task(s)`}
+          hint={`${summary.data?.linkedTasks || 0} linked tasks`}
         />
       </div>
 
@@ -348,25 +325,7 @@ export function OrganizationDetailPage() {
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Ownership Coverage</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-xs">
-                <Coverage
-                  label="Confirmed Root Domains"
-                  value={summary.data?.confirmedDomains || 0}
-                  total={(summary.data?.confirmedDomains || 0) + (summary.data?.candidateDomains || 0)}
-                />
-                <Coverage
-                  label="Assets Discovered"
-                  value={(summary.data?.domainAssets || 0) + (summary.data?.ipAssets || 0) > 0 ? 1 : 0}
-                  total={1}
-                />
-                <Coverage label="Scans Started" value={(summary.data?.linkedTasks || 0) > 0 ? 1 : 0} total={1} />
-              </CardContent>
-            </Card>
+          <div className="grid max-w-xl gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Risk Breakdown</CardTitle>
@@ -398,7 +357,6 @@ export function OrganizationDetailPage() {
               <CardTitle>Filed Root Domains</CardTitle>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
-                  <PlusCircle />
                   Add
                 </Button>
                 <Button size="sm" disabled={!selectedDomains.length} onClick={() => confirm.mutate()}>
@@ -461,9 +419,9 @@ export function OrganizationDetailPage() {
                           ) : null}
                           {canWrite(role) ? (
                             <ConfirmDialog
-                              title="Delete owned domain"
-                              description={`${row.rootDomain} will be moved to the recycle bin; restoring it may conflict if another organization has confirmed ownership.`}
-                              confirmLabel="Move to recycle bin"
+                              title="Delete Owned Domain"
+                              description={`${row.rootDomain} will be moved to the recycle bin.`}
+                              confirmLabel="Move To Recycle Bin"
                               onConfirm={() => deleteDomain.mutate(row.id || '')}
                               trigger={
                                 <Button size="sm" variant="ghost" className="text-destructive">
@@ -509,9 +467,7 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Candidate Root Domains</DialogTitle>
-            <DialogDescription>
-              Separate entries with spaces, newlines, or commas. New domains enter the pending state.
-            </DialogDescription>
+            <DialogDescription>Separated by spaces, commas, or newlines.</DialogDescription>
           </DialogHeader>
           <Textarea
             value={domainText}
@@ -532,9 +488,7 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Start Organization Scan</DialogTitle>
-            <DialogDescription>
-              Creates one EASM scan task per confirmed root domain; select up to 10 at a time.
-            </DialogDescription>
+            <DialogDescription>One scan task per confirmed root domain; up to 10 at a time.</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             {confirmed.map((domain) => (
@@ -565,10 +519,7 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Remove Candidate Root Domain</DialogTitle>
-            <DialogDescription>
-              {rejectTarget?.rootDomain} will be removed from this organization's candidate ownership, and the reason is
-              recorded.
-            </DialogDescription>
+            <DialogDescription>Removed from candidate ownership; the reason is recorded.</DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
             <Label>Reason</Label>
@@ -595,40 +546,33 @@ export function OrganizationDetailPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Organization</DialogTitle>
-            <DialogDescription>
-              Saving refreshes the organization in the governance list and on the map.
-            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label>Organization Name</Label>
+            <Field label="Organization Name">
               <Input
                 value={orgForm.canonicalName}
                 onChange={(event) => setOrgForm({ ...orgForm, canonicalName: event.target.value })}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Aliases (separated by |)</Label>
+            </Field>
+            <Field label="Aliases" hint="Separated by |">
               <Input
                 value={orgForm.aliases}
                 onChange={(event) => setOrgForm({ ...orgForm, aliases: event.target.value })}
               />
-            </div>
+            </Field>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label>Region</Label>
-                <Input
+              <Field label="Region">
+              <Input
                   value={orgForm.region}
                   onChange={(event) => setOrgForm({ ...orgForm, region: event.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Unified Social Credit Code</Label>
-                <Input
+              />
+            </Field>
+              <Field label="Unified Social Credit Code">
+              <Input
                   value={orgForm.uscc}
                   onChange={(event) => setOrgForm({ ...orgForm, uscc: event.target.value })}
-                />
-              </div>
+              />
+            </Field>
             </div>
           </div>
           <DialogFooter>
@@ -651,34 +595,30 @@ export function OrganizationDetailPage() {
             <DialogDescription className="mono">{domainEditTarget?.rootDomain}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Site Name</Label>
-              <Input
+            <Field label="Site Name">
+            <Input
                 value={domainForm.siteName}
                 onChange={(event) => setDomainForm({ ...domainForm, siteName: event.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Homepage</Label>
-              <Input
+            />
+          </Field>
+            <Field label="Homepage">
+            <Input
                 value={domainForm.homeSite}
                 onChange={(event) => setDomainForm({ ...domainForm, homeSite: event.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>ICP Number</Label>
-              <Input
+            />
+          </Field>
+            <Field label="ICP Number">
+            <Input
                 value={domainForm.icpNo}
                 onChange={(event) => setDomainForm({ ...domainForm, icpNo: event.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Audit Date</Label>
-              <Input
+            />
+          </Field>
+            <Field label="Audit Date">
+            <Input
                 value={domainForm.auditDate}
                 onChange={(event) => setDomainForm({ ...domainForm, auditDate: event.target.value })}
-              />
-            </div>
+            />
+          </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDomainEditTarget(null)}>
@@ -694,9 +634,6 @@ export function OrganizationDetailPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Ownership Evidence</DialogTitle>
-            <DialogDescription>
-              Raw evidence masks sensitive fields for everyone except operators and admins.
-            </DialogDescription>
           </DialogHeader>
           <pre className="mono max-h-[55vh] overflow-auto rounded-[4px] border border-border bg-black p-3 text-[11px] leading-5 text-mint">
             {JSON.stringify(evidenceView, null, 2)}
@@ -707,22 +644,6 @@ export function OrganizationDetailPage() {
   )
 }
 
-function Coverage({ label, value, total }: { label: string; value: number; total: number }) {
-  const pct = total ? Math.round((value / total) * 100) : 0
-  return (
-    <div>
-      <div className="mb-1.5 flex justify-between">
-        <span className="text-muted-foreground">{label}</span>
-        <b>
-          {value} / {total}
-        </b>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  )
-}
 function AssetTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
   if (query.isLoading) return <LoadingBlock />
   const items = query.data?.items || []

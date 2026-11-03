@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/common/page-header'
 import { Pagination } from '@/components/common/pagination'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { Fact, Field, KeyValues, Section } from '@/components/common/form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,7 +21,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
@@ -145,18 +145,12 @@ export function AssetsPage() {
   return (
     <div>
       <PageHeader
-        title="Attack Surface Assets"
-        description="Shows domains, IPs, and services linked to confirmed organization root domains by default; the raw scan inventory is kept as a secondary view."
+        title="Assets"
         actions={
-          canWrite(role) && view === 'inventory' ? (
-            <Button onClick={openCreate}>
-              <Plus />
-              New Asset
-            </Button>
-          ) : null
+          canWrite(role) && view === 'inventory' ? <Button onClick={openCreate}>New Asset</Button> : null
         }
       />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex rounded-[4px] bg-muted p-1">
           <Button
             size="sm"
@@ -189,11 +183,11 @@ export function AssetsPage() {
           />
         </form>
         <Select value={kind || 'all'} onValueChange={(value) => setParam('kind', value === 'all' ? '' : value)}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="All types" />
+          <SelectTrigger className="min-w-36">
+            <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             {kinds.filter(Boolean).map((item) => (
               <SelectItem key={item} value={item}>
                 {item}
@@ -203,11 +197,11 @@ export function AssetsPage() {
         </Select>
         {view === 'surface' ? (
           <Select value={risk || 'all'} onValueChange={(value) => setParam('risk', value === 'all' ? '' : value)}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="All risks" />
+            <SelectTrigger className="min-w-36">
+              <SelectValue placeholder="All Risks" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All risks</SelectItem>
+              <SelectItem value="all">All Risks</SelectItem>
               <SelectItem value="critical">Critical</SelectItem>
               <SelectItem value="high">High</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
@@ -262,17 +256,15 @@ export function AssetsPage() {
                   canWrite(role) ? (
                     <div className="flex justify-end gap-1">
                       <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
-                        <Pencil />
                         Edit
                       </Button>
                       <ConfirmDialog
                         title="Delete asset"
-                        description="The asset and its observations will be hidden from the current view and moved to the recycle bin; a later scan that observes it again restores it automatically."
-                        confirmLabel="Move to recycle bin"
+                        description="Moved to the recycle bin. A later scan that observes it again restores it automatically."
+                        confirmLabel="Move To Recycle Bin"
                         onConfirm={() => remove.mutate(row.id || '')}
                         trigger={
                           <Button size="sm" variant="ghost" className="text-destructive">
-                            <Trash2 />
                             Delete
                           </Button>
                         }
@@ -303,17 +295,15 @@ export function AssetsPage() {
               {canWrite(role) ? (
                 <div className="flex flex-wrap justify-end gap-2">
                   <Button size="sm" variant="outline" onClick={() => openEdit(visible)}>
-                    <Pencil />
-                    Edit Basic Info
+                    Edit
                   </Button>
                   <ConfirmDialog
                     title="Delete asset"
-                    description="The asset will be moved to the recycle bin; a later scan that observes it again restores it automatically."
-                    confirmLabel="Move to recycle bin"
+                    description="Moved to the recycle bin. A later scan that observes it again restores it automatically."
+                    confirmLabel="Move To Recycle Bin"
                     onConfirm={() => remove.mutate(visible.id || '')}
                     trigger={
                       <Button size="sm" variant="outline" className="text-destructive">
-                        <Trash2 />
                         Delete
                       </Button>
                     }
@@ -335,9 +325,24 @@ export function AssetsPage() {
               {visible.displayName || visible.displayUrl || visible.notes || visible.tags?.length ? (
                 <Section title="Maintenance Info">
                   <div className="space-y-2 rounded-[4px] border bg-card p-3 text-xs">
-                    {visible.displayName ? <div>Name: {visible.displayName}</div> : null}
-                    {visible.displayUrl ? <div className="mono break-all">URL：{visible.displayUrl}</div> : null}
-                    {visible.notes ? <div className="whitespace-pre-wrap">Notes: {visible.notes}</div> : null}
+                    {visible.displayName ? (
+                      <div>
+                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">Name:</span>
+                        {visible.displayName}
+                      </div>
+                    ) : null}
+                    {visible.displayUrl ? (
+                      <div className="break-all">
+                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">URL:</span>
+                        <span className="mono">{visible.displayUrl}</span>
+                      </div>
+                    ) : null}
+                    {visible.notes ? (
+                      <div className="whitespace-pre-wrap">
+                        <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">Notes:</span>
+                        {visible.notes}
+                      </div>
+                    ) : null}
                     {visible.tags?.length ? (
                       <div className="flex flex-wrap gap-1.5">
                         {visible.tags.map((tag) => (
@@ -363,13 +368,7 @@ export function AssetsPage() {
               ) : null}
               {visible.organizationIds?.length ? (
                 <Section title="Organizations">
-                  <div className="flex flex-wrap gap-1.5">
-                    {visible.organizationIds.map((id) => (
-                      <span key={id} className="mono rounded border bg-muted px-2 py-1 text-[11px]">
-                        {id}
-                      </span>
-                    ))}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{visible.organizationIds.length} linked</div>
                 </Section>
               ) : null}
               <Section title="Observation Summary">
@@ -384,17 +383,14 @@ export function AssetsPage() {
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit Asset Basic Info' : 'New Manual Asset'}</DialogTitle>
-            <DialogDescription>
-              {editingId
-                ? 'Type, unique key, and raw scan data stay read-only.'
-                : 'Manual assets are marked with the manual origin and never modify scan-generated raw data.'}
-            </DialogDescription>
+            <DialogTitle>{editingId ? 'Edit Asset' : 'New Manual Asset'}</DialogTitle>
+            {editingId ? (
+              <DialogDescription>Type, key, and raw scan data stay read-only.</DialogDescription>
+            ) : null}
           </DialogHeader>
           <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label>Type</Label>
+              <Field label="Type">
                 <Select
                   value={form.kind}
                   onValueChange={(value) => setForm({ ...form, kind: value })}
@@ -411,39 +407,34 @@ export function AssetsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Unique Key</Label>
+              </Field>
+              <Field label="Unique Key">
                 <Input
                   value={form.key}
                   disabled={Boolean(editingId)}
                   onChange={(event) => setForm({ ...form, key: event.target.value })}
                   placeholder="example.com / 1.1.1.1 / https://…"
                 />
-              </div>
+              </Field>
             </div>
-            <div className="space-y-1.5">
-              <Label>Display Name</Label>
+            <Field label="Display Name">
               <Input
                 value={form.displayName}
                 onChange={(event) => setForm({ ...form, displayName: event.target.value })}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>URL</Label>
+            </Field>
+            <Field label="URL">
               <Input
                 value={form.displayUrl}
                 onChange={(event) => setForm({ ...form, displayUrl: event.target.value })}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Tags (comma-separated)</Label>
+            </Field>
+            <Field label="Tags" hint="Comma-separated.">
               <Input value={form.tags} onChange={(event) => setForm({ ...form, tags: event.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Notes</Label>
+            </Field>
+            <Field label="Notes">
               <Textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditorOpen(false)}>
@@ -462,37 +453,3 @@ export function AssetsPage() {
   )
 }
 
-function Fact({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-[4px] border bg-card p-2.5">
-      <div className="text-[10px] text-muted-foreground">{label}</div>
-      <div className="mt-1 text-xs font-medium">{value}</div>
-    </div>
-  )
-}
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{title}</div>
-      {children}
-    </div>
-  )
-}
-function KeyValues({ data }: { data?: Record<string, unknown> }) {
-  const entries = data
-    ? Object.entries(data)
-        .filter(([, value]) => value !== null && value !== '' && typeof value !== 'object')
-        .slice(0, 20)
-    : []
-  if (!entries.length) return <div className="text-xs text-muted-foreground">No structured observation fields</div>
-  return (
-    <dl className="divide-y rounded-[4px] border text-xs">
-      {entries.map(([key, value]) => (
-        <div key={key} className="grid grid-cols-[120px_1fr] gap-2 px-3 py-2">
-          <dt className="truncate text-muted-foreground">{key}</dt>
-          <dd className="break-all">{String(value)}</dd>
-        </div>
-      ))}
-    </dl>
-  )
-}
