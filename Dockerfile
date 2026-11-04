@@ -1,5 +1,15 @@
+# syntax=docker/dockerfile:1
 # Multi-stage image for Render (or any container host).
+# Stage 1 builds the React console, stage 2 embeds it into the Go binary
+# (go:embed all:dist), stage 3 is the minimal runtime.
 # Build context is the repository root.
+
+FROM node:22-alpine AS web
+WORKDIR /src/web
+COPY web/package.json web/package-lock.json ./
+RUN npm ci
+COPY web/ ./
+RUN T4C_WEB_OUT_DIR=dist npm run build
 
 FROM golang:1.27-alpine AS build
 WORKDIR /src
@@ -7,6 +17,7 @@ RUN apk add --no-cache ca-certificates
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+COPY --from=web /src/web/dist ./internal/webui/dist
 RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /out/t4c ./cmd/t4c
 
 FROM alpine:3.21
