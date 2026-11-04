@@ -1,0 +1,13 @@
+.git
+.github
+web/node_modules
+web/dist
+web/e2e
+internal/webui/dist
+data
+deploy/secrets
+deploy/geoip
+*.md
+config.yaml
+back.md
+pellete.md
