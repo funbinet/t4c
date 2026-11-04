@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Globe, List, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
+import { Globe, List, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api, type EasmAsset } from '@/api'
 import { RiskBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Pagination } from '@/components/common/pagination'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -144,81 +144,69 @@ export function AssetsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Assets"
-        actions={
-        canWrite(role) && view === 'inventory' ? (
-          <Button size="icon" title="New Asset" onClick={openCreate}>
-            <Plus />
-            <span className="sr-only">New Asset</span>
-          </Button>
-        ) : null
-      }
+      <ScreenToolbar
+        left={
+          <>
+            <div className="flex rounded-[4px] bg-muted p-1">
+              <Button
+                size="sm"
+                variant={view === 'surface' ? 'default' : 'ghost'}
+                title="Exposure view"
+                onClick={() => setParam('view', 'surface')}
+              >
+                <Globe className="size-4" />
+                <span className="sr-only">Exposure</span>
+              </Button>
+              <Button
+                size="sm"
+                variant={view === 'inventory' ? 'default' : 'ghost'}
+                title="Raw inventory view"
+                onClick={() => setParam('view', 'inventory')}
+              >
+                <List className="size-4" />
+                <span className="sr-only">Raw Inventory</span>
+              </Button>
+            </div>
+            <ExpandableSearch
+              value={q}
+              onChange={(value) => setParam('q', value)}
+              placeholder="Search asset key or title…"
+              title="Search assets"
+            />
+          </>
+        }
+        center={query.isLoading ? 'Loading…' : `${query.data?.total ?? 0} assets`}
+        right={
+          <>
+            {canWrite(role) && view === 'inventory' ? (
+              <Button size="icon" title="New Asset" aria-label="New Asset" onClick={openCreate}>
+                <Plus />
+                <span className="sr-only">New Asset</span>
+              </Button>
+            ) : null}
+            <FilterDropdown
+              label="Filter by type"
+              options={[{ value: '', label: 'All Types' }, ...kinds.filter(Boolean).map((k) => ({ value: k, label: k }))]}
+              value={kind}
+              onChange={(value) => setParam('kind', value)}
+            />
+            {view === 'surface' ? (
+              <FilterDropdown
+                label="Filter by risk"
+                options={[
+                  { value: '', label: 'All Risks' },
+                  { value: 'critical', label: 'Critical' },
+                  { value: 'high', label: 'High' },
+                  { value: 'medium', label: 'Medium' },
+                  { value: 'low', label: 'Low' },
+                ]}
+                value={risk}
+                onChange={(value) => setParam('risk', value)}
+              />
+            ) : null}
+          </>
+        }
       />
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-[4px] bg-muted p-1">
-          <Button
-            size="sm"
-            variant={view === 'surface' ? 'default' : 'ghost'}
-            title="Exposure view"
-            onClick={() => setParam('view', 'surface')}
-          >
-            <Globe className="size-4" />
-            <span className="sr-only">Exposure</span>
-          </Button>
-          <Button
-            size="sm"
-            variant={view === 'inventory' ? 'default' : 'ghost'}
-            title="Raw inventory view"
-            onClick={() => setParam('view', 'inventory')}
-          >
-            <List className="size-4" />
-            <span className="sr-only">Raw Inventory</span>
-          </Button>
-        </div>
-        <form
-          className="relative min-w-0 flex-1 sm:max-w-sm"
-          onSubmit={(event) => {
-            event.preventDefault()
-            setParam('q', q)
-          }}
-        >
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={params.get('q') || ''}
-            onChange={(event) => setParam('q', event.target.value)}
-            placeholder="Search asset key or title…"
-            className="pl-8"
-          />
-        </form>
-        <Select value={kind || 'all'} onValueChange={(value) => setParam('kind', value === 'all' ? '' : value)}>
-          <SelectTrigger className="min-w-36">
-            <SelectValue placeholder="All Types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {kinds.filter(Boolean).map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {view === 'surface' ? (
-          <Select value={risk || 'all'} onValueChange={(value) => setParam('risk', value === 'all' ? '' : value)}>
-            <SelectTrigger className="min-w-36">
-              <SelectValue placeholder="All Risks" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Risks</SelectItem>
-              <SelectItem value="critical">Critical</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectContent>
-          </Select>
-        ) : null}
-      </div>
       {query.isLoading ? (
         <LoadingBlock />
       ) : query.error ? (

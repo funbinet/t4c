@@ -1,12 +1,12 @@
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type User } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Field } from '@/components/common/form'
@@ -23,6 +23,7 @@ export function UsersPage() {
   const [editingId, setEditingId] = useState('')
   const [form, setForm] = useState({ username: '', password: '', role: 'viewer' })
   const [editForm, setEditForm] = useState({ role: 'viewer', disabled: false, password: '' })
+  const [search, setSearch] = useState('')
   const users = useQuery({ queryKey: ['users'], queryFn: () => api.users() })
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['users'] })
   const create = useMutation({
@@ -62,15 +63,32 @@ export function UsersPage() {
     setEditForm({ role: row.role || 'viewer', disabled: Boolean(row.disabled), password: '' })
     setEditOpen(true)
   }
-  const rows = (users.data?.items || []) as User[]
+  const rows = useMemo(
+    () =>
+      ((users.data?.items || []) as User[]).filter(
+        (row) => !search || `${row.username} ${row.role}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [users.data, search],
+  )
   return (
     <div>
-      <PageHeader title="Users" actions={
-          <Button size="icon" title="New User" onClick={() => setOpen(true)}>
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search username or role…"
+            title="Search users"
+          />
+        }
+        center={users.isLoading ? 'Loading…' : `${rows.length} users`}
+        right={
+          <Button size="icon" title="New User" aria-label="New User" onClick={() => setOpen(true)}>
             <Plus />
             <span className="sr-only">New User</span>
           </Button>
-        } />
+        }
+      />
       {users.isLoading ? (
         <LoadingBlock />
       ) : users.error ? (

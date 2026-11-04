@@ -1,10 +1,10 @@
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Scope } from '@/api'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -22,6 +22,7 @@ export function ScopesPage() {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState('')
+  const [search, setSearch] = useState('')
   const [form, setForm] = useState({ name: '', type: 'domain', targets: '' })
   const scopes = useQuery({ queryKey: ['scopes'], queryFn: () => api.scopes() })
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['scopes'] })
@@ -62,16 +63,33 @@ export function ScopesPage() {
     setForm({ name: row.name || '', type: row.type || 'domain', targets: (row.targets || []).join('\n') })
     setOpen(true)
   }
-  const rows = (scopes.data?.items || []) as Scope[]
+  const rows = useMemo(
+    () =>
+      ((scopes.data?.items || []) as Scope[]).filter(
+        (row) =>
+          !search ||
+          `${row.name} ${(row.targets || []).join(' ')}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [scopes.data, search],
+  )
   return (
     <div>
-      <PageHeader
-        title="Asset Groups"
-        actions={
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search group name or targets…"
+            title="Search asset groups"
+          />
+        }
+        center={scopes.isLoading ? 'Loading…' : `${rows.length} groups`}
+        right={
           canWrite(role) ? (
             <Button
               size="icon"
               title="New Asset Group"
+              aria-label="New Asset Group"
               onClick={() => {
                 setEditingId('')
                 setForm({ name: '', type: 'domain', targets: '' })

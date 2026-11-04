@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-
+import { RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { api, type AuditEvent } from '@/api'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Pagination } from '@/components/common/pagination'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { formatTime } from '@/lib/format'
 
 export function AuditPage() {
@@ -16,17 +16,33 @@ export function AuditPage() {
   const rows = (audit.data?.items || []) as AuditEvent[]
   return (
     <div>
-      <PageHeader title="Audit Log" />
-      <div className="mb-3 max-w-sm">
-        <Input
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value)
-            setPage(1)
-          }}
-          placeholder="Search actor, action, or resource…"
-        />
-      </div>
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={q}
+            onChange={(value) => {
+              setQ(value)
+              setPage(1)
+            }}
+            placeholder="Search actor, action, or resource…"
+            title="Search audit log"
+          />
+        }
+        center={audit.isLoading ? 'Loading…' : `${audit.data?.total ?? 0} events`}
+        right={
+          <Button
+            size="icon"
+            variant="outline"
+            title="Sync Logs"
+            aria-label="Sync Logs"
+            disabled={audit.isFetching}
+            onClick={() => audit.refetch()}
+          >
+            <RefreshCw className={audit.isFetching ? 'animate-spin' : undefined} />
+            <span className="sr-only">Sync Logs</span>
+          </Button>
+        }
+      />
       {audit.isLoading ? (
         <LoadingBlock />
       ) : audit.error ? (

@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Pause, Pencil, Play, Plus, Save, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type Monitor } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -29,6 +29,7 @@ export function MonitorsPage() {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState('')
+  const [search, setSearch] = useState('')
   const [form, setForm] = useState({
     name: '',
     kind: 'domain',
@@ -88,18 +89,33 @@ export function MonitorsPage() {
     })
     setOpen(true)
   }
-  const rows = (monitors.data?.items || []) as Monitor[]
+  const rows = useMemo(
+    () =>
+      ((monitors.data?.items || []) as Monitor[]).filter(
+        (row) => !search || `${row.name} ${row.target}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [monitors.data, search],
+  )
   const scopeRows = (scopes.data?.items || []) as Array<{ id?: string; name?: string }>
   const policyRows = (policies.data?.items || []) as Array<{ id?: string; name?: string }>
   return (
     <div>
-      <PageHeader
-        title="Monitors"
-        actions={
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search monitor name or target…"
+            title="Search monitors"
+          />
+        }
+        center={monitors.isLoading ? 'Loading…' : `${rows.length} monitors`}
+        right={
           canWrite(role) ? (
             <Button
               size="icon"
               title="New Monitor"
+              aria-label="New Monitor"
               onClick={() => {
                 setEditingId('')
                 setForm({

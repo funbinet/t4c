@@ -62,23 +62,32 @@ labels, hard 4px radii, restrained motion. Do NOT modify the AppBackground
     left-aligned inside that centered pill, and section labels share the same
     left padding as item text. Hover and active states are background fills
     only. The logo/name is a link home.
+13. **Screen toolbar (`ScreenToolbar`).** No screen carries an in-page title —
+    the header title is the only page title. Every list screen starts with the
+    three-column toolbar from `components/common/screen-toolbar.tsx`:
+    `[expanding outline Search icon button] [centered count/status note]
+    [filter icon buttons + action icon buttons]`. Filters are icon-only
+    outline `FilterDropdown` buttons that open a popup and close again when an
+    option is chosen; the trigger never shows the selected value. Actions sit
+    at the far right on the same line.
 
 ## Header & Global Search (implemented)
 
 - Header grid stays `[left zone] [centered page title] [right cluster]`. The
   right cluster order is exactly `[refresh] [search] [range filter] [account]`.
-  Header icon buttons are `size-8` to match the range filter and account
-  trigger; in-page toolbar icon buttons are `size-9` (36px).
-- Refresh is an outline icon-only button using `RotateCw` — one circular arrow,
-  one arrowhead. Each click runs `.refresh-spin` for exactly 1s, then
-  `queryClient.invalidateQueries()` refreshes every active query on the current
-  page.
-- Search is an outline icon-only button (no wide search field, no duplicate
-  mobile button). It opens the command palette. The popup has no divider line
-  under the input; it uses the same rounded border/card surface as the other
-  dialogs, with a mint search glyph and a mint/white close X.
-- Range filter is unchanged: compact 24H/7D/30D/90D/ALL tokens in the `w-20 h-8`
-  trigger, shown on Overview only.
+- Refresh, Search, and the range filter are **ghost icon buttons — no border
+  box**, matching the sidebar icon look: muted icon, mint hover glow
+  (`hover:bg-[rgba(0,250,0,0.06)]`), white icon on hover.
+- Refresh uses `RotateCw` — one circular arrow, one arrowhead. Each click runs
+  `.refresh-spin` for exactly 1s, then `queryClient.invalidateQueries()`
+  refreshes every active query on the current page.
+- Search opens the command palette. The popup has no divider line under the
+  input; it uses the same rounded border/card surface as the other dialogs,
+  with a mint search glyph and a mint/white close X.
+- Range filter is an **icon-only ghost `Filter` button** (no visible range
+  text, no box). Clicking it opens a dropdown popup of 24H/7D/30D/90D/ALL
+  tokens with a check mark on the active one; selecting a range applies it and
+  closes the popup. Shown on Overview only.
 - Account keeps the saved username exactly (normal-case) and uses an outline
   `UserRound` inside a bordered circular chip. The chip/icon turns white on
   hover.
@@ -149,34 +158,47 @@ style, requirement checklist.
   Import. Dialog footers follow the global dialog rule.
 - Planned: org cards with risk sparkline, inline status.
 
-## Organization Detail (partially updated)
+## Organization Detail (implemented)
 
-Header actions: Play (Start Scan), Search with spin while pending (ICP
-Lookup), Plus (Add Root Domain), Download (Export), Pencil (Edit), Trash2
-(Delete) — all icon buttons. Domain rows: FileText (Evidence), Pencil, Trash2,
-X (Remove candidate). History rows: History icon. All six dialogs follow the
-global dialog rule. StatTiles here can adopt the same icon accents as
-Overview in the next pass.
+Header actions: Play (Start Scan) — **always clickable**; the scan dialog
+lists confirmed root domains and, when none are confirmed, walks through
+Add Domain → ICP Lookup → Confirm → Play instead of being a dead button.
+Other actions: Search with spin while pending (ICP Lookup), Plus (Add Root
+Domain), Download (Export), Pencil (Edit), Trash2 (Delete) — all icon
+buttons. Domain rows: FileText (Evidence), Pencil, Trash2, X (Remove
+candidate). History rows: History icon. All six dialogs follow the global
+dialog rule.
 
-## Assets (partially updated)
+Tab bar: **icon + text triggers, centered** as a group (`mx-auto w-full
+max-w-4xl justify-center`, `min-w-32 px-5` triggers) — Overview
+(LayoutDashboard), Root Domains (Globe), Assets (Crosshair), Risks
+(ShieldAlert), Tasks (Workflow).
 
-View toggle: Globe (Exposure) / List (Raw Inventory) icon segmented control.
-Toolbar: Plus icon-only (New Asset). Row and sheet actions: Pencil/Trash2
-icon-only. Editor dialog follows the global dialog rule. Planned: asset type
-glyphs in the table, severity-tinted hover.
+Overview tab is a full workspace, not just a risk list: Surface Summary
+facts, Risk Breakdown, Recent Assets, Current Risks, and Scan History &
+Tasks — with "View all" jumps to the matching tab. Assets/risks/tasks
+queries are always enabled so the overview is populated on arrival.
 
-## Risks / Findings (partially updated)
+## Assets (implemented)
 
-View toggle: ShieldAlert (Current Risks) / History / FileText (Raw Scans)
-icon segmented control. Planned: severity histogram card, evidence drawer
-restyle.
+Uses `ScreenToolbar`. Left: Globe/List exposure toggle + expanding Search
+icon button. Center: asset count. Right: New Asset (Plus, inventory view
+only) **before** the filter icon buttons — FilterDropdown for type and (in
+exposure view) risk. Row and sheet actions: Pencil/Trash2 icon-only. Editor
+dialog follows the global dialog rule.
 
-## Tasks (partially updated)
+## Risks / Findings (implemented)
 
-View toggle: Crosshair (Attack Surface) / List (All Tasks) icon segmented
-control. Toolbar: Plus icon-only (New Task). Row actions: Search (Details),
-Square (Stop). Dialog follows the global dialog rule. Planned: progress bars
-with animated fill, per-kind task glyphs.
+Uses `ScreenToolbar`. Left: ShieldAlert/History/FileText view toggle +
+expanding Search icon button. Right: severity and type `FilterDropdown`s.
+Severity histogram card and evidence drawer restyle remain planned.
+
+## Tasks (implemented)
+
+Uses `ScreenToolbar`. Left: Crosshair/List origin toggle + expanding Search
+icon button. Right: **New Task (Plus) first, then the status and type
+FilterDropdowns**. Row actions: Search (Details), Square (Stop). Dialog
+follows the global dialog rule.
 
 ## Task Detail (partially updated)
 
@@ -184,68 +206,82 @@ Header actions: Download (Export), RefreshCw (Sync), Square (Stop),
 RotateCcw (Retry) icon buttons. Planned: terminal-style live log stream,
 timeline of task events.
 
-## Monitors (partially updated)
+## Monitors (implemented)
 
-Toolbar: Plus icon-only (New Monitor). Row actions: Pencil, Play (Run),
-Pause/Play state toggle, Trash2 — icon-only outline `size-8`. Dialog follows
-the global dialog rule.
+Uses `ScreenToolbar`: expanding Search icon button (client-side filter over
+name/target), centered count, New Monitor (Plus) on the right. Row actions:
+Pencil, Play (Run), Pause/Play state toggle, Trash2 — icon-only outline
+`size-8`. Dialog follows the global dialog rule.
 
-## Schedules (partially updated)
+## Schedules (implemented)
 
-Toolbar: Plus icon-only (New Schedule). Row actions: Pencil/Trash2 icon-only.
+Uses `ScreenToolbar`: expanding Search icon button, centered count, New
+Schedule (Plus) on the right. Row actions: Pencil/Trash2 icon-only. Dialog
+follows the global dialog rule.
+
+## Scan Policies (implemented)
+
+Uses `ScreenToolbar`: expanding Search icon button (client-side filter),
+centered count, New Policy (Plus) on the right. Row actions:
+Pencil/Trash2 icon-only. Dialog follows the global dialog rule.
+
+## Asset Groups / Scopes (implemented)
+
+Uses `ScreenToolbar`: expanding Search icon button, centered count, New
+Asset Group (Plus) on the right. Row actions: Pencil/Trash2 icon-only.
 Dialog follows the global dialog rule.
 
-## Scan Policies (partially updated)
+## Fingerprints (implemented)
 
-Toolbar: Plus icon-only (New Policy). Row actions: Pencil/Trash2 icon-only.
-Dialog follows the global dialog rule.
-
-## Asset Groups / Scopes (partially updated)
-
-Toolbar: Plus icon-only (New Asset Group). Row actions: Pencil/Trash2
-icon-only. Dialog follows the global dialog rule.
-
-## Fingerprints (partially updated)
-
-Toolbar: Upload icon-only (Bulk Import), Plus icon-only (New Fingerprint).
-Row actions: Pencil/Trash2 icon-only. Both dialogs follow the global dialog
-rule.
-
-## GitHub (partially updated)
-
-Toolbar: Plus icon-only (New Monitor / New Search). Row actions:
-Pencil/Trash2 icon-only. Dialog follows the global dialog rule. Planned: leak
-result cards with severity emphasis.
-
-## PoC Plugins (partially updated)
-
-Toolbar: RefreshCw icon-only (Sync Metadata) with spin while pending.
-Planned: plugin cards with kind glyphs.
-
-## Users (partially updated)
-
-Toolbar: Plus icon-only (New User). Row actions: Pencil/Trash2 icon-only.
-Both dialogs follow the global dialog rule.
-
-## API Keys (partially updated)
-
-Toolbar: Plus icon-only (New Key). Row action: X icon-only (Revoke). Secret
-dialog: Copy icon-only, KeyRound + Done. Create dialog follows the global
+Uses `ScreenToolbar`: expanding Search icon button on the left; Bulk Import
+(Upload, outline) and New Fingerprint (Plus) aligned right on the same
+line. Row actions: Pencil/Trash2 icon-only. Both dialogs follow the global
 dialog rule.
 
-## Audit Log (to update when we rework this screen)
+## GitHub (implemented)
 
-No buttons today. Planned: actor/target two-column terminal view, filter
-chips.
+No in-page title. The three selection tabs are **icons only** (Eye = Leak
+Results, Search = Search Tasks, Activity = Monitors) in the toolbar's left
+zone, on the same line as the New Monitor/New Search (Plus) button on the
+right. Row actions: Pencil/Trash2 icon-only. Dialog follows the global
+dialog rule.
 
-## Recycle Bin (partially updated)
+## PoC Plugins (implemented)
 
-Row action: ArchiveRestore icon-only outline `size-8`. Planned: type-grouped
-view with restore-all.
+Uses `ScreenToolbar`: expanding Search icon button on the left; on the
+right, Sync Metadata (RefreshCw, outline, spin while pending) and the type
+`FilterDropdown` aligned on one line. Planned: plugin cards with kind
+glyphs.
 
-## System (to update when we rework this screen)
+## Users (implemented)
 
-Planned: health wallboard with per-service tiles mirroring Overview StatTiles.
+Uses `ScreenToolbar`: expanding Search icon button (client-side filter),
+centered count, New User (Plus) on the right. Row actions:
+Pencil/Trash2 icon-only. Both dialogs follow the global dialog rule.
+
+## API Keys (implemented)
+
+Uses `ScreenToolbar`: expanding Search icon button, centered count, New Key
+(Plus) on the right. Row action: X icon-only (Revoke). Secret dialog: Copy
+icon-only, KeyRound + Done. Create dialog follows the global dialog rule.
+
+## Audit Log (implemented)
+
+Uses `ScreenToolbar`: expanding Search icon button (server-side query) on
+the left; **Sync Logs** (RefreshCw, outline, spin while fetching) on the
+right, mirroring the Plugins Sync Metadata button. Planned: actor/target
+two-column terminal view.
+
+## Recycle Bin (implemented)
+
+Uses `ScreenToolbar`: expanding Search icon button on the left, type
+`FilterDropdown` icon button on the right. Row action: ArchiveRestore
+icon-only outline `size-8`. Planned: type-grouped view with restore-all.
+
+## System (title removed)
+
+No in-page title; the screen content (Runtime, APIs & Monitoring, Scanner
+SDKs cards) is unchanged.
 
 ## 404 / Not Found (updated)
 

@@ -1,10 +1,10 @@
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Policy } from '@/api'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -41,6 +41,7 @@ export function PoliciesPage() {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState('')
+  const [search, setSearch] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [options, setOptions] = useState(defaults)
@@ -104,16 +105,31 @@ export function PoliciesPage() {
     })
     setOpen(true)
   }
-  const rows = (policies.data?.items || []) as Policy[]
+  const rows = useMemo(
+    () =>
+      ((policies.data?.items || []) as Policy[]).filter(
+        (row) => !search || `${row.name} ${row.description}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [policies.data, search],
+  )
   return (
     <div>
-      <PageHeader
-        title="Scan Policies"
-        actions={
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search policy name or description…"
+            title="Search policies"
+          />
+        }
+        center={policies.isLoading ? 'Loading…' : `${rows.length} policies`}
+        right={
           canWrite(role) ? (
             <Button
               size="icon"
               title="New Policy"
+              aria-label="New Policy"
               onClick={() => {
                 setEditingId('')
                 setName('')

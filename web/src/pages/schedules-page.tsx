@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type Schedule } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -22,6 +22,7 @@ export function SchedulesPage() {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [editingId, setEditingId] = useState('')
+  const [search, setSearch] = useState('')
   const [form, setForm] = useState({
     name: '',
     kind: 'recurrent_scan',
@@ -79,17 +80,32 @@ export function SchedulesPage() {
     })
     setOpen(true)
   }
-  const rows = (schedules.data?.items || []) as Schedule[]
+  const rows = useMemo(
+    () =>
+      ((schedules.data?.items || []) as Schedule[]).filter(
+        (row) => !search || `${row.name} ${row.target}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [schedules.data, search],
+  )
   const policyRows = (policies.data?.items || []) as Array<{ id?: string; name?: string }>
   return (
     <div>
-      <PageHeader
-        title="Schedules"
-        actions={
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search schedule name or target…"
+            title="Search schedules"
+          />
+        }
+        center={schedules.isLoading ? 'Loading…' : `${rows.length} schedules`}
+        right={
           canWrite(role) ? (
             <Button
               size="icon"
               title="New Schedule"
+              aria-label="New Schedule"
               onClick={() => {
                 setEditingId('')
                 setForm({

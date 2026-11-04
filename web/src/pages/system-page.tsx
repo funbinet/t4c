@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ExternalLink } from 'lucide-react'
 import { api, type SystemInfo } from '@/api'
-import { PageHeader } from '@/components/common/page-header'
 import { ErrorState, LoadingBlock } from '@/components/common/states'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +13,6 @@ export function SystemPage() {
   const data = info.data as SystemInfo
   return (
     <div>
-      <PageHeader title="System" />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>

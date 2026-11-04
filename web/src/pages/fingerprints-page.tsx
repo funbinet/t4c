@@ -4,7 +4,7 @@ import { FileUp, Pencil, Plus, Save, Trash2, Upload, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type Fingerprint } from '@/api'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -78,18 +78,27 @@ export function FingerprintsPage() {
   )
   return (
     <div>
-      <PageHeader
-        title="Fingerprints"
-        actions={
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search fingerprint name or rule…"
+            title="Search fingerprints"
+          />
+        }
+        center={fingerprints.isLoading ? 'Loading…' : `${rows.length} fingerprints`}
+        right={
           canWrite(role) ? (
             <>
-              <Button size="icon" variant="outline" title="Bulk Import" onClick={() => setImportOpen(true)}>
+              <Button size="icon" variant="outline" title="Bulk Import" aria-label="Bulk Import" onClick={() => setImportOpen(true)}>
                 <Upload />
                 <span className="sr-only">Bulk Import</span>
               </Button>
               <Button
                 size="icon"
                 title="New Fingerprint"
+                aria-label="New Fingerprint"
                 onClick={() => {
                   setEditingId('')
                   setForm({ name: '', rule: '' })
@@ -103,13 +112,6 @@ export function FingerprintsPage() {
           ) : null
         }
       />
-      <div className="mb-3 max-w-sm">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search fingerprint name or rule…"
-        />
-      </div>
       {fingerprints.isLoading ? (
         <LoadingBlock />
       ) : fingerprints.error ? (

@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { Check, Download, FileText, History, Pencil, Play, Plus, Save, Search, Trash2, X } from 'lucide-react'
+import { Check, Crosshair, Download, FileText, Globe, History, LayoutDashboard, Pencil, Play, Plus, Save, Search, ShieldAlert, Trash2, Workflow, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type EasmAsset, type FindingItem, type OrganizationDomain, type Task } from '@/api'
 import { download } from '@/api/client'
 import { RiskBadge, StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
-import { Breadcrumb, Field } from '@/components/common/form'
+import { Breadcrumb, Fact, Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -71,17 +71,17 @@ export function OrganizationDetailPage() {
   const assets = useQuery({
     queryKey: ['organization-assets', id],
     queryFn: () => api.organizationAssets(id, { page: 1, pageSize: 100 }),
-    enabled: Boolean(id) && tab === 'assets',
+    enabled: Boolean(id),
   })
   const findings = useQuery({
     queryKey: ['organization-findings', id],
     queryFn: () => api.organizationFindings(id, { view: 'current', page: 1, pageSize: 100 }),
-    enabled: Boolean(id) && tab === 'findings',
+    enabled: Boolean(id),
   })
   const tasks = useQuery({
     queryKey: ['organization-tasks', id],
     queryFn: () => api.organizationTasks(id, { page: 1, pageSize: 100 }),
-    enabled: Boolean(id) && tab === 'tasks',
+    enabled: Boolean(id),
   })
 
   const refreshAll = () => {
@@ -263,7 +263,6 @@ export function OrganizationDetailPage() {
                 setScanDomains(confirmed.slice(0, 10))
                 setScanOpen(true)
               }}
-              disabled={!confirmed.length}
             >
               <Play />
               <span className="sr-only">Start Scan</span>
@@ -333,17 +332,39 @@ export function OrganizationDetailPage() {
       </div>
 
       <Tabs value={tab} onValueChange={switchTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="domains">Root Domains & Ownership</TabsTrigger>
-          <TabsTrigger value="assets">Assets</TabsTrigger>
-          <TabsTrigger value="findings">Risks</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+        <TabsList className="mx-auto flex w-full max-w-4xl justify-center">
+          {(
+            [
+              ['overview', 'Overview', LayoutDashboard],
+              ['domains', 'Root Domains', Globe],
+              ['assets', 'Assets', Crosshair],
+              ['findings', 'Risks', ShieldAlert],
+              ['tasks', 'Tasks', Workflow],
+            ] as const
+          ).map(([value, label, Icon]) => (
+            <TabsTrigger key={value} value={value} className="min-w-32 gap-2 px-5">
+              <Icon className="size-4" />
+              {label}
+            </TabsTrigger>
+          ))}
         </TabsList>
         <TabsContent value="overview">
-          <div className="grid max-w-xl gap-4">
+          <div className="grid gap-4 xl:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="border-b py-3">
+                <CardTitle>Surface Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-2 text-xs">
+                <Fact label="Confirmed Root Domains" value={summary.data?.confirmedDomains || 0} />
+                <Fact label="Pending Candidates" value={summary.data?.candidateDomains || 0} />
+                <Fact label="Domain Assets" value={formatNumber(summary.data?.domainAssets)} />
+                <Fact label="IP Assets" value={formatNumber(summary.data?.ipAssets)} />
+                <Fact label="Services" value={formatNumber(summary.data?.services)} />
+                <Fact label="Linked Tasks" value={summary.data?.linkedTasks || 0} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="border-b py-3">
                 <CardTitle>Risk Breakdown</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -363,6 +384,77 @@ export function OrganizationDetailPage() {
                     </span>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
+                <CardTitle>Recent Assets</CardTitle>
+                <Button size="sm" variant="ghost" onClick={() => switchTab('assets')}>
+                  View all
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-2 text-xs">
+                {(assets.data?.items || []).slice(0, 5).map((asset) => (
+                  <div key={asset.id || asset.key} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
+                    <span className="mono truncate">{asset.key}</span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="text-muted-foreground">{asset.kind}</span>
+                      <RiskBadge risk={asset.risk} />
+                    </span>
+                  </div>
+                ))}
+                {!assets.data?.items?.length ? (
+                  <div className="py-6 text-center uppercase tracking-[0.04em] text-muted-foreground">
+                    No assets discovered yet — confirm root domains and press Play.
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
+                <CardTitle>Current Risks</CardTitle>
+                <Button size="sm" variant="ghost" onClick={() => switchTab('findings')}>
+                  View all
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-2 text-xs">
+                {(findings.data?.items || []).slice(0, 5).map((item) => (
+                  <div key={item.finding?.id} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
+                    <span className="truncate">{item.finding?.title}</span>
+                    <RiskBadge risk={item.finding?.severity} />
+                  </div>
+                ))}
+                {!findings.data?.items?.length ? (
+                  <div className="py-6 text-center uppercase tracking-[0.04em] text-muted-foreground">
+                    No risks recorded yet.
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+            <Card className="xl:col-span-2">
+              <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
+                <CardTitle>Scan History &amp; Tasks</CardTitle>
+                <Button size="sm" variant="ghost" onClick={() => switchTab('tasks')}>
+                  View all
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-2 text-xs">
+                {(tasks.data?.items || []).slice(0, 5).map((task) => (
+                  <div key={task.id} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
+                    <Link className="truncate text-primary hover:underline" to={`/tasks/${task.id}`}>
+                      {task.name || task.id}
+                    </Link>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="mono text-muted-foreground">{task.target}</span>
+                      <StatusBadge status={task.status} />
+                    </span>
+                  </div>
+                ))}
+                {!tasks.data?.items?.length ? (
+                  <div className="py-6 text-center uppercase tracking-[0.04em] text-muted-foreground">
+                    No scans yet — press Play to run a full recon.
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
           </div>
@@ -516,19 +608,46 @@ export function OrganizationDetailPage() {
             <DialogDescription>One scan task per confirmed root domain; up to 10 at a time.</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            {confirmed.map((domain) => (
-              <label key={domain} className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
-                <Checkbox
-                  checked={scanDomains.includes(domain)}
-                  onCheckedChange={(checked) =>
-                    setScanDomains((current) =>
-                      checked ? current.slice(0, 9).concat(domain) : current.filter((item) => item !== domain),
-                    )
-                  }
-                />
-                <span className="mono">{domain}</span>
-              </label>
-            ))}
+            {confirmed.length ? (
+              confirmed.map((domain) => (
+                <label key={domain} className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
+                  <Checkbox
+                    checked={scanDomains.includes(domain)}
+                    onCheckedChange={(checked) =>
+                      setScanDomains((current) =>
+                        checked ? current.slice(0, 9).concat(domain) : current.filter((item) => item !== domain),
+                      )
+                    }
+                  />
+                  <span className="mono">{domain}</span>
+                </label>
+              ))
+            ) : (
+              <div className="space-y-3 rounded-[4px] border bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">
+                <div className="font-medium uppercase tracking-[0.04em] text-ink">No confirmed root domains yet</div>
+                <ol className="list-inside list-decimal space-y-1">
+                  <li>Add candidate root domains for this organization.</li>
+                  <li>Run the ICP reverse lookup to locate filing evidence.</li>
+                  <li>Confirm domain ownership in the Root Domains tab.</li>
+                  <li>Press Play again to launch the full recon.</li>
+                </ol>
+                <div className="flex gap-2 pt-1">
+                  <Button size="sm" variant="outline" onClick={() => (setScanOpen(false), setAddOpen(true))}>
+                    <Plus className="size-4" />
+                    Add Domain
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={refreshICP.isPending}
+                    onClick={() => refreshICP.mutate()}
+                  >
+                    <Search className={`size-4 ${refreshICP.isPending ? 'animate-spin' : ''}`} />
+                    ICP Lookup
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setScanOpen(false)}>

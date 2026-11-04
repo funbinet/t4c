@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type APIKey } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import {
@@ -27,6 +27,7 @@ export function APIKeysPage() {
   const [name, setName] = useState('')
   const [scopes, setScopes] = useState('read')
   const [secret, setSecret] = useState('')
+  const [search, setSearch] = useState('')
   const keys = useQuery({ queryKey: ['api-keys'], queryFn: () => api.apiKeys() })
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['api-keys'] })
   const create = useMutation({
@@ -54,15 +55,32 @@ export function APIKeysPage() {
     },
     onError: (error) => toast.error(error.message),
   })
-  const rows = (keys.data?.items || []) as APIKey[]
+  const rows = useMemo(
+    () =>
+      ((keys.data?.items || []) as APIKey[]).filter(
+        (row) => !search || `${row.name} ${(row.scopes || []).join(' ')}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [keys.data, search],
+  )
   return (
     <div>
-      <PageHeader title="API Keys" actions={
-          <Button size="icon" title="New Key" onClick={() => setOpen(true)}>
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search key name or scopes…"
+            title="Search API keys"
+          />
+        }
+        center={keys.isLoading ? 'Loading…' : `${rows.length} keys`}
+        right={
+          <Button size="icon" title="New Key" aria-label="New Key" onClick={() => setOpen(true)}>
             <Plus />
             <span className="sr-only">New Key</span>
           </Button>
-        } />
+        }
+      />
       {keys.isLoading ? (
         <LoadingBlock />
       ) : keys.error ? (

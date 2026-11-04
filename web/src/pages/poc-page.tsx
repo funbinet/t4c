@@ -6,10 +6,8 @@ import { api, type PocPlugin } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { isAdmin } from '@/lib/access'
 import { useAuth } from '@/app/auth'
 
@@ -38,36 +36,38 @@ export function PocPage() {
   )
   return (
     <div>
-      <PageHeader
-        title="PoC Plugins"
-        actions={
-          isAdmin(role) ? (
-            <Button size="icon" title="Sync Metadata" onClick={() => sync.mutate()} disabled={sync.isPending}>
-              <RefreshCw className={sync.isPending ? 'animate-spin' : undefined} />
-              <span className="sr-only">Sync Metadata</span>
-            </Button>
-          ) : null
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search plugin, application, or vulnerability…"
+            title="Search plugins"
+          />
+        }
+        center={plugins.isLoading ? 'Loading…' : `${rows.length} plugins`}
+        right={
+          <>
+            {isAdmin(role) ? (
+              <Button size="icon" title="Sync Metadata" aria-label="Sync Metadata" onClick={() => sync.mutate()} disabled={sync.isPending}>
+                <RefreshCw className={sync.isPending ? 'animate-spin' : undefined} />
+                <span className="sr-only">Sync Metadata</span>
+              </Button>
+            ) : null}
+            <FilterDropdown
+              label="Filter by type"
+              options={[
+                { value: 'all', label: 'All Types' },
+                { value: 'poc', label: 'PoC' },
+                { value: 'sniffer', label: 'Protocol detection' },
+                { value: 'brute', label: 'Weak passwords' },
+              ]}
+              value={kind}
+              onChange={setKind}
+            />
+          </>
         }
       />
-      <div className="mb-3 flex flex-wrap gap-3">
-        <Input
-          className="max-w-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search plugin, application, or vulnerability…"
-        />
-        <Select value={kind} onValueChange={setKind}>
-          <SelectTrigger className="min-w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="poc">PoC</SelectItem>
-            <SelectItem value="sniffer">Protocol detection</SelectItem>
-            <SelectItem value="brute">Weak passwords</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
       {plugins.isLoading ? (
         <LoadingBlock />
       ) : plugins.error ? (

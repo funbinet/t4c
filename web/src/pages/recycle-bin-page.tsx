@@ -1,15 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArchiveRestore, Search } from 'lucide-react'
+import { ArchiveRestore } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Pagination } from '@/components/common/pagination'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatTime } from '@/lib/format'
 
 type DeletedRecord = {
@@ -55,40 +53,34 @@ export function RecycleBinPage() {
 
   return (
     <div>
-      <PageHeader title="Recycle Bin" />
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <div className="relative min-w-0 flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+      <ScreenToolbar
+        left={
+          <ExpandableSearch
             value={q}
-            onChange={(event) => {
-              setQ(event.target.value)
+            onChange={(value) => {
+              setQ(value)
               setPage(1)
             }}
             placeholder="Search deleted records…"
-            className="pl-8"
+            title="Search recycle bin"
           />
-        </div>
-        <Select
-          value={type || 'all'}
-          onValueChange={(value) => {
-            setType(value === 'all' ? '' : value)
-            setPage(1)
-          }}
-        >
-          <SelectTrigger className="min-w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {Object.entries(resourceLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        }
+        center={deleted.isLoading ? 'Loading…' : `${deleted.data?.total ?? 0} records`}
+        right={
+          <FilterDropdown
+            label="Filter by type"
+            options={[
+              { value: '', label: 'All Types' },
+              ...Object.entries(resourceLabels).map(([value, label]) => ({ value, label })),
+            ]}
+            value={type}
+            onChange={(value) => {
+              setType(value)
+              setPage(1)
+            }}
+          />
+        }
+      />
       {deleted.isLoading ? (
         <LoadingBlock />
       ) : deleted.error ? (

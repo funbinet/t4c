@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/funbinet/t4c/internal/domain"
@@ -14,13 +15,14 @@ import (
 )
 
 type createTaskRequest struct {
-	Name        string             `json:"name"`
-	Kind        domain.TaskKind    `json:"kind"`
-	Target      string             `json:"target"`
-	PolicyID    string             `json:"policyId"`
-	ScopeID     string             `json:"scopeId"`
-	ResultSetID string             `json:"resultSetId"`
-	Options     domain.TaskOptions `json:"options"`
+	Name           string             `json:"name"`
+	Kind           domain.TaskKind    `json:"kind"`
+	Target         string             `json:"target"`
+	PolicyID       string             `json:"policyId"`
+	ScopeID        string             `json:"scopeId"`
+	ResultSetID    string             `json:"resultSetId"`
+	OrganizationID string             `json:"organizationId"`
+	Options        domain.TaskOptions `json:"options"`
 }
 
 func (s *Server) handleCreateTask(w http.ResponseWriter, r *http.Request) {
@@ -28,10 +30,22 @@ func (s *Server) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	if !httpx.DecodeJSON(w, r, &req) {
 		return
 	}
+	if orgID := strings.TrimSpace(req.OrganizationID); orgID != "" {
+		org, err := s.Store.GetOrganization(r.Context(), orgID)
+		if err != nil {
+			httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+			return
+		}
+		if org == nil {
+			httpx.WriteProblem(w, r, http.StatusBadRequest, "organization_not_found", "organization not found")
+			return
+		}
+	}
 	p := principalFrom(r.Context())
 	tasks, err := s.Engine.Submit(r.Context(), tasking.SubmitInput{
 		Name: req.Name, Kind: req.Kind, Target: req.Target, Options: req.Options,
-		PolicyID: req.PolicyID, ScopeID: req.ScopeID, ResultSetID: req.ResultSetID, CreatedBy: p.Username,
+		PolicyID: req.PolicyID, ScopeID: req.ScopeID, ResultSetID: req.ResultSetID,
+		OrganizationID: strings.TrimSpace(req.OrganizationID), CreatedBy: p.Username,
 	})
 	if err != nil {
 		httpx.WriteProblem(w, r, http.StatusBadRequest, "task_create_failed", err.Error())

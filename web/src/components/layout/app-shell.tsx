@@ -4,12 +4,14 @@ import {
   Boxes,
   Building2,
   CalendarClock,
+  Check,
   ChevronLeft,
   ChevronRight,
   Command as CommandIcon,
   Crosshair,
   FileKey2,
   FileText,
+  Filter,
   Fingerprint,
   GitBranch,
   LayoutDashboard,
@@ -32,7 +34,6 @@ import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from
 import { useAuth } from '@/app/auth'
 import t4cLogo from '@/assets/t4c.png'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -104,7 +105,10 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
   return (
     <nav
-      className="flex flex-1 flex-col items-stretch justify-evenly overflow-y-auto py-4 scrollbar-thin"
+      className={cn(
+        'flex min-h-0 flex-1 flex-col overflow-y-auto py-4 scrollbar-thin',
+        collapsed && 'justify-evenly',
+      )}
       aria-label="Main navigation"
     >
       {allGroups.map((group) => (
@@ -124,7 +128,7 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                       // Shared hitbox: 36px tall, uniform radius, no outline. The
                       // bottom collapse button is the reference for hover/active.
                       'flex h-9 items-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-[rgba(0,250,0,0.06)] hover:text-white',
-                      collapsed ? 'mx-auto w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
+                      collapsed ? 'w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
                       isActive && 'bg-[rgba(0,250,0,0.1)] text-mint hover:bg-[rgba(0,250,0,0.12)]',
                     )
                   }
@@ -137,13 +141,17 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                   )}
                 </NavLink>
               )
-              return collapsed ? (
-                <Tooltip key={item.to}>
-                  <TooltipTrigger asChild>{link}</TooltipTrigger>
-                  <TooltipContent side="right">{item.label}</TooltipContent>
-                </Tooltip>
-              ) : (
-                link
+              if (!collapsed) return link
+              // Collapsed: wrap in a full-width centering row so the icon is
+              // always perfectly centered, and let the nav distribute the rows
+              // evenly across the full height.
+              return (
+                <div key={item.to} className="flex w-full justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>{link}</TooltipTrigger>
+                    <TooltipContent side="right">{item.label}</TooltipContent>
+                  </Tooltip>
+                </div>
               )
             })}
           </div>
@@ -295,38 +303,47 @@ export function AppShell() {
           <div className="min-w-0 truncate text-center text-sm font-semibold uppercase tracking-[0.06em]">{title}</div>
           <div className="flex items-center gap-1.5 justify-self-end">
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               title="Refresh"
               aria-label="Refresh"
-              className="size-8"
+              className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
               onClick={refresh}
             >
               <RotateCw className={cn('size-4', refreshing && 'refresh-spin')} />
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               title="Search (Ctrl/⌘ K)"
               aria-label="Search"
-              className="size-8"
+              className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
               onClick={() => setSearchOpen(true)}
             >
               <Search className="size-4" />
             </Button>
             {isOverview ? (
-              <Select value={rangeParam} onValueChange={setRangeParam}>
-                <SelectTrigger className="h-8 w-20 text-xs" title="Time range">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title="Time range"
+                    aria-label="Time range"
+                    className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
+                  >
+                    <Filter className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
                   {ranges.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
+                    <DropdownMenuItem key={item.value} onSelect={() => setRangeParam(item.value)}>
+                      <Check className={cn('size-3.5', rangeParam === item.value ? 'opacity-100' : 'opacity-0')} />
                       {item.label}
-                    </SelectItem>
+                    </DropdownMenuItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
+import { Activity, Eye, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
@@ -82,33 +82,45 @@ export function GitHubPage() {
   }
   return (
     <div>
-      <PageHeader
-        title="GitHub"
-        actions={
-          canWrite(role) ? (
-            <Button
-              size="icon"
-              title={tab === 'monitors' ? 'New Monitor' : 'New Search'}
-              onClick={() => {
-                setEditingId('')
-                setKeyword('')
-                setName('')
-                setIntervalSec(21600)
-                setOpen(true)
-              }}
-            >
-              <Plus />
-              <span className="sr-only">{tab === 'monitors' ? 'New Monitor' : 'New Search'}</span>
-            </Button>
-          ) : null
-        }
-      />
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="findings">Leak Results</TabsTrigger>
-          <TabsTrigger value="tasks">Search Tasks</TabsTrigger>
-          <TabsTrigger value="monitors">Monitors</TabsTrigger>
-        </TabsList>
+        <ScreenToolbar
+          left={
+            <TabsList>
+              <TabsTrigger value="findings" title="Leak Results" aria-label="Leak Results">
+                <Eye className="size-4" />
+                <span className="sr-only">Leak Results</span>
+              </TabsTrigger>
+              <TabsTrigger value="tasks" title="Search Tasks" aria-label="Search Tasks">
+                <Search className="size-4" />
+                <span className="sr-only">Search Tasks</span>
+              </TabsTrigger>
+              <TabsTrigger value="monitors" title="Monitors" aria-label="Monitors">
+                <Activity className="size-4" />
+                <span className="sr-only">Monitors</span>
+              </TabsTrigger>
+            </TabsList>
+          }
+          center={tab === 'findings' ? 'Leak Results' : tab === 'tasks' ? 'Search Tasks' : 'Monitors'}
+          right={
+            canWrite(role) ? (
+              <Button
+                size="icon"
+                title={tab === 'monitors' ? 'New Monitor' : 'New Search'}
+                aria-label={tab === 'monitors' ? 'New Monitor' : 'New Search'}
+                onClick={() => {
+                  setEditingId('')
+                  setKeyword('')
+                  setName('')
+                  setIntervalSec(21600)
+                  setOpen(true)
+                }}
+              >
+                <Plus />
+                <span className="sr-only">{tab === 'monitors' ? 'New Monitor' : 'New Search'}</span>
+              </Button>
+            ) : null
+          }
+        />
         <TabsContent value="findings">
           {findings.isLoading ? (
             <LoadingBlock />

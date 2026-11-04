@@ -1,16 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
-import { FileText, History, Search, ShieldAlert } from 'lucide-react'
+import { FileText, History, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, type FindingItem } from '@/api'
 import { RiskBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Pagination } from '@/components/common/pagination'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Fact, KeyValues, Section } from '@/components/common/form'
 import { formatTime, relativeTime, riskLabel } from '@/lib/format'
@@ -67,58 +65,58 @@ export function FindingsPage() {
 
   return (
     <div>
-      <PageHeader title="Risks" />
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap rounded-[4px] bg-muted p-1">
-          {views.map((item) => (
-            <Button
-              key={item.value}
-              size="sm"
-              variant={view === item.value ? 'default' : 'ghost'}
-              title={item.label}
-              onClick={() => setParam('view', item.value)}
-            >
-              <item.icon className="size-4" />
-              <span className="sr-only">{item.label}</span>
-            </Button>
-          ))}
-        </div>
-        <form className="relative min-w-0 flex-1 sm:max-w-sm" onSubmit={(event) => event.preventDefault()}>
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(event) => setParam('q', event.target.value)}
-            placeholder="Search title, target, or plugin…"
-            className="pl-8"
-          />
-        </form>
-        <Select value={severity || 'all'} onValueChange={(value) => setParam('severity', value === 'all' ? '' : value)}>
-          <SelectTrigger className="min-w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Severities</SelectItem>
-            {['critical', 'high', 'medium', 'low', 'info'].map((item) => (
-              <SelectItem key={item} value={item}>
-                {riskLabel(item)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={kind || 'all'} onValueChange={(value) => setParam('kind', value === 'all' ? '' : value)}>
-          <SelectTrigger className="min-w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {Object.entries(kindLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <ScreenToolbar
+        left={
+          <>
+            <div className="flex flex-wrap rounded-[4px] bg-muted p-1">
+              {views.map((item) => (
+                <Button
+                  key={item.value}
+                  size="sm"
+                  variant={view === item.value ? 'default' : 'ghost'}
+                  title={item.label}
+                  onClick={() => setParam('view', item.value)}
+                >
+                  <item.icon className="size-4" />
+                  <span className="sr-only">{item.label}</span>
+                </Button>
+              ))}
+            </div>
+            <ExpandableSearch
+              value={q}
+              onChange={(value) => setParam('q', value)}
+              placeholder="Search title, target, or plugin…"
+              title="Search risks"
+            />
+          </>
+        }
+        center={query.isLoading ? 'Loading…' : `${query.data?.total ?? 0} risks`}
+        right={
+          <>
+            <FilterDropdown
+              label="Filter by severity"
+              options={[
+                { value: '', label: 'All Severities' },
+                ...['critical', 'high', 'medium', 'low', 'info'].map((item) => ({
+                  value: item,
+                  label: riskLabel(item),
+                })),
+              ]}
+              value={severity}
+              onChange={(value) => setParam('severity', value)}
+            />
+            <FilterDropdown
+              label="Filter by type"
+              options={[
+                { value: '', label: 'All Types' },
+                ...Object.entries(kindLabels).map(([value, label]) => ({ value, label })),
+              ]}
+              value={kind}
+              onChange={(value) => setParam('kind', value)}
+            />
+          </>
+        }
+      />
       {query.isLoading ? (
         <LoadingBlock />
       ) : query.error ? (

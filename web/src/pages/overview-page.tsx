@@ -263,12 +263,12 @@ export function OverviewPage() {
 
       {/* bottom band: recent discoveries + risk distribution side by side,
           intentionally below the first viewport so they never crowd the map */}
-      <div className="mt-4 grid shrink-0 gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid shrink-0 gap-4 pb-2 lg:grid-cols-2">
         <Card className="flex min-h-0 flex-col">
           <CardHeader className="border-b py-3">
             <CardTitle>{selectedOrg ? 'Selected Organization' : 'Recent Discoveries'}</CardTitle>
           </CardHeader>
-          <CardContent className="min-h-0 flex-1 p-3">
+          <CardContent className="min-h-0 flex-1 p-3 pb-5">
             {selectedOrg ? (
               <div>
                 <div className="flex items-center justify-center gap-2 text-center">
@@ -320,7 +320,7 @@ export function OverviewPage() {
           <CardHeader className="border-b py-3">
             <CardTitle>Risk Distribution</CardTitle>
           </CardHeader>
-          <CardContent className="flex min-h-0 flex-1 flex-col justify-center space-y-2 p-3">
+          <CardContent className="flex min-h-0 flex-1 flex-col justify-center space-y-2 p-3 pb-5">
             {(['critical', 'high', 'medium', 'low', 'info'] as const).map((key) => (
               <div key={key} className="flex items-center gap-2 text-xs">
                 <span className={`w-10 shrink-0 risk-${key}`}>{riskLabel(key)}</span>

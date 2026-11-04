@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { api } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
-import { PageHeader } from '@/components/common/page-header'
+import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { Pagination } from '@/components/common/pagination'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
@@ -25,7 +25,7 @@ export function TasksPage() {
   const queryClient = useQueryClient()
   const [params, setParams] = useSearchParams()
   const [createOpen, setCreateOpen] = useState(false)
-  const [form, setForm] = useState({ name: '', kind: 'domain', target: '', policyId: '', scopeId: '' })
+  const [form, setForm] = useState({ name: '', kind: 'domain', target: '', policyId: '', scopeId: '', organizationId: '' })
   const origin = params.get('origin') || 'surface'
   const status = params.get('status') || ''
   const kind = params.get('kind') || ''
@@ -36,6 +36,7 @@ export function TasksPage() {
     queryFn: () => api.tasks({ origin, status, kind, q, page, pageSize: 20 }),
     refetchInterval: 10_000,
   })
+  const organizations = useQuery({ queryKey: ['organizations', ''], queryFn: () => api.organizations('') })
   const create = useMutation({
     mutationFn: () =>
       api.createTask({
@@ -44,11 +45,12 @@ export function TasksPage() {
         target: form.target,
         policyId: form.policyId || undefined,
         scopeId: form.scopeId || undefined,
+        organizationId: form.organizationId || undefined,
       }),
     onSuccess: () => {
       toast.success('Task created')
       setCreateOpen(false)
-      setForm({ name: '', kind: 'domain', target: '', policyId: '', scopeId: '' })
+      setForm({ name: '', kind: 'domain', target: '', policyId: '', scopeId: '', organizationId: '' })
       void queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },
     onError: (error) => toast.error(error.message),
@@ -70,69 +72,68 @@ export function TasksPage() {
   }
   return (
     <div>
-      <PageHeader
-        title="Tasks"
-        actions={
-          canWrite(role) ? (
-            <Button size="icon" title="New Task" onClick={() => setCreateOpen(true)}>
-              <Plus />
-              <span className="sr-only">New Task</span>
-            </Button>
-          ) : null
+      <ScreenToolbar
+        left={
+          <>
+            <div className="flex rounded-[4px] bg-muted p-1">
+              <Button
+                size="sm"
+                variant={origin === 'surface' ? 'default' : 'ghost'}
+                title="Attack Surface Tasks"
+                onClick={() => setParam('origin', 'surface')}
+              >
+                <Crosshair className="size-4" />
+                <span className="sr-only">Attack Surface</span>
+              </Button>
+              <Button size="sm" variant={origin === 'all' ? 'default' : 'ghost'} title="All Tasks" onClick={() => setParam('origin', 'all')}>
+                <List className="size-4" />
+                <span className="sr-only">All Tasks</span>
+              </Button>
+            </div>
+            <ExpandableSearch
+              value={q}
+              onChange={(value) => setParam('q', value)}
+              placeholder="Search tasks or targets…"
+              title="Search tasks"
+            />
+          </>
+        }
+        center={tasks.isLoading ? 'Loading…' : `${tasks.data?.total ?? 0} tasks`}
+        right={
+          <>
+            {canWrite(role) ? (
+              <Button size="icon" title="New Task" aria-label="New Task" onClick={() => setCreateOpen(true)}>
+                <Plus />
+                <span className="sr-only">New Task</span>
+              </Button>
+            ) : null}
+            <FilterDropdown
+              label="Filter by status"
+              options={[
+                { value: '', label: 'All Statuses' },
+                ...['queued', 'running', 'succeeded', 'partial', 'failed', 'canceled'].map((item) => ({
+                  value: item,
+                  label: item,
+                })),
+              ]}
+              value={status}
+              onChange={(value) => setParam('status', value)}
+            />
+            <FilterDropdown
+              label="Filter by type"
+              options={[
+                { value: '', label: 'All Types' },
+                ...['domain', 'ip', 'risk_cruising', 'asset_site_update'].map((item) => ({
+                  value: item,
+                  label: item,
+                })),
+              ]}
+              value={kind}
+              onChange={(value) => setParam('kind', value)}
+            />
+          </>
         }
       />
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-[4px] bg-muted p-1">
-          <Button
-            size="sm"
-            variant={origin === 'surface' ? 'default' : 'ghost'}
-            title="Attack Surface Tasks"
-            onClick={() => setParam('origin', 'surface')}
-          >
-            <Crosshair className="size-4" />
-            <span className="sr-only">Attack Surface</span>
-          </Button>
-          <Button size="sm" variant={origin === 'all' ? 'default' : 'ghost'} title="All Tasks" onClick={() => setParam('origin', 'all')}>
-            <List className="size-4" />
-            <span className="sr-only">All Tasks</span>
-          </Button>
-        </div>
-        <form className="relative min-w-0 flex-1 sm:max-w-sm" onSubmit={(event) => event.preventDefault()}>
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(event) => setParam('q', event.target.value)}
-            placeholder="Search tasks or targets…"
-            className="pl-8"
-          />
-        </form>
-        <Select value={status || 'all'} onValueChange={(value) => setParam('status', value === 'all' ? '' : value)}>
-          <SelectTrigger className="min-w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            {['queued', 'running', 'succeeded', 'partial', 'failed', 'canceled'].map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={kind || 'all'} onValueChange={(value) => setParam('kind', value === 'all' ? '' : value)}>
-          <SelectTrigger className="min-w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {['domain', 'ip', 'risk_cruising', 'asset_site_update'].map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       {tasks.isLoading ? (
         <LoadingBlock />
       ) : tasks.error ? (
@@ -236,6 +237,24 @@ export function TasksPage() {
                 <Input value={form.policyId} onChange={(event) => setForm({ ...form, policyId: event.target.value })} />
               </Field>
             </div>
+            <Field label="Organization" hint="Optional. Links the task to an organization.">
+              <Select
+                value={form.organizationId || 'none'}
+                onValueChange={(value) => setForm({ ...form, organizationId: value === 'none' ? '' : value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No organization</SelectItem>
+                  {(organizations.data?.items || []).map((org) => (
+                    <SelectItem key={org.id || ''} value={org.id || ''}>
+                      {org.canonicalName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label="Target">
               <Textarea
                 value={form.target}
