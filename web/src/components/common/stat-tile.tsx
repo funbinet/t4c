@@ -1,21 +1,24 @@
 import type { ReactNode } from 'react'
 import { Card } from '@/components/ui/card'
 import { useReveal } from '@/components/common/reveal'
+import { cn } from '@/lib/utils'
 
 export function StatTile({
   label,
   value,
   hint,
   testId,
+  className,
 }: {
   label: string
   value: ReactNode
   hint?: ReactNode
   testId?: string
+  className?: string
 }) {
   const ref = useReveal<HTMLDivElement>()
   return (
-    <Card className="min-w-0 p-4" data-testid={testId}>
+    <Card className={cn('min-w-0 p-4', className)} data-testid={testId}>
       <div ref={ref} className="reveal">
         <div className="mono-label">{label}</div>
         <div className="mt-2 text-2xl font-semibold tabular-nums tracking-tight">{value}</div>

@@ -15,20 +15,23 @@ import {
   LogOut,
   Menu,
   Radar,
+  RefreshCw,
   RotateCcw,
   ScrollText,
   Search,
   Settings2,
   ShieldCheck,
+  User,
   Users,
   Workflow,
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/app/auth'
 import t4cLogo from '@/assets/t4c.png'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +48,14 @@ import { ScrollProgress } from '@/components/common/scroll-progress'
 
 type NavItem = { to: string; label: string; icon: typeof Activity; end?: boolean }
 type NavGroup = { label: string; items: NavItem[] }
+
+const ranges = [
+  { value: '24h', label: 'Last 24 Hours' },
+  { value: '7d', label: 'Last 7 Days' },
+  { value: '30d', label: 'Last 30 Days' },
+  { value: '90d', label: 'Last 90 Days' },
+  { value: 'all', label: 'All Time' },
+]
 
 const groups: NavGroup[] = [
   {
@@ -91,11 +102,14 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const { role } = useAuth()
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
   return (
-    <nav className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-thin" aria-label="Main navigation">
-      {allGroups.map((group, groupIndex) => (
-        <div key={group.label} className={groupIndex === 0 ? 'pt-1' : 'pt-5'}>
+    <nav
+      className={cn('flex flex-1 flex-col justify-evenly overflow-y-auto py-3 scrollbar-thin', !collapsed && 'px-2')}
+      aria-label="Main navigation"
+    >
+      {allGroups.map((group) => (
+        <div key={group.label} className={collapsed ? 'contents' : undefined}>
           {!collapsed ? <div className="mono-label px-2 pb-2">{group.label}</div> : null}
-          <div className="space-y-1">
+          <div className={collapsed ? 'contents' : 'space-y-1'}>
             {group.items.map((item) => {
               const Icon = item.icon
               const link = (
@@ -136,9 +150,18 @@ export function AppShell() {
   const { user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const isOverview = location.pathname === '/'
+  const rangeParam = params.get('range') || '30d'
+
+  function setRangeParam(value: string) {
+    const next = new URLSearchParams(params)
+    next.set('range', value)
+    setParams(next, { replace: true })
+  }
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -176,7 +199,10 @@ export function AppShell() {
         )}
       >
         <div
-          className={cn('flex h-16 items-center border-b border-border', collapsed ? 'justify-center' : 'gap-3 px-4')}
+          className={cn(
+            'flex h-16 shrink-0 items-center border-b border-border',
+            collapsed ? 'justify-center' : 'justify-center gap-3 px-4',
+          )}
         >
           <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain shadow-sm" />
           {!collapsed ? (
@@ -236,17 +262,25 @@ export function AppShell() {
           collapsed ? 'lg:pl-[68px]' : 'lg:pl-[236px]',
         )}
       >
-        <header className="glass sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border px-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className="glass sticky top-0 z-20 grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-border px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2">
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <Menu />
               <span className="sr-only">Open navigation</span>
             </Button>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">{title}</div>
-            </div>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="min-w-0 truncate text-center text-sm font-semibold uppercase tracking-[0.06em]">{title}</div>
+          <div className="flex items-center gap-1.5 justify-self-end">
+            <Button
+              variant="outline"
+              size="icon"
+              title="Refresh"
+              className="hidden sm:inline-flex"
+              onClick={() => window.dispatchEvent(new CustomEvent('t4c:refresh'))}
+            >
+              <RefreshCw />
+              <span className="sr-only">Refresh</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -260,11 +294,25 @@ export function AppShell() {
               <Search />
               <span className="sr-only">Search</span>
             </Button>
+            {isOverview ? (
+              <Select value={rangeParam || '30d'} onValueChange={(value) => setRangeParam(value)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ranges.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="max-w-44">
-                  <span className="grid size-6 place-items-center rounded-full bg-[rgba(0,250,0,0.12)] text-[11px] font-semibold text-mint">
-                    {user?.username?.slice(0, 1).toUpperCase() || 'A'}
+                  <span className="grid size-6 place-items-center rounded-full bg-[rgba(0,250,0,0.12)] text-mint">
+                    <User className="size-3.5" />
                   </span>
                   <span className="hidden truncate sm:inline">{user?.username || 'Account'}</span>
                 </Button>

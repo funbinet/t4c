@@ -1,14 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RiskBadge } from '@/components/common/badges'
 import { Fact } from '@/components/common/form'
-import { PageHeader } from '@/components/common/page-header'
 import { ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { AssetGraph } from '@/components/visuals/asset-graph'
@@ -16,20 +14,18 @@ import { SurfaceMap } from '@/components/visuals/surface-map'
 import { formatNumber, formatTime, relativeTime, riskLabel } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-const ranges = [
-  { value: '24h', label: 'Last 24 Hours' },
-  { value: '7d', label: 'Last 7 Days' },
-  { value: '30d', label: 'Last 30 Days' },
-  { value: '90d', label: 'Last 90 Days' },
-  { value: 'all', label: 'All Time' },
-]
-
 export function OverviewPage() {
   const [params, setParams] = useSearchParams()
   const navigate = useNavigate()
-  const [range, setRange] = useState('30d')
+  const [range, setRange] = useState(params.get('range') || '30d')
   const [visual, setVisual] = useState<'map' | 'graph'>('map')
   const selectedOrg = params.get('organizationId') || ''
+
+  // sync range state with URL param written by AppShell header
+  useEffect(() => {
+    const r = params.get('range') || '30d'
+    if (r !== range) setRange(r)
+  }, [params, range])
   const overview = useQuery({
     queryKey: ['overview', range],
     queryFn: () => api.overview(range),
@@ -40,6 +36,16 @@ export function OverviewPage() {
     queryFn: () => api.map(selectedOrg || undefined),
     refetchInterval: 45_000,
   })
+
+  // global refresh from AppShell header icon
+  useEffect(() => {
+    const handler = () => {
+      void overview.refetch()
+      void map.refetch()
+    }
+    window.addEventListener('t4c:refresh', handler)
+    return () => window.removeEventListener('t4c:refresh', handler)
+  }, [overview, map])
   const graph = useQuery({
     queryKey: ['graph', selectedOrg],
     queryFn: () => api.graph(selectedOrg),
@@ -72,35 +78,7 @@ export function OverviewPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <PageHeader
-        title="Attack Surface Overview"
-        actions={
-          <>
-            <Select value={range} onValueChange={setRange}>
-              <SelectTrigger className="min-w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ranges.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              onClick={() => {
-                overview.refetch()
-                map.refetch()
-              }}
-            >
-              Refresh
-            </Button>
-          </>
-        }
-      />
-
+      {/* 5 stat tiles — 2x2 grid + full-width fifth on small screens, 5 across on desktop */}
       <div className="mb-4 grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-5">
         <StatTile
           label="Organizations"
@@ -129,11 +107,14 @@ export function OverviewPage() {
           value={relativeTime(data.updatedAt)}
           hint={formatTime(data.updatedAt)}
           testId="overview-freshness"
+          className="col-span-2 lg:col-span-1"
         />
       </div>
 
-      <div className="grid min-h-[620px] gap-4 xl:min-h-0 xl:flex-1 xl:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)_clamp(280px,24vw,380px)] xl:grid-rows-[minmax(0,1fr)]">
-        <Card className="order-2 flex min-h-0 flex-col overflow-hidden xl:order-1">
+      {/* three-column layout: orgs at risk | map | recent discoveries + risk distribution */}
+      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[clamp(200px,18vw,280px)_1fr_1fr] xl:grid-rows-1">
+        {/* left: organizations at risk */}
+        <Card className="flex min-h-0 flex-col overflow-hidden">
           <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
             <CardTitle>Organizations at Risk</CardTitle>
             <Badge variant="outline">{data.topOrganizations.length}</Badge>
@@ -172,7 +153,8 @@ export function OverviewPage() {
           </div>
         </Card>
 
-        <Card className="order-1 flex min-h-[520px] flex-col overflow-hidden xl:order-2 xl:min-h-0">
+        {/* center: map */}
+        <Card className="flex min-h-0 flex-col overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
             <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
               <Button size="sm" variant={visual === 'map' ? 'default' : 'ghost'} onClick={() => setVisual('map')}>
@@ -247,7 +229,8 @@ export function OverviewPage() {
           </div>
         </Card>
 
-        <div className="order-3 min-h-0 space-y-4 overflow-y-auto scrollbar-thin xl:order-3">
+        {/* right: recent discoveries + risk distribution stacked */}
+        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto scrollbar-thin">
           <Card>
             <CardHeader className="border-b py-3">
               <CardTitle>{selectedOrg ? 'Selected Organization' : 'Recent Discoveries'}</CardTitle>
@@ -316,6 +299,7 @@ export function OverviewPage() {
           </Card>
         </div>
       </div>
+
       {data.truncated ? (
         <div className="mt-3 rounded-[4px] border bg-card px-3 py-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
           Data exceeds the display limit; some organizations are omitted.
