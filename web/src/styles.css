@@ -56,7 +56,7 @@
   --radius: 4px;
   --brand: #003d00;
   --brand-600: #005c00;
-  --accent-600: #00cc00;
+  --accent-600: #00a344;
   --accent-bright: #39ff14;
   --mint: #b4ffb4;
   --dim: #3d8c3d;
@@ -75,7 +75,7 @@
 
   /* §4 Gradients — exact blueprint definitions */
   --grad-access: linear-gradient(180deg, #00fa00 0%, #39ff14 42%, #ffffff 100%);
-  --grad-button: linear-gradient(170deg, #00fa00 0%, #00cc00 100%);
+  --grad-button: linear-gradient(170deg, #00c853 0%, #00963e 100%);
   --grad-light: linear-gradient(180deg, #e6f7f0 0%, #d9ede5 100%);
   --grad-rule-dark: linear-gradient(90deg, #00a870, #00fa00);
   --grad-rule-light: linear-gradient(90deg, #00a870, #00c896);
@@ -308,6 +308,33 @@ body::after {
 }
 .glow-fx.is-glowing::after {
   opacity: 1;
+}
+
+/* one full rotation per refresh click */
+@keyframes refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.refresh-spin {
+  animation: refresh-spin 1s linear;
+}
+
+/* playful hover for the login statement — a small, repeated juggle */
+@keyframes text-juggle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-4px);
+  }
+  70% {
+    transform: translateY(2px);
+  }
+}
+.hover-juggle:hover {
+  animation: text-juggle 1.1s ease-in-out infinite;
 }
 
 /* reveal-on-scroll */

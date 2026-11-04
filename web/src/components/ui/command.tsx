@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils'
 export const Command = CommandPrimitive
 export function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div className="flex items-center gap-2 border-b px-3">
-      <Search className="size-4 text-muted-foreground" />
+    <div className="flex items-center gap-2 px-4 pr-12 pt-3">
+      <Search className="size-4 shrink-0 text-mint" />
       <CommandPrimitive.Input
         className={cn('h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground', className)}
         {...props}

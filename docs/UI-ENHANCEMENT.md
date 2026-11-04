@@ -11,57 +11,93 @@ labels, hard 4px radii, restrained motion. Do NOT modify the AppBackground
 
 ## Global Principles (apply to every screen)
 
-1. **Centered presentation.** Stat content, card titles, empty states, page
+1. **Outline icons only.** Every icon is a lucide outline glyph. Never fill an
+   icon body. The account mark is an outline `UserRound` inside a bordered
+   circular chip, not a solid avatar.
+2. **Icon-button color.** Outline, ghost, and secondary icon buttons are mint
+   green by default and turn white on hover (implemented as a `compoundVariants`
+   rule in `button.tsx`). Filled default buttons keep a black glyph on the
+   duller green gradient. Destructive icon buttons stay red.
+3. **Duller filled buttons.** The primary action gradient is the muted
+   `--grad-button` (`#00c853 → #00963e`) with a reduced glow. Neon green remains
+   for borders, accents, and severity chrome, not for large filled buttons.
+4. **No text-only buttons, no underlined actions.** Every Button carries a
+   lucide icon. One-word text is allowed next to the icon when the icon alone is
+   ambiguous (Create, Save, Import). Pure actions are icon-only with a `title`
+   tooltip and an `sr-only` label. Clickable text is not a pattern: rows are the
+   click target (`DataTable.onRowClick`), and action cells stop propagation via
+   `Column.stopRowClick`.
+5. **Centered presentation.** Stat content, card titles, empty states, page
    titles, and the sidebar are centered. Dense tabular data (table cells, log
    lines, key-value grids) stays left-aligned for scanability; headers and
    summary content center.
-2. **No text-only buttons.** Every Button carries a lucide icon. One-word text
-   is allowed next to the icon when the icon alone is ambiguous (Create, Save,
-   Import). Pure actions that are visually identifiable are icon-only with a
-   `title` tooltip and an `sr-only` label.
-3. **Icon-first controls.** Toolbar actions: `size="icon"` (header zone uses
-   `size-9`, in-page toolbars `size-8`). Row actions: `variant="outline"`
-   `size-8` icon-only. Destructive row actions add
-   `text-destructive hover:text-destructive`.
-4. **Hover feedback everywhere.** Outline and ghost buttons glow on hover
-   (`border-accent` + green shadow). Cards lift and glow on hover. Sidebar
-   links highlight as centered pills. Transitions are 150-200ms; respect the
-   global reduced-motion media query.
-5. **Hierarchy: severity first.** The most important number leads. Green is the
+6. **Hover feedback everywhere.** Outline and ghost buttons glow on hover
+   (`border-accent` + green shadow) and their icon turns white. Cards lift and
+   glow on hover. Sidebar links highlight with a background pop only — never an
+   outline or ring. Transitions are 150-200ms; respect the global
+   reduced-motion media query.
+7. **Hierarchy: severity first.** The most important number leads. Green is the
    chrome accent; severity colors (critical/high/medium/low/info) carry
    meaning and are never used decoratively.
-6. **Symmetry.** Toolbar zones split left/right around a centered page title.
+8. **Symmetry.** Toolbar zones split left/right around a centered page title.
    Card headers center their titles; counts and badges sit beside the title,
    centered as a group.
-7. **Compact labels.** Filter/range controls use short tokens (24H, 7D, 30D,
+9. **Compact labels.** Filter/range controls use short tokens (24H, 7D, 30D,
    90D, ALL) that fit one line. Uppercase via CSS tracking, never by
    transforming user data such as usernames.
-8. **Icon vocabulary.** Plus = create, Upload/FileUp = import, Download =
-   export, Pencil = edit, Trash2 = delete, Play/Pause/Square = run/pause/stop,
-   RotateCcw = retry, ArchiveRestore = restore, X = cancel/close/dismiss,
-   RefreshCw = sync/refresh, Search = lookup/details, Eye = view, History =
-   history, FileText = evidence, Globe = global view, Map/Network = map/graph
-   views, CircleUserRound = account.
-9. **Dialogs.** Footer: X icon-only cancel on the left, submit button with
-   icon + one word on the right. ConfirmDialog: X icon cancel, Trash2 +
-   existing confirm label on the destructive action.
-10. **Sidebar.** Fully centered in both expanded and collapsed modes. Section
-    titles and nav items center as pills; collapsed items become compact
-    `size-9` pills with tooltips, distributed evenly across the full sidebar
-    height (`justify-evenly`).
+10. **Icon vocabulary.** Plus = create, Upload/FileUp = import, Download =
+    export, Pencil = edit, Trash2 = delete, Play/Pause/Square = run/pause/stop,
+    RotateCcw = retry, ArchiveRestore = restore, X = cancel/close/dismiss,
+    RotateCw = single-direction refresh (one full spin per click), Search =
+    lookup/details, Eye = view, History = history, FileText = evidence, Globe =
+    global view, Map/Network = map/graph views, UserRound = account.
+11. **Dialogs.** Footer: X icon-only cancel on the left, submit button with
+    icon + one word on the right. ConfirmDialog: X icon cancel, Trash2 +
+    existing confirm label on the destructive action. Dialog close X is mint
+    with a white hover.
+12. **Sidebar.** Uniform 36px hitboxes in both modes, no outline/ring. Collapsed:
+    icon-only, centered in its square, distributed evenly across the full
+    sidebar height (`justify-evenly`), tooltip on hover. Expanded: every pill is
+    the same width (full content width minus symmetric padding), content is
+    left-aligned inside that centered pill, and section labels share the same
+    left padding as item text. Hover and active states are background fills
+    only. The logo/name is a link home.
+
+## Header & Global Search (implemented)
+
+- Header grid stays `[left zone] [centered page title] [right cluster]`. The
+  right cluster order is exactly `[refresh] [search] [range filter] [account]`.
+  Header icon buttons are `size-8` to match the range filter and account
+  trigger; in-page toolbar icon buttons are `size-9` (36px).
+- Refresh is an outline icon-only button using `RotateCw` — one circular arrow,
+  one arrowhead. Each click runs `.refresh-spin` for exactly 1s, then
+  `queryClient.invalidateQueries()` refreshes every active query on the current
+  page.
+- Search is an outline icon-only button (no wide search field, no duplicate
+  mobile button). It opens the command palette. The popup has no divider line
+  under the input; it uses the same rounded border/card surface as the other
+  dialogs, with a mint search glyph and a mint/white close X.
+- Range filter is unchanged: compact 24H/7D/30D/90D/ALL tokens in the `w-20 h-8`
+  trigger, shown on Overview only.
+- Account keeps the saved username exactly (normal-case) and uses an outline
+  `UserRound` inside a bordered circular chip. The chip/icon turns white on
+  hover.
+- Global search covers organizations, domains, assets, findings, tasks,
+  monitors, and schedules. Backend `SearchResult` and the OpenAPI schema carry
+  `monitors`/`schedules`; the palette groups them with Activity/CalendarClock
+  icons and routes to the corresponding pages.
 
 ## Overview (implemented)
 
-- Header (in AppShell): centered uppercase page title; refresh icon button
-  with rotate/spin animation, size-matched (`size-8`) to Search and the range
-  filter; range filter compact labels (24H/7D/30D/90D/ALL) in a `w-20 h-8`
-  trigger; username rendered normal-case (exactly as saved); avatar is
-  CircleUserRound.
 - Vital-signs row: 5 StatTiles at the very top (no page heading above them).
   2x2 grid + full-width fifth on mobile, 5-across on desktop. Each tile:
   centered mono label, dominant tabular value, dim hint line, semantic icon
   accent (Building2, Globe, ShieldAlert, Workflow, Activity) that lights up
   green on hover, hover lift + green glow.
+- Above-the-fold band: the stat row and the Organizations + Surface Map band are
+  wrapped in a section with `xl:min-h-[calc(100dvh-7rem)]`; the band is
+  `flex-1`, so the map reaches the bottom of the viewport with the same 24px
+  gutter used above the stat tiles.
 - Main band: Organizations at Risk as a narrow left rail
   (`clamp(220px,20vw,300px)`); Surface Map takes the dominant center. Org rows
   are centered (name + risk badge, counts below). Map is centered via ECharts
@@ -70,28 +106,48 @@ labels, hard 4px radii, restrained motion. Do NOT modify the AppBackground
   with tooltips; health chips centered right; "Global" reset is a Globe
   icon-only button. Graph is intentionally disabled until an organization is
   selected; endpoint `/organizations/{id}/graph` verified.
-- Bottom band: Recent Discoveries (or Selected Organization facts) and Risk
-  Distribution side by side, 50/50 on `lg`, stacked below on mobile. Order on
-  mobile: stats, orgs, map, discoveries, distribution.
+- Below-the-fold band: Recent Discoveries (or Selected Organization facts) and
+  Risk Distribution start after the viewport with `mt-4` spacing, so they are
+  reached by scrolling and never crowd the map.
 - Footnote row and truncated-data notice remain below the bands.
 
-## Login (to update when we rework this screen)
+## Login (implemented)
 
-Centered auth card on the AppBackground. Sign In submit now carries a LogIn
-icon. Planned: stronger brand mark, inline validation states, terminal-style
-status line.
+- One uniform screen: no left/right split, divider, liquid-border animation, or
+  separate panel background. A single centered column on the global
+  AppBackground.
+- Top block: clickable logo + T4C name (signed-in → `/`, signed-out → reload
+  `/login`), the statement "Start from the organization and see every layer of
+  external exposure." with the `hover-juggle` animation, and one short
+  supporting line.
+- Sign-in card: centered "Console Sign-In" eyebrow and "Enter The Attack Surface
+  Workspace" heading; only the username/password fields and the Sign In button.
+  Removed the initial-password sentence, the bottom warning sentence, the
+  authorized-testing badge, and the left footer stats.
+- Sign In uses the duller filled button gradient. Footer is exactly
+  `© 2026 T4C · Funbinet`.
 
 ## Change Password (to update when we rework this screen)
 
 Submit carries a KeyRound icon. Planned: password-strength meter in terminal
 style, requirement checklist.
 
-## Organizations (to update when we rework this screen)
+## Organizations (implemented)
 
-Toolbar: Upload icon-only (Import CSV), Plus icon-only (New Organization).
-Row actions: Pencil/Trash2 icon-only outline `size-8`. Empty state: FileUp +
-Import. Dialog footers follow the global dialog rule. Planned: org cards with
-risk sparkline, inline status.
+- No in-page "Organizations" title; the header title is the only page title.
+- Top toolbar is a three-column grid: outline Search icon button on the left,
+  the organization count centered, Import CSV (outline Upload) and New
+  Organization (filled Plus) on the right, all at the same `h-9` height.
+- Search is an outline icon button that expands an outlined, transparent inline
+  field of the same height, with autofocus and an X to collapse/clear it. The
+  count stays centered in the toolbar while the field is open.
+- The whole organization row is clickable and keyboard-activatable (Enter/Space)
+  and opens the detail page. The organization name is plain text, not a link and
+  not underlined. The action cell is marked `stopRowClick` so Edit/Delete do not
+  navigate.
+- Row actions: Pencil/Trash2 icon-only outline `size-8`. Empty state: FileUp +
+  Import. Dialog footers follow the global dialog rule.
+- Planned: org cards with risk sparkline, inline status.
 
 ## Organization Detail (partially updated)
 

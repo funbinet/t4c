@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Activity,
   Boxes,
@@ -15,19 +16,19 @@ import {
   LogOut,
   Menu,
   Radar,
-  RefreshCw,
   RotateCcw,
+  RotateCw,
   ScrollText,
   Search,
   Settings2,
   ShieldCheck,
-  CircleUserRound,
+  UserRound,
   Users,
   Workflow,
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/app/auth'
 import t4cLogo from '@/assets/t4c.png'
 import { Button } from '@/components/ui/button'
@@ -103,13 +104,13 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
   return (
     <nav
-      className="flex flex-1 flex-col items-center justify-evenly overflow-y-auto py-3 scrollbar-thin"
+      className="flex flex-1 flex-col items-stretch justify-evenly overflow-y-auto py-4 scrollbar-thin"
       aria-label="Main navigation"
     >
       {allGroups.map((group) => (
-        <div key={group.label} className={collapsed ? 'contents' : 'flex flex-col items-center'}>
-          {!collapsed ? <div className="mono-label pb-2 text-center">{group.label}</div> : null}
-          <div className={collapsed ? 'contents' : 'flex flex-col items-center gap-1'}>
+        <div key={group.label} className={collapsed ? 'contents' : 'flex w-full flex-col gap-1 px-3'}>
+          {!collapsed ? <div className="mono-label px-3 pb-1 text-left">{group.label}</div> : null}
+          <div className={collapsed ? 'contents' : 'flex w-full flex-col gap-1'}>
             {group.items.map((item) => {
               const Icon = item.icon
               const link = (
@@ -120,15 +121,20 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      'flex h-9 items-center justify-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all hover:bg-[rgba(0,250,0,0.08)] hover:text-mint hover:shadow-[0_0_10px_rgba(0,250,0,0.12)]',
-                      collapsed ? 'w-9' : 'w-auto gap-2 px-3',
-                      isActive &&
-                        'bg-[rgba(0,250,0,0.1)] text-mint shadow-[inset_0_0_0_1px_rgba(0,250,0,0.35)] hover:shadow-[inset_0_0_0_1px_rgba(0,250,0,0.35)]',
+                      // Shared hitbox: 36px tall, uniform radius, no outline. The
+                      // bottom collapse button is the reference for hover/active.
+                      'flex h-9 items-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-[rgba(0,250,0,0.06)] hover:text-white',
+                      collapsed ? 'mx-auto w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
+                      isActive && 'bg-[rgba(0,250,0,0.1)] text-mint hover:bg-[rgba(0,250,0,0.12)]',
                     )
                   }
                 >
                   <Icon className="size-4 shrink-0" />
-                  {!collapsed ? <span>{item.label}</span> : <span className="sr-only">{item.label}</span>}
+                  {!collapsed ? (
+                    <span className="truncate">{item.label}</span>
+                  ) : (
+                    <span className="sr-only">{item.label}</span>
+                  )}
                 </NavLink>
               )
               return collapsed ? (
@@ -151,10 +157,12 @@ export function AppShell() {
   const { user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [params, setParams] = useSearchParams()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const isOverview = location.pathname === '/'
   const rangeParam = params.get('range') || '30d'
 
@@ -162,6 +170,13 @@ export function AppShell() {
     const next = new URLSearchParams(params)
     next.set('range', value)
     setParams(next, { replace: true })
+  }
+
+  function refresh() {
+    if (refreshing) return
+    setRefreshing(true)
+    void queryClient.invalidateQueries()
+    window.setTimeout(() => setRefreshing(false), 1000)
   }
 
   useEffect(() => {
@@ -199,9 +214,11 @@ export function AppShell() {
           collapsed ? 'w-[68px]' : 'w-[236px]',
         )}
       >
-        <div
+        <Link
+          to="/"
+          aria-label="T4C home"
           className={cn(
-            'flex h-16 shrink-0 items-center border-b border-border',
+            'flex h-16 shrink-0 items-center border-b border-border transition-opacity hover:opacity-80',
             collapsed ? 'justify-center' : 'justify-center gap-3 px-4',
           )}
         >
@@ -211,14 +228,14 @@ export function AppShell() {
               <div className="text-sm font-semibold tracking-wide text-ink">T4C</div>
             </div>
           ) : null}
-        </div>
+        </Link>
         <NavContent collapsed={collapsed} />
         <div className="border-t border-border p-2">
           <Button
             variant="ghost"
             size="icon"
             title={collapsed ? 'Expand navigation' : 'Collapse navigation'}
-            className="mx-auto flex text-dim hover:bg-[rgba(0,250,0,0.06)] hover:text-mint"
+            className="mx-auto flex text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
             onClick={() => setCollapsed((value) => !value)}
           >
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
@@ -236,16 +253,21 @@ export function AppShell() {
           />
           <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col border-r border-border bg-black/85 text-ink shadow-2xl backdrop-blur-md">
             <div className="flex h-16 items-center justify-between border-b border-border px-4">
-              <div className="flex items-center gap-3">
+              <Link
+                to="/"
+                aria-label="T4C home"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 transition-opacity hover:opacity-80"
+              >
                 <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain" />
                 <div>
                   <div className="font-semibold">T4C</div>
                 </div>
-              </div>
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-mint"
+                className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
                 onClick={() => setMobileOpen(false)}
               >
                 <X />
@@ -276,24 +298,21 @@ export function AppShell() {
               variant="outline"
               size="icon"
               title="Refresh"
-              className="group size-8 hover:text-mint"
-              onClick={() => window.dispatchEvent(new CustomEvent('t4c:refresh'))}
+              aria-label="Refresh"
+              className="size-8"
+              onClick={refresh}
             >
-              <RefreshCw className="transition-transform duration-500 group-hover:rotate-180 group-active:animate-spin" />
-              <span className="sr-only">Refresh</span>
+              <RotateCw className={cn('size-4', refreshing && 'refresh-spin')} />
             </Button>
             <Button
               variant="outline"
-              size="sm"
-              className="hidden min-w-52 justify-start text-muted-foreground hover:text-mint sm:flex"
+              size="icon"
+              title="Search (Ctrl/⌘ K)"
+              aria-label="Search"
+              className="size-8"
               onClick={() => setSearchOpen(true)}
             >
-              <Search />
-              Search<span className="mono-label ml-auto !text-[10px] normal-case tracking-normal">⌘K</span>
-            </Button>
-            <Button variant="ghost" size="icon" className="size-8 sm:hidden" onClick={() => setSearchOpen(true)}>
-              <Search />
-              <span className="sr-only">Search</span>
+              <Search className="size-4" />
             </Button>
             {isOverview ? (
               <Select value={rangeParam} onValueChange={setRangeParam}>
@@ -311,8 +330,10 @@ export function AppShell() {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="max-w-44" title="Account">
-                  <CircleUserRound className="size-5 text-mint" />
+                <Button variant="ghost" size="sm" className="group max-w-44" title="Account">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full border border-[rgba(0,250,0,0.28)] bg-[rgba(0,250,0,0.06)] text-mint transition-colors group-hover:text-white">
+                    <UserRound className="size-3.5" />
+                  </span>
                   <span className="hidden truncate normal-case sm:inline">{user?.username || 'Account'}</span>
                 </Button>
               </DropdownMenuTrigger>

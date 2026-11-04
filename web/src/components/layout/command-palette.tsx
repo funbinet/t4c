@@ -1,19 +1,37 @@
 import { useQuery } from '@tanstack/react-query'
-import { Building2, Crosshair, FileWarning, Globe2, Search, Workflow } from 'lucide-react'
+import { Activity, Building2, CalendarClock, Crosshair, FileWarning, Globe2, Search, Workflow } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 
-const icons = { organization: Building2, domain: Globe2, asset: Crosshair, finding: FileWarning, task: Workflow }
-const labels = { organizations: 'Organizations', domains: 'Domains', assets: 'Assets', findings: 'Risks', tasks: 'Tasks' }
+const icons = {
+  organization: Building2,
+  domain: Globe2,
+  asset: Crosshair,
+  finding: FileWarning,
+  task: Workflow,
+  monitor: Activity,
+  schedule: CalendarClock,
+}
+const labels = {
+  organizations: 'Organizations',
+  domains: 'Domains',
+  assets: 'Assets',
+  findings: 'Risks',
+  tasks: 'Tasks',
+  monitors: 'Monitors',
+  schedules: 'Schedules',
+}
 
 function targetPath(type: string, id: string, organizationId?: string) {
   if (type === 'organization') return `/organizations/${id}`
   if (type === 'finding')
     return organizationId ? `/organizations/${organizationId}/findings?focus=${id}` : `/findings?focus=${id}`
   if (type === 'task') return `/tasks/${id}`
+  if (type === 'monitor') return '/automation/monitors'
+  if (type === 'schedule') return '/automation/schedules'
   if (organizationId) return `/organizations/${organizationId}/assets?focus=${id}`
   return `/assets?focus=${id}`
 }
@@ -27,18 +45,27 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
     enabled: open && query.trim().length >= 2,
     staleTime: 10_000,
   })
-  const groups = (['organizations', 'domains', 'assets', 'findings', 'tasks'] as const).map((key) => ({
-    key,
-    items: search.data?.[key] || [],
-  }))
+  const groups = (['organizations', 'domains', 'assets', 'findings', 'tasks', 'monitors', 'schedules'] as const).map(
+    (key) => ({
+      key,
+      items: search.data?.[key] || [],
+    }),
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="top-20 max-w-2xl translate-y-0 p-0">
         <DialogTitle className="sr-only">Global search</DialogTitle>
-        <DialogDescription className="sr-only">Search organizations, domains, assets, risks, and tasks</DialogDescription>
+        <DialogDescription className="sr-only">
+          Search organizations, domains, assets, risks, tasks, monitors, and schedules
+        </DialogDescription>
         <Command shouldFilter={false} loop>
-          <CommandInput value={query} onValueChange={setQuery} placeholder="Search organizations, domains, assets, risks, or tasks…" />
+          <CommandInput
+            autoFocus
+            value={query}
+            onValueChange={setQuery}
+            placeholder="Search anything — organizations, domains, assets, risks, tasks, monitors…"
+          />
           <CommandList>
             {query.trim().length < 2 ? (
               <div className="flex items-center gap-2 px-3 py-8 text-xs text-muted-foreground">

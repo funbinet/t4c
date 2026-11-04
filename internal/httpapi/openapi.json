@@ -2072,6 +2072,18 @@
             "items": {
               "$ref": "#/components/schemas/SearchHit"
             }
+          },
+          "monitors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            }
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            }
           }
         }
       },

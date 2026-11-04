@@ -1,14 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { FileUp, Pencil, Plus, Save, Search, Trash2, Upload, X } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api, type Organization } from '@/api'
 import { RiskBadge, StatusBadge } from '@/components/common/badges'
 import { DataTable } from '@/components/common/data-table'
 import { Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
-import { PageHeader } from '@/components/common/page-header'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,8 +25,10 @@ import { useAuth } from '@/app/auth'
 
 export function OrganizationsPage() {
   const { role } = useAuth()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -110,42 +111,75 @@ export function OrganizationsPage() {
   const rows = orgs.data?.items || []
   return (
     <div>
-      <PageHeader
-        title="Organizations"
-        actions={
-          canWrite(role) ? (
+      <div className="mb-4 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+        <div className="flex min-w-0 items-center">
+          {searchOpen ? (
+            <form
+              className="relative"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void orgs.refetch()
+              }}
+            >
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-mint" />
+              <Input
+                autoFocus
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search organization name, alias, or credit code…"
+                className="h-9 w-[min(22rem,52vw)] bg-transparent pl-8 pr-8"
+              />
+              <button
+                type="button"
+                title="Close search"
+                aria-label="Close search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[3px] p-0.5 text-mint transition-colors hover:text-white"
+                onClick={() => {
+                  setSearchOpen(false)
+                  setQuery('')
+                }}
+              >
+                <X className="size-3.5" />
+              </button>
+            </form>
+          ) : (
+            <Button
+              size="icon"
+              variant="outline"
+              title="Search organizations"
+              aria-label="Search organizations"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search />
+            </Button>
+          )}
+        </div>
+        <div className="text-center text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+          {orgs.isLoading ? 'Loading…' : `${rows.length} organizations`}
+        </div>
+        <div className="flex items-center justify-end gap-2">
+          {canWrite(role) ? (
             <>
-              <Button size="icon" variant="outline" title="Import CSV" onClick={() => setImportOpen(true)}>
+              <Button
+                size="icon"
+                variant="outline"
+                title="Import CSV"
+                aria-label="Import CSV"
+                onClick={() => setImportOpen(true)}
+              >
                 <Upload />
-                <span className="sr-only">Import CSV</span>
               </Button>
-              <Button size="icon" title="New Organization" onClick={() => setCreateOpen(true)}>
+              <Button
+                size="icon"
+                title="New Organization"
+                aria-label="New Organization"
+                onClick={() => setCreateOpen(true)}
+              >
                 <Plus />
-                <span className="sr-only">New Organization</span>
               </Button>
             </>
-          ) : null
-        }
-      />
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <form
-          className="relative min-w-0 flex-1 sm:max-w-sm"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void orgs.refetch()
-          }}
-        >
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search organization name, alias, or credit code…"
-            className="pl-8"
-          />
-        </form>
-        <span className="ml-auto text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
-          {rows.length} organizations
-        </span>
+          ) : null}
+        </div>
       </div>
       {orgs.isLoading ? (
         <LoadingBlock />
@@ -155,15 +189,19 @@ export function OrganizationsPage() {
         <DataTable
           rows={rows}
           rowKey={(row) => row.id || row.canonicalName || 'org'}
+          onRowClick={(row) => row.id && navigate(`/organizations/${row.id}`)}
+          rowLabel={(row) => `Open ${row.canonicalName || 'organization'}`}
           empty={
             <EmptyState
               title="No organizations yet"
               description="Import a CSV with organization names and root domains, or create a single organization first."
               action={
-                canWrite(role) ? <Button variant="outline" onClick={() => setImportOpen(true)}>
-            <FileUp />
-            Import
-          </Button> : undefined
+                canWrite(role) ? (
+                  <Button variant="outline" onClick={() => setImportOpen(true)}>
+                    <FileUp />
+                    Import
+                  </Button>
+                ) : undefined
               }
             />
           }
@@ -171,11 +209,7 @@ export function OrganizationsPage() {
             {
               key: 'name',
               header: 'Organization',
-              cell: (row) => (
-                <Link to={`/organizations/${row.id}`} className="font-medium text-primary hover:underline">
-                  {row.canonicalName}
-                </Link>
-              ),
+              cell: (row) => <span className="font-medium">{row.canonicalName}</span>,
             },
             { key: 'region', header: 'Region', cell: (row) => row.region || '—', hideOnTablet: true },
             {
@@ -209,10 +243,17 @@ export function OrganizationsPage() {
             {
               key: 'actions',
               header: 'Actions',
+              stopRowClick: true,
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => editOrganization(row)}>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="size-8"
+                      title="Edit"
+                      onClick={() => editOrganization(row)}
+                    >
                       <Pencil />
                       <span className="sr-only">Edit</span>
                     </Button>
@@ -222,7 +263,12 @@ export function OrganizationsPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8 text-destructive hover:text-destructive"
+                          title="Delete"
+                        >
                           <Trash2 />
                           <span className="sr-only">Delete</span>
                         </Button>
@@ -260,7 +306,13 @@ export function OrganizationsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setCreateOpen(false)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setCreateOpen(false)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -293,7 +345,13 @@ export function OrganizationsPage() {
             }}
           />
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setImportOpen(false)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setImportOpen(false)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>

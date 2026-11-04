@@ -2150,6 +2150,8 @@ export interface components {
             assets?: components["schemas"]["SearchHit"][];
             findings?: components["schemas"]["SearchHit"][];
             tasks?: components["schemas"]["SearchHit"][];
+            monitors?: components["schemas"]["SearchHit"][];
+            schedules?: components["schemas"]["SearchHit"][];
         };
         FindingHistory: {
             items: components["schemas"]["Finding"][];

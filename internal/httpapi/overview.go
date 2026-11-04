@@ -53,19 +53,25 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tasks := []easm.SearchHit{}
+	monitors := []easm.SearchHit{}
+	schedules := []easm.SearchHit{}
 	if s.Store != nil {
-		q := httpx.PageQuery(r)
-		q.Page = 1
-		q.PageSize = limit
-		q.Search = strings.TrimSpace(r.URL.Query().Get("q"))
-		if q.Search != "" {
-			items, _, listErr := s.Store.ListTasks(r.Context(), store.PageQuery{Page: 1, PageSize: limit, Search: q.Search}, "", "")
-			if listErr == nil {
+		search := strings.TrimSpace(r.URL.Query().Get("q"))
+		if search != "" {
+			page := store.PageQuery{Page: 1, PageSize: limit, Search: search}
+			if items, _, listErr := s.Store.ListTasks(r.Context(), page, "", ""); listErr == nil {
 				for _, task := range items {
-					if len(tasks) >= limit {
-						break
-					}
-					tasks = append(tasks, easm.SearchHit{Type: "task", ID: task.ID, Label: task.Name, Detail: task.Target})
+					tasks = appendLimitedHit(tasks, easm.SearchHit{Type: "task", ID: task.ID, Label: task.Name, Detail: task.Target}, limit)
+				}
+			}
+			if items, _, listErr := s.Store.ListMonitors(r.Context(), page); listErr == nil {
+				for _, monitor := range items {
+					monitors = appendLimitedHit(monitors, easm.SearchHit{Type: "monitor", ID: monitor.ID, Label: monitor.Name, Detail: monitor.Target}, limit)
+				}
+			}
+			if items, _, listErr := s.Store.ListSchedules(r.Context(), page); listErr == nil {
+				for _, schedule := range items {
+					schedules = appendLimitedHit(schedules, easm.SearchHit{Type: "schedule", ID: schedule.ID, Label: schedule.Name, Detail: schedule.Target}, limit)
 				}
 			}
 		}
@@ -73,7 +79,15 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{
 		"organizations": out.Organizations, "domains": out.Domains,
 		"assets": out.Assets, "findings": out.Findings, "tasks": tasks,
+		"monitors": monitors, "schedules": schedules,
 	})
+}
+
+func appendLimitedHit(items []easm.SearchHit, item easm.SearchHit, limit int) []easm.SearchHit {
+	if len(items) >= limit {
+		return items
+	}
+	return append(items, item)
 }
 
 func overviewSince(raw string, now time.Time) (time.Time, bool) {

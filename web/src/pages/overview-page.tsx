@@ -1,7 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Activity, Building2, ExternalLink, FileUp, Globe, Map as MapIcon, Network, ShieldAlert, Workflow } from 'lucide-react'
+import {
+  Activity,
+  Building2,
+  ExternalLink,
+  FileUp,
+  Globe,
+  Map as MapIcon,
+  Network,
+  ShieldAlert,
+  Workflow,
+} from 'lucide-react'
 import { api } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -38,15 +48,6 @@ export function OverviewPage() {
     refetchInterval: 45_000,
   })
 
-  // global refresh from AppShell header icon
-  useEffect(() => {
-    const handler = () => {
-      void overview.refetch()
-      void map.refetch()
-    }
-    window.addEventListener('t4c:refresh', handler)
-    return () => window.removeEventListener('t4c:refresh', handler)
-  }, [overview, map])
   const graph = useQuery({
     queryKey: ['graph', selectedOrg],
     queryFn: () => api.graph(selectedOrg),
@@ -79,176 +80,190 @@ export function OverviewPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* 5 stat tiles — 2x2 grid + full-width fifth on small screens, 5 across on desktop */}
-      <div className="mb-4 grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-5">
-        <StatTile
-          label="Organizations"
-          value={formatNumber(data.summary.organizations)}
-          hint={`${formatNumber(data.summary.confirmedDomains)} confirmed root domains`}
-          icon={<Building2 className="size-4" />}
-        />
-        <StatTile
-          label="Exposed Assets"
-          value={formatNumber(
-            (data.summary.domainAssets || 0) + (data.summary.ipAssets || 0) + (data.summary.services || 0),
-          )}
-          hint={`${formatNumber(data.summary.unlocatedAssets)} unlocated IPs`}
-          icon={<Globe className="size-4" />}
-        />
-        <StatTile
-          label="Current Risks"
-          value={formatNumber(data.summary.currentFindings)}
-          hint={`${formatNumber(critical)} critical and high`}
-          icon={<ShieldAlert className="size-4" />}
-        />
-        <StatTile
-          label="Running Tasks"
-          value={formatNumber((data.tasks.running || 0) + (data.tasks.queued || 0))}
-          hint={`${formatNumber(data.tasks.succeeded || 0)} completed`}
-          icon={<Workflow className="size-4" />}
-        />
-        <StatTile
-          label="Data Freshness"
-          value={relativeTime(data.updatedAt)}
-          hint={formatTime(data.updatedAt)}
-          testId="overview-freshness"
-          icon={<Activity className="size-4" />}
-          className="col-span-2 lg:col-span-1"
-        />
-      </div>
+      {/* Above-the-fold band: the five vital signs plus the org rail and map fill
+          the viewport height. The two detail cards deliberately start below the
+          fold so the map is the dominant first-screen surface. */}
+      <section className="flex flex-col xl:min-h-[calc(100dvh-7rem)]">
+        {/* 5 stat tiles — 2x2 grid + full-width fifth on small screens, 5 across on desktop */}
+        <div className="mb-4 grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-5">
+          <StatTile
+            label="Organizations"
+            value={formatNumber(data.summary.organizations)}
+            hint={`${formatNumber(data.summary.confirmedDomains)} confirmed root domains`}
+            icon={<Building2 className="size-4" />}
+          />
+          <StatTile
+            label="Exposed Assets"
+            value={formatNumber(
+              (data.summary.domainAssets || 0) + (data.summary.ipAssets || 0) + (data.summary.services || 0),
+            )}
+            hint={`${formatNumber(data.summary.unlocatedAssets)} unlocated IPs`}
+            icon={<Globe className="size-4" />}
+          />
+          <StatTile
+            label="Current Risks"
+            value={formatNumber(data.summary.currentFindings)}
+            hint={`${formatNumber(critical)} critical and high`}
+            icon={<ShieldAlert className="size-4" />}
+          />
+          <StatTile
+            label="Running Tasks"
+            value={formatNumber((data.tasks.running || 0) + (data.tasks.queued || 0))}
+            hint={`${formatNumber(data.tasks.succeeded || 0)} completed`}
+            icon={<Workflow className="size-4" />}
+          />
+          <StatTile
+            label="Data Freshness"
+            value={relativeTime(data.updatedAt)}
+            hint={formatTime(data.updatedAt)}
+            testId="overview-freshness"
+            icon={<Activity className="size-4" />}
+            className="col-span-2 lg:col-span-1"
+          />
+        </div>
 
-      {/* top band: orgs at risk (left rail) + map (dominant center) */}
-      <div className="grid min-h-[480px] flex-1 gap-4 xl:min-h-0 xl:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]">
-        {/* left: organizations at risk */}
-        <Card className="flex min-h-0 flex-col overflow-hidden">
-          <CardHeader className="flex-row items-center justify-center gap-2 space-y-0 border-b py-3">
-            <CardTitle>Organizations at Risk</CardTitle>
-            <Badge variant="outline">{data.topOrganizations.length}</Badge>
-          </CardHeader>
-          <div className="min-h-0 flex-1 overflow-auto p-2 scrollbar-thin">
-            {data.topOrganizations.length ? (
-              data.topOrganizations.map((org) => (
-                <button
-                  key={org.organizationId}
-                  className={cn(
-                    'mb-1 w-full rounded-[4px] border border-transparent px-3 py-2.5 transition-colors hover:bg-muted',
-                    selectedOrg === org.organizationId && 'border-[rgba(0,250,0,0.35)] bg-[rgba(0,250,0,0.08)]',
-                  )}
-                  onClick={() => selectOrg(org.organizationId)}
-                >
-                  <div className="flex flex-col items-center gap-1 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="truncate text-xs font-medium">{org.name}</div>
-                      <RiskBadge risk={org.risk} />
+        {/* top band: orgs at risk (left rail) + map (dominant center) */}
+        <div className="grid min-h-[480px] flex-1 gap-4 xl:min-h-0 xl:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]">
+          {/* left: organizations at risk */}
+          <Card className="flex min-h-0 flex-col overflow-hidden">
+            <CardHeader className="flex-row items-center justify-center gap-2 space-y-0 border-b py-3">
+              <CardTitle>Organizations at Risk</CardTitle>
+              <Badge variant="outline">{data.topOrganizations.length}</Badge>
+            </CardHeader>
+            <div className="min-h-0 flex-1 overflow-auto p-2 scrollbar-thin">
+              {data.topOrganizations.length ? (
+                data.topOrganizations.map((org) => (
+                  <button
+                    key={org.organizationId}
+                    className={cn(
+                      'mb-1 w-full rounded-[4px] border border-transparent px-3 py-2.5 transition-colors hover:bg-muted',
+                      selectedOrg === org.organizationId && 'border-[rgba(0,250,0,0.35)] bg-[rgba(0,250,0,0.08)]',
+                    )}
+                    onClick={() => selectOrg(org.organizationId)}
+                  >
+                    <div className="flex flex-col items-center gap-1 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="truncate text-xs font-medium">{org.name}</div>
+                        <RiskBadge risk={org.risk} />
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {org.assetCount || 0} assets · {org.findingCount || 0} risks
+                      </div>
                     </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {org.assetCount || 0} assets · {org.findingCount || 0} risks
+                  </button>
+                ))
+              ) : (
+                <div className="flex flex-col items-center gap-3 px-3 py-12 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
+                  <span>No organization data</span>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/organizations">
+                      <FileUp />
+                      Import CSV
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* center: map */}
+          <Card className="flex min-h-0 flex-col overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
+              <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
+                <Button
+                  size="sm"
+                  variant={visual === 'map' ? 'default' : 'ghost'}
+                  title="Map view"
+                  onClick={() => setVisual('map')}
+                >
+                  <MapIcon className="size-4" />
+                  <span className="sr-only">Map</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant={visual === 'graph' ? 'default' : 'ghost'}
+                  disabled={!selectedOrg}
+                  title={selectedOrg ? 'Graph view' : 'Select an organization to enable graph view'}
+                  onClick={() => setVisual('graph')}
+                >
+                  <Network className="size-4" />
+                  <span className="sr-only">Graph</span>
+                </Button>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                <HealthChip label="ICP" value={health.icpQuery} />
+                <HealthChip label="GeoIP" value={health.geoip} />
+                <HealthChip label="Neo4j" value={health.neo4j} />
+                {selectedOrg ? (
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="size-7"
+                    title="Back to global view"
+                    onClick={() => selectOrg('')}
+                  >
+                    <Globe className="size-3.5" />
+                    <span className="sr-only">Global view</span>
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              {visual === 'map' ? (
+                map.isLoading ? (
+                  <LoadingBlock label="Locating assets…" />
+                ) : map.error ? (
+                  <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.06em]">Map unavailable</div>
+                      <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
+                        GeoIP or map data service is not responding.
+                      </p>
                     </div>
                   </div>
-                </button>
-              ))
-            ) : (
-              <div className="px-3 py-12 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
-                No organization data
-                <br />
-                <Link className="mt-2 inline-flex items-center gap-1.5 text-primary hover:underline" to="/organizations">
-                  <FileUp className="size-3.5" />
-                  Import CSV
-                </Link>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* center: map */}
-        <Card className="flex min-h-0 flex-col overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
-            <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
-              <Button
-                size="sm"
-                variant={visual === 'map' ? 'default' : 'ghost'}
-                title="Map view"
-                onClick={() => setVisual('map')}
-              >
-                <MapIcon className="size-4" />
-                <span className="sr-only">Map</span>
-              </Button>
-              <Button
-                size="sm"
-                variant={visual === 'graph' ? 'default' : 'ghost'}
-                disabled={!selectedOrg}
-                title={selectedOrg ? 'Graph view' : 'Select an organization to enable graph view'}
-                onClick={() => setVisual('graph')}
-              >
-                <Network className="size-4" />
-                <span className="sr-only">Graph</span>
-              </Button>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              <HealthChip label="ICP" value={health.icpQuery} />
-              <HealthChip label="GeoIP" value={health.geoip} />
-              <HealthChip label="Neo4j" value={health.neo4j} />
-              {selectedOrg ? (
-                <Button size="icon" variant="outline" className="size-7" title="Back to global view" onClick={() => selectOrg('')}>
-                  <Globe className="size-3.5" />
-                  <span className="sr-only">Global view</span>
-                </Button>
-              ) : null}
-            </div>
-          </div>
-          <div className="min-h-0 flex-1 overflow-hidden">
-            {visual === 'map' ? (
-              map.isLoading ? (
-                <LoadingBlock label="Locating assets…" />
-              ) : map.error ? (
+                ) : (
+                  <SurfaceMap snapshot={map.data} onSelect={(_id, orgIds) => orgIds[0] && selectOrg(orgIds[0])} />
+                )
+              ) : graph.error ? (
                 <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.06em]">Map unavailable</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.06em]">Graph unavailable</div>
                     <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
-                      GeoIP or map data service is not responding.
+                      Select an organization with graph data.
                     </p>
                   </div>
                 </div>
+              ) : graph.isLoading ? (
+                <LoadingBlock label="Loading relationship graph…" />
               ) : (
-                <SurfaceMap snapshot={map.data} onSelect={(_id, orgIds) => orgIds[0] && selectOrg(orgIds[0])} />
-              )
-            ) : graph.error ? (
-              <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.06em]">Graph unavailable</div>
-                  <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
-                    Select an organization with graph data.
-                  </p>
-                </div>
-              </div>
-            ) : graph.isLoading ? (
-              <LoadingBlock label="Loading relationship graph…" />
-            ) : (
-              <AssetGraph
-                snapshot={graph.data}
-                onSelect={(node) =>
-                  node.entityId &&
-                  navigate(
-                    node.type === 'organization' ? `/organizations/${node.entityId}` : `/assets?focus=${node.entityId}`,
-                  )
-                }
-              />
-            )}
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2 text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
-            <span>
-              {map.data
-                ? `Unlocated assets ${formatNumber(map.data.unlocatedAssets)} · organizations ${formatNumber(map.data.unlocatedOrganizations)}`
-                : 'Geographic data not loaded'}
-            </span>
-            {map.data?.truncated ? <span>Data truncated</span> : null}
-          </div>
-        </Card>
+                <AssetGraph
+                  snapshot={graph.data}
+                  onSelect={(node) =>
+                    node.entityId &&
+                    navigate(
+                      node.type === 'organization'
+                        ? `/organizations/${node.entityId}`
+                        : `/assets?focus=${node.entityId}`,
+                    )
+                  }
+                />
+              )}
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2 text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+              <span>
+                {map.data
+                  ? `Unlocated assets ${formatNumber(map.data.unlocatedAssets)} · organizations ${formatNumber(map.data.unlocatedOrganizations)}`
+                  : 'Geographic data not loaded'}
+              </span>
+              {map.data?.truncated ? <span>Data truncated</span> : null}
+            </div>
+          </Card>
+        </div>
+      </section>
 
-      </div>
-
-      {/* bottom band: recent discoveries + risk distribution side by side */}
-      <div className="grid shrink-0 gap-4 lg:grid-cols-2">
+      {/* bottom band: recent discoveries + risk distribution side by side,
+          intentionally below the first viewport so they never crowd the map */}
+      <div className="mt-4 grid shrink-0 gap-4 lg:grid-cols-2">
         <Card className="flex min-h-0 flex-col">
           <CardHeader className="border-b py-3">
             <CardTitle>{selectedOrg ? 'Selected Organization' : 'Recent Discoveries'}</CardTitle>
@@ -284,7 +299,9 @@ export function OverviewPage() {
                         <div className="line-clamp-1 text-xs font-medium">{item.finding?.title}</div>
                         <RiskBadge risk={item.finding?.severity} />
                       </div>
-                      <div className="max-w-full truncate text-[11px] text-muted-foreground">{item.finding?.target}</div>
+                      <div className="max-w-full truncate text-[11px] text-muted-foreground">
+                        {item.finding?.target}
+                      </div>
                       <div className="text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
                         {relativeTime(item.finding?.createdAt)} · {item.occurrences || 1} occurrences
                       </div>

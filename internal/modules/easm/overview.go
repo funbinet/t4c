@@ -63,6 +63,8 @@ type SearchResult struct {
 	Domains       []SearchHit `json:"domains"`
 	Assets        []SearchHit `json:"assets"`
 	Findings      []SearchHit `json:"findings"`
+	Monitors      []SearchHit `json:"monitors"`
+	Schedules     []SearchHit `json:"schedules"`
 }
 
 func (s *Service) Overview(ctx context.Context, since time.Time) (*Overview, error) {
@@ -191,6 +193,8 @@ func (s *Service) Search(ctx context.Context, query string, limit int) (*SearchR
 		Domains:       []SearchHit{},
 		Assets:        []SearchHit{},
 		Findings:      []SearchHit{},
+		Monitors:      []SearchHit{},
+		Schedules:     []SearchHit{},
 	}
 	orgByID := make(map[string]domain.Organization, len(c.orgs))
 	for _, org := range c.orgs {

@@ -8,6 +8,8 @@ export type Column<T> = {
   cell: (row: T) => ReactNode
   hideOnTablet?: boolean
   hideOnMobile?: boolean
+  /** Keep clicks inside this cell from opening the row. */
+  stopRowClick?: boolean
 }
 
 export function DataTable<T>({
@@ -17,6 +19,8 @@ export function DataTable<T>({
   empty,
   loading,
   scrollable = false,
+  onRowClick,
+  rowLabel,
 }: {
   rows: T[]
   columns: Column<T>[]
@@ -24,6 +28,8 @@ export function DataTable<T>({
   empty: ReactNode
   loading?: boolean
   scrollable?: boolean
+  onRowClick?: (row: T) => void
+  rowLabel?: (row: T) => string
 }) {
   if (loading)
     return <div className="rounded-[4px] border bg-card p-8 text-center text-xs text-muted-foreground">Loading…</div>
@@ -56,7 +62,23 @@ export function DataTable<T>({
             </thead>
             <tbody className="divide-y">
               {rows.map((row) => (
-                <tr key={rowKey(row)} className="transition-colors hover:bg-[#111111]">
+                <tr
+                  key={rowKey(row)}
+                  className={cn('transition-colors hover:bg-[#111111]', onRowClick && 'cursor-pointer')}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault()
+                            onRowClick(row)
+                          }
+                        }
+                      : undefined
+                  }
+                  tabIndex={onRowClick ? 0 : undefined}
+                  aria-label={onRowClick && rowLabel ? rowLabel(row) : undefined}
+                >
                   {columns.map((column) => (
                     <td
                       key={column.key}
@@ -65,6 +87,7 @@ export function DataTable<T>({
                         column.className,
                         column.hideOnTablet && 'hidden xl:table-cell',
                       )}
+                      onClick={column.stopRowClick ? (event) => event.stopPropagation() : undefined}
                     >
                       {column.cell(row)}
                     </td>
@@ -77,12 +100,32 @@ export function DataTable<T>({
       </div>
       <div className="space-y-2 md:hidden">
         {rows.map((row) => (
-          <div key={rowKey(row)} className="rounded-[4px] border bg-card p-3">
+          <div
+            key={rowKey(row)}
+            className={cn('rounded-[4px] border bg-card p-3', onRowClick && 'cursor-pointer')}
+            onClick={onRowClick ? () => onRowClick(row) : undefined}
+            onKeyDown={
+              onRowClick
+                ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      onRowClick(row)
+                    }
+                  }
+                : undefined
+            }
+            tabIndex={onRowClick ? 0 : undefined}
+            aria-label={onRowClick && rowLabel ? rowLabel(row) : undefined}
+          >
             <dl className="space-y-2">
               {columns
                 .filter((column) => !column.hideOnMobile)
                 .map((column) => (
-                  <div key={column.key} className="flex items-start justify-between gap-3 text-xs">
+                  <div
+                    key={column.key}
+                    className="flex items-start justify-between gap-3 text-xs"
+                    onClick={column.stopRowClick ? (event) => event.stopPropagation() : undefined}
+                  >
                     <dt className="shrink-0 text-muted-foreground">{column.header}</dt>
                     <dd className="min-w-0 text-right">{column.cell(row)}</dd>
                   </div>

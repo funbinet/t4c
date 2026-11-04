@@ -9,13 +9,13 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'text-black shadow-[0_0_12px_rgba(0,250,0,0.25)] [background:var(--grad-button)] hover:[background:var(--accent-600)]',
+          'text-black shadow-[0_0_8px_rgba(0,200,83,0.16)] [background:var(--grad-button)] hover:[background:var(--accent-600)]',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-[#1a1a1a]',
         outline:
           'border border-border bg-card text-foreground hover:border-[rgba(0,250,0,0.45)] hover:bg-secondary hover:text-mint hover:shadow-[0_0_12px_rgba(0,250,0,0.18)]',
         ghost: 'hover:bg-secondary hover:text-mint hover:shadow-[0_0_10px_rgba(0,250,0,0.12)]',
         destructive: 'bg-destructive text-black hover:bg-[#ff8585] hover:shadow-[0_0_12px_rgba(255,107,107,0.3)]',
-        link: 'text-mint underline-offset-4 hover:text-primary hover:underline',
+        link: 'text-mint hover:text-primary',
       },
       size: {
         default: 'h-9 px-3.5 py-2',
@@ -24,6 +24,13 @@ export const buttonVariants = cva(
         icon: 'size-9',
       },
     },
+    compoundVariants: [
+      {
+        variant: ['outline', 'ghost', 'secondary'],
+        size: 'icon',
+        class: 'text-mint hover:text-white',
+      },
+    ],
     defaultVariants: { variant: 'default', size: 'default' },
   },
 )
