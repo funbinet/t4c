@@ -108,9 +108,15 @@ export function TaskDetailPage() {
   })
 
   if (detail.isLoading) return <LoadingBlock label="Loading task…" />
-  if (detail.error) return <ErrorState error={detail.error} retry={() => detail.refetch()} />
-  const task = detail.data!.task
-  const steps = detail.data!.steps || []
+  if (detail.error || !detail.data?.task)
+    return (
+      <ErrorState
+        error={detail.error ?? new Error('Task not found')}
+        retry={() => detail.refetch()}
+      />
+    )
+  const task = detail.data.task
+  const steps = detail.data.steps || []
 
   function switchTab(value: string) {
     const next = new URLSearchParams(params)

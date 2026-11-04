@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AdminRoute, ProtectedRoute } from './auth'
 import { AppShell } from '@/components/layout/app-shell'
 import { AppBackground } from '@/components/layout/app-background'
+import { RouteError } from '@/components/common/route-error'
 import { LoadingBlock } from '@/components/common/states'
 
 const LoginPage = lazy(() => import('@/pages/login-page').then((module) => ({ default: module.LoginPage })))
@@ -44,37 +45,44 @@ function page(element: ReactNode) {
   return <Suspense fallback={<LoadingBlock />}>{element}</Suspense>
 }
 
+// Every route gets its own boundary so a crashing screen never takes down the
+// whole console with react-router's default error page.
+function screen(element: ReactNode) {
+  return { element: page(element), errorElement: <RouteError /> }
+}
+
 const router = createBrowserRouter([
-  { path: '/login', element: page(<LoginPage />) },
-  { path: '/change-password', element: <ProtectedRoute>{page(<ChangePasswordPage />)}</ProtectedRoute> },
+  { path: '/login', ...screen(<LoginPage />) },
+  { path: '/change-password', errorElement: <RouteError />, element: <ProtectedRoute>{page(<ChangePasswordPage />)}</ProtectedRoute> },
   {
     path: '/',
+    errorElement: <RouteError />,
     element: (
       <ProtectedRoute>
         <AppShell />
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: page(<OverviewPage />) },
-      { path: 'organizations', element: page(<OrganizationsPage />) },
-      { path: 'organizations/:id', element: page(<OrganizationDetailPage />) },
-      { path: 'assets', element: page(<AssetsPage />) },
-      { path: 'findings', element: page(<FindingsPage />) },
-      { path: 'tasks', element: page(<TasksPage />) },
-      { path: 'tasks/:id', element: page(<TaskDetailPage />) },
-      { path: 'automation/monitors', element: page(<MonitorsPage />) },
-      { path: 'automation/schedules', element: page(<SchedulesPage />) },
-      { path: 'automation/policies', element: page(<PoliciesPage />) },
-      { path: 'automation/groups', element: page(<ScopesPage />) },
-      { path: 'intelligence/github', element: page(<GitHubPage />) },
-      { path: 'intelligence/fingerprints', element: page(<FingerprintsPage />) },
-      { path: 'intelligence/poc', element: page(<PocPage />) },
-      { path: 'admin/users', element: <AdminRoute>{page(<UsersPage />)}</AdminRoute> },
-      { path: 'admin/api-keys', element: <AdminRoute>{page(<APIKeysPage />)}</AdminRoute> },
-      { path: 'admin/audit', element: <AdminRoute>{page(<AuditPage />)}</AdminRoute> },
-      { path: 'admin/recycle-bin', element: <AdminRoute>{page(<RecycleBinPage />)}</AdminRoute> },
-      { path: 'admin/system', element: <AdminRoute>{page(<SystemPage />)}</AdminRoute> },
-      { path: '*', element: page(<NotFoundPage />) },
+      { index: true, ...screen(<OverviewPage />) },
+      { path: 'organizations', ...screen(<OrganizationsPage />) },
+      { path: 'organizations/:id', ...screen(<OrganizationDetailPage />) },
+      { path: 'assets', ...screen(<AssetsPage />) },
+      { path: 'findings', ...screen(<FindingsPage />) },
+      { path: 'tasks', ...screen(<TasksPage />) },
+      { path: 'tasks/:id', ...screen(<TaskDetailPage />) },
+      { path: 'automation/monitors', ...screen(<MonitorsPage />) },
+      { path: 'automation/schedules', ...screen(<SchedulesPage />) },
+      { path: 'automation/policies', ...screen(<PoliciesPage />) },
+      { path: 'automation/groups', ...screen(<ScopesPage />) },
+      { path: 'intelligence/github', ...screen(<GitHubPage />) },
+      { path: 'intelligence/fingerprints', ...screen(<FingerprintsPage />) },
+      { path: 'intelligence/poc', ...screen(<PocPage />) },
+      { path: 'admin/users', errorElement: <RouteError />, element: <AdminRoute>{page(<UsersPage />)}</AdminRoute> },
+      { path: 'admin/api-keys', errorElement: <RouteError />, element: <AdminRoute>{page(<APIKeysPage />)}</AdminRoute> },
+      { path: 'admin/audit', errorElement: <RouteError />, element: <AdminRoute>{page(<AuditPage />)}</AdminRoute> },
+      { path: 'admin/recycle-bin', errorElement: <RouteError />, element: <AdminRoute>{page(<RecycleBinPage />)}</AdminRoute> },
+      { path: 'admin/system', errorElement: <RouteError />, element: <AdminRoute>{page(<SystemPage />)}</AdminRoute> },
+      { path: '*', ...screen(<NotFoundPage />) },
     ],
   },
 ])

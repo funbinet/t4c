@@ -199,7 +199,14 @@ export function OrganizationDetailPage() {
         }}
       />
     )
-  const org = organization.data!.organization
+  if (!organization.data?.organization)
+    return (
+      <ErrorState
+        error={organization.error ?? new Error('Organization not found')}
+        retry={() => organization.refetch()}
+      />
+    )
+  const org = organization.data.organization
   const domainItems = domains.data?.items || []
   const confirmed = domainItems
     .filter((domain) => domain.status === 'confirmed')

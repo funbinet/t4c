@@ -45,22 +45,37 @@ func NewProjector(st ProjectionStore, w GraphWriter, log *slog.Logger) *Projecto
 }
 
 // Run consumes graph outbox events until the context is canceled.
+// Failures back off exponentially (1s → 60s) so a misconfigured or absent
+// graph database does not flood the logs every second.
 func (p *Projector) Run(ctx context.Context) {
+	failures := 0
 	for {
 		n, err := p.ProcessBatch(ctx)
 		if err != nil && p.Log != nil {
-			p.Log.Warn("graph projection failed", "error", err)
+			p.Log.Warn("graph projection failed", "error", err, "attempt", failures+1)
 		}
 		if ctx.Err() != nil {
 			return
 		}
+		if err == nil {
+			failures = 0
+		} else {
+			failures++
+		}
 		if n > 0 {
 			continue
+		}
+		delay := time.Second
+		for i := 0; i < failures && delay < time.Minute; i++ {
+			delay *= 2
+		}
+		if delay > time.Minute {
+			delay = time.Minute
 		}
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(time.Second):
+		case <-time.After(delay):
 		}
 	}
 }

@@ -67,7 +67,16 @@ export function OverviewPage() {
   if (overview.isLoading) return <LoadingBlock label="Aggregating attack surface…" />
   if (overview.error) return <ErrorState error={overview.error} retry={() => overview.refetch()} />
 
-  const data = overview.data!
+  const data = overview.data
+  // A flapping backend (restart window, proxy hiccup) can resolve a query with
+  // a missing payload — degrade to an error state instead of crashing the route.
+  if (!data?.summary || !data.severity || !data.tasks || !data.health)
+    return (
+      <ErrorState
+        error={overview.error ?? new Error('Overview data is unavailable — the service may be restarting')}
+        retry={() => overview.refetch()}
+      />
+    )
   const critical = (data.severity.critical || 0) + (data.severity.high || 0)
   const health = data.health
 

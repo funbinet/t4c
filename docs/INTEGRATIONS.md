@@ -61,6 +61,8 @@ Extended asset enrichment from the FOFA internet-db. Set `T4C_FOFA_URL` (default
 
 The relationship graph on Overview (select an org → graph view) is served from Neo4j. Without it the map still works; the graph tab shows "Graph unavailable". Set `T4C_NEO4J_URI`, `T4C_NEO4J_USER`, `T4C_NEO4J_PASSWORD`, `T4C_NEO4J_DATABASE`. A free Neo4j AuraDB instance is sufficient; enable `T4C_NEO4J_ALLOW_REBUILD=1` to let T4C rebuild graph data.
 
+**AuraDB note:** AuraDB instances are not provisioned with a database literally named `neo4j`. If the logs repeat `Neo.ClientError.Database.DatabaseNotFound (database 'neo4j' does not exist)`, set `T4C_NEO4J_DATABASE` to the actual database name shown in the AuraDB console (AuraDB's default query database is often named after the instance). If you do not need the relationship graph at all, unset the `T4C_NEO4J_*` variables entirely — the console degrades gracefully and the log noise stops. Projection failures back off exponentially, so a misconfigured graph store no longer floods the logs.
+
 ## 6. Subfinder provider config (optional)
 
 Passive subdomain discovery quality depends on provider API keys (SecurityTrails, Censys, Shodan, …). Mount or point to a provider config file via `T4C_SUBFINDER_PROVIDER_CONFIG`. Without it subfinder still uses free sources but finds fewer subdomains.
