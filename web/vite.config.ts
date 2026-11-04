@@ -20,7 +20,9 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../internal/webui/dist',
+    // Embedded Go build writes into internal/webui/dist; Vercel builds use
+    // T4C_WEB_OUT_DIR=dist so the output stays inside the web/ deployment root.
+    outDir: process.env.T4C_WEB_OUT_DIR || '../internal/webui/dist',
     emptyOutDir: true,
   },
 })

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "T4C_WEB_OUT_DIR=dist npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": null,
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "${T4C_BACKEND_URL}/api/$1",
+      "env": ["T4C_BACKEND_URL"]
+    },
+    {
+      "src": "/healthz",
+      "dest": "${T4C_BACKEND_URL}/healthz",
+      "env": ["T4C_BACKEND_URL"]
+    },
+    {
+      "src": "/readyz",
+      "dest": "${T4C_BACKEND_URL}/readyz",
+      "env": ["T4C_BACKEND_URL"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
