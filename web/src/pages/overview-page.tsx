@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Activity, Building2, ExternalLink, FileUp, Globe, Map as MapIcon, Network, ShieldAlert, Workflow } from 'lucide-react'
 import { api } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -84,6 +85,7 @@ export function OverviewPage() {
           label="Organizations"
           value={formatNumber(data.summary.organizations)}
           hint={`${formatNumber(data.summary.confirmedDomains)} confirmed root domains`}
+          icon={<Building2 className="size-4" />}
         />
         <StatTile
           label="Exposed Assets"
@@ -91,31 +93,35 @@ export function OverviewPage() {
             (data.summary.domainAssets || 0) + (data.summary.ipAssets || 0) + (data.summary.services || 0),
           )}
           hint={`${formatNumber(data.summary.unlocatedAssets)} unlocated IPs`}
+          icon={<Globe className="size-4" />}
         />
         <StatTile
           label="Current Risks"
           value={formatNumber(data.summary.currentFindings)}
           hint={`${formatNumber(critical)} critical and high`}
+          icon={<ShieldAlert className="size-4" />}
         />
         <StatTile
           label="Running Tasks"
           value={formatNumber((data.tasks.running || 0) + (data.tasks.queued || 0))}
           hint={`${formatNumber(data.tasks.succeeded || 0)} completed`}
+          icon={<Workflow className="size-4" />}
         />
         <StatTile
           label="Data Freshness"
           value={relativeTime(data.updatedAt)}
           hint={formatTime(data.updatedAt)}
           testId="overview-freshness"
+          icon={<Activity className="size-4" />}
           className="col-span-2 lg:col-span-1"
         />
       </div>
 
-      {/* three-column layout: orgs at risk | map | recent discoveries + risk distribution */}
-      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[clamp(200px,18vw,280px)_1fr_1fr] xl:grid-rows-1">
+      {/* top band: orgs at risk (left rail) + map (dominant center) */}
+      <div className="grid min-h-[480px] flex-1 gap-4 xl:min-h-0 xl:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]">
         {/* left: organizations at risk */}
         <Card className="flex min-h-0 flex-col overflow-hidden">
-          <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
+          <CardHeader className="flex-row items-center justify-center gap-2 space-y-0 border-b py-3">
             <CardTitle>Organizations at Risk</CardTitle>
             <Badge variant="outline">{data.topOrganizations.length}</Badge>
           </CardHeader>
@@ -125,19 +131,19 @@ export function OverviewPage() {
                 <button
                   key={org.organizationId}
                   className={cn(
-                    'mb-1 w-full rounded-[4px] border border-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted',
+                    'mb-1 w-full rounded-[4px] border border-transparent px-3 py-2.5 transition-colors hover:bg-muted',
                     selectedOrg === org.organizationId && 'border-[rgba(0,250,0,0.35)] bg-[rgba(0,250,0,0.08)]',
                   )}
                   onClick={() => selectOrg(org.organizationId)}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
+                  <div className="flex flex-col items-center gap-1 text-center">
+                    <div className="flex items-center justify-center gap-2">
                       <div className="truncate text-xs font-medium">{org.name}</div>
-                      <div className="mt-1 text-[11px] text-muted-foreground">
-                        {org.assetCount || 0} assets · {org.findingCount || 0} risks
-                      </div>
+                      <RiskBadge risk={org.risk} />
                     </div>
-                    <RiskBadge risk={org.risk} />
+                    <div className="text-[11px] text-muted-foreground">
+                      {org.assetCount || 0} assets · {org.findingCount || 0} risks
+                    </div>
                   </div>
                 </button>
               ))
@@ -145,7 +151,8 @@ export function OverviewPage() {
               <div className="px-3 py-12 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
                 No organization data
                 <br />
-                <Link className="mt-2 inline-block text-primary hover:underline" to="/organizations">
+                <Link className="mt-2 inline-flex items-center gap-1.5 text-primary hover:underline" to="/organizations">
+                  <FileUp className="size-3.5" />
                   Import CSV
                 </Link>
               </div>
@@ -157,25 +164,34 @@ export function OverviewPage() {
         <Card className="flex min-h-0 flex-col overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
             <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
-              <Button size="sm" variant={visual === 'map' ? 'default' : 'ghost'} onClick={() => setVisual('map')}>
-                Map
+              <Button
+                size="sm"
+                variant={visual === 'map' ? 'default' : 'ghost'}
+                title="Map view"
+                onClick={() => setVisual('map')}
+              >
+                <MapIcon className="size-4" />
+                <span className="sr-only">Map</span>
               </Button>
               <Button
                 size="sm"
                 variant={visual === 'graph' ? 'default' : 'ghost'}
                 disabled={!selectedOrg}
+                title={selectedOrg ? 'Graph view' : 'Select an organization to enable graph view'}
                 onClick={() => setVisual('graph')}
               >
-                Graph
+                <Network className="size-4" />
+                <span className="sr-only">Graph</span>
               </Button>
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
               <HealthChip label="ICP" value={health.icpQuery} />
               <HealthChip label="GeoIP" value={health.geoip} />
               <HealthChip label="Neo4j" value={health.neo4j} />
               {selectedOrg ? (
-                <Button size="sm" variant="ghost" onClick={() => selectOrg('')}>
-                  Global
+                <Button size="icon" variant="outline" className="size-7" title="Back to global view" onClick={() => selectOrg('')}>
+                  <Globe className="size-3.5" />
+                  <span className="sr-only">Global view</span>
                 </Button>
               ) : null}
             </div>
@@ -229,75 +245,81 @@ export function OverviewPage() {
           </div>
         </Card>
 
-        {/* right: recent discoveries + risk distribution stacked */}
-        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto scrollbar-thin">
-          <Card>
-            <CardHeader className="border-b py-3">
-              <CardTitle>{selectedOrg ? 'Selected Organization' : 'Recent Discoveries'}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-3">
-              {selectedOrg ? (
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm font-semibold">{selectedRisk?.name || 'Organization'}</div>
-                    <RiskBadge risk={selectedRisk?.risk} />
-                  </div>
-                  {summary.data ? (
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <Fact label="Root Domains" value={summary.data.confirmedDomains || 0} />
-                      <Fact label="Assets" value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)} />
-                      <Fact label="Current Risks" value={summary.data.currentFindings || 0} />
-                      <Fact label="Tasks" value={summary.data.linkedTasks || 0} />
-                    </div>
-                  ) : null}
-                  <Button asChild className="mt-4 w-full" variant="outline">
-                    <Link to={`/organizations/${selectedOrg}`}>Open Organization</Link>
-                  </Button>
+      </div>
+
+      {/* bottom band: recent discoveries + risk distribution side by side */}
+      <div className="grid shrink-0 gap-4 lg:grid-cols-2">
+        <Card className="flex min-h-0 flex-col">
+          <CardHeader className="border-b py-3">
+            <CardTitle>{selectedOrg ? 'Selected Organization' : 'Recent Discoveries'}</CardTitle>
+          </CardHeader>
+          <CardContent className="min-h-0 flex-1 p-3">
+            {selectedOrg ? (
+              <div>
+                <div className="flex items-center justify-center gap-2 text-center">
+                  <div className="text-sm font-semibold">{selectedRisk?.name || 'Organization'}</div>
+                  <RiskBadge risk={selectedRisk?.risk} />
                 </div>
-              ) : data.recentFindings.length ? (
-                <div className="space-y-3">
-                  {data.recentFindings.slice(0, 5).map((item) => (
-                    <div key={item.finding?.id} className="border-b pb-3 last:border-0 last:pb-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="line-clamp-2 text-xs font-medium">{item.finding?.title}</div>
+                {summary.data ? (
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Fact label="Root Domains" value={summary.data.confirmedDomains || 0} />
+                    <Fact label="Assets" value={(summary.data.domainAssets || 0) + (summary.data.ipAssets || 0)} />
+                    <Fact label="Current Risks" value={summary.data.currentFindings || 0} />
+                    <Fact label="Tasks" value={summary.data.linkedTasks || 0} />
+                  </div>
+                ) : null}
+                <Button asChild className="mt-4 w-full" variant="outline">
+                  <Link to={`/organizations/${selectedOrg}`}>
+                    <ExternalLink className="size-4" />
+                    Open
+                  </Link>
+                </Button>
+              </div>
+            ) : data.recentFindings.length ? (
+              <div className="space-y-3">
+                {data.recentFindings.slice(0, 5).map((item) => (
+                  <div key={item.finding?.id} className="border-b pb-3 last:border-0 last:pb-0">
+                    <div className="flex flex-col items-center gap-1 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="line-clamp-1 text-xs font-medium">{item.finding?.title}</div>
                         <RiskBadge risk={item.finding?.severity} />
                       </div>
-                      <div className="mt-1 truncate text-[11px] text-muted-foreground">{item.finding?.target}</div>
-                      <div className="mt-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+                      <div className="max-w-full truncate text-[11px] text-muted-foreground">{item.finding?.target}</div>
+                      <div className="text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
                         {relativeTime(item.finding?.createdAt)} · {item.occurrences || 1} occurrences
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-10 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
-                  No risks in the selected time range
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="border-b py-3">
-              <CardTitle>Risk Distribution</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 p-3">
-              {(['critical', 'high', 'medium', 'low', 'info'] as const).map((key) => (
-                <div key={key} className="flex items-center gap-2 text-xs">
-                  <span className={`w-10 shrink-0 risk-${key}`}>{riskLabel(key)}</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className={`h-full risk-bg-${key}`}
-                      style={{
-                        width: `${Math.min(100, ((data.severity[key] || 0) / Math.max(1, data.summary.currentFindings || 1)) * 100)}%`,
-                      }}
-                    />
                   </div>
-                  <span className="w-7 text-right tabular-nums">{data.severity[key] || 0}</span>
+                ))}
+              </div>
+            ) : (
+              <div className="py-10 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
+                No risks in the selected time range
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="flex min-h-0 flex-col">
+          <CardHeader className="border-b py-3">
+            <CardTitle>Risk Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="flex min-h-0 flex-1 flex-col justify-center space-y-2 p-3">
+            {(['critical', 'high', 'medium', 'low', 'info'] as const).map((key) => (
+              <div key={key} className="flex items-center gap-2 text-xs">
+                <span className={`w-10 shrink-0 risk-${key}`}>{riskLabel(key)}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full risk-bg-${key}`}
+                    style={{
+                      width: `${Math.min(100, ((data.severity[key] || 0) / Math.max(1, data.summary.currentFindings || 1)) * 100)}%`,
+                    }}
+                  />
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+                <span className="w-7 text-right tabular-nums">{data.severity[key] || 0}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
       {data.truncated ? (

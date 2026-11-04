@@ -1,3 +1,4 @@
+import { RefreshCw } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -41,8 +42,9 @@ export function PocPage() {
         title="PoC Plugins"
         actions={
           isAdmin(role) ? (
-            <Button onClick={() => sync.mutate()} disabled={sync.isPending}>
-              Sync Metadata
+            <Button size="icon" title="Sync Metadata" onClick={() => sync.mutate()} disabled={sync.isPending}>
+              <RefreshCw className={sync.isPending ? 'animate-spin' : undefined} />
+              <span className="sr-only">Sync Metadata</span>
             </Button>
           ) : null
         }

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type Schedule } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
@@ -87,6 +88,8 @@ export function SchedulesPage() {
         actions={
           canWrite(role) ? (
             <Button
+              size="icon"
+              title="New Schedule"
               onClick={() => {
                 setEditingId('')
                 setForm({
@@ -101,7 +104,8 @@ export function SchedulesPage() {
                 setOpen(true)
               }}
             >
-              New Schedule
+              <Plus />
+              <span className="sr-only">New Schedule</span>
             </Button>
           ) : null
         }
@@ -137,8 +141,9 @@ export function SchedulesPage() {
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      Edit
+                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                      <Pencil />
+                      <span className="sr-only">Edit</span>
                     </Button>
                     <ConfirmDialog
                       title="Delete schedule"
@@ -146,8 +151,9 @@ export function SchedulesPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="sm" variant="ghost" className="text-destructive">
-                          Delete
+                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                          <Trash2 />
+                          <span className="sr-only">Delete</span>
                         </Button>
                       }
                     />
@@ -222,8 +228,9 @@ export function SchedulesPage() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={
@@ -231,7 +238,8 @@ export function SchedulesPage() {
               }
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
-              {editingId ? 'Save changes' : 'Create schedule'}
+              <Save className="size-4" />
+              {editingId ? 'Save' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>

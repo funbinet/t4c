@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
+import { ArchiveRestore, Search } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/api'
@@ -109,12 +109,15 @@ export function RecycleBinPage() {
                 header: 'Actions',
                 cell: (row) => (
                   <Button
-                    size="sm"
+                    size="icon"
                     variant="outline"
+                    className="size-8"
+                    title="Restore"
                     disabled={restore.isPending}
                     onClick={() => restore.mutate({ type: row.type, id: row.id })}
                   >
-                    Restore
+                    <ArchiveRestore />
+                    <span className="sr-only">Restore</span>
                   </Button>
                 ),
               },

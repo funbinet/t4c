@@ -7,6 +7,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@radix-ui/react-alert-dialog'
+import { Trash2, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { buttonVariants } from '@/components/ui/button'
 
@@ -33,9 +34,16 @@ export function ConfirmDialog({
             {description}
           </AlertDialogDescription>
         </div>
-        <div className="mt-6 flex justify-end gap-2">
-          <AlertDialogCancel className={buttonVariants({ variant: 'outline', size: 'sm' })}>Cancel</AlertDialogCancel>
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <AlertDialogCancel
+            className={buttonVariants({ variant: 'outline', size: 'icon', className: 'size-8' })}
+            title="Cancel"
+          >
+            <X />
+            <span className="sr-only">Cancel</span>
+          </AlertDialogCancel>
           <AlertDialogAction className={buttonVariants({ variant: 'destructive', size: 'sm' })} onClick={onConfirm}>
+            <Trash2 className="size-3.5" />
             {confirmLabel}
           </AlertDialogAction>
         </div>

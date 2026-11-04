@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Check, Download, FileText, History, Pencil, Play, Plus, Save, Search, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type EasmAsset, type FindingItem, type OrganizationDomain, type Task } from '@/api'
 import { download } from '@/api/client'
@@ -256,25 +257,39 @@ export function OrganizationDetailPage() {
         {canWrite(role) ? (
           <div className="flex flex-wrap items-center gap-2">
             <Button
+              size="icon"
+              title="Start Scan"
               onClick={() => {
                 setScanDomains(confirmed.slice(0, 10))
                 setScanOpen(true)
               }}
               disabled={!confirmed.length}
             >
-              Start Scan
+              <Play />
+              <span className="sr-only">Start Scan</span>
             </Button>
-            <Button variant="outline" onClick={() => refreshICP.mutate()} disabled={refreshICP.isPending}>
-              ICP Lookup
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-9"
+              title="ICP Lookup"
+              onClick={() => refreshICP.mutate()}
+              disabled={refreshICP.isPending}
+            >
+              <Search className={refreshICP.isPending ? 'animate-spin' : undefined} />
+              <span className="sr-only">ICP Lookup</span>
             </Button>
-            <Button variant="outline" onClick={() => setAddOpen(true)}>
-              Add Root Domain
+            <Button size="icon" variant="outline" className="size-9" title="Add Root Domain" onClick={() => setAddOpen(true)}>
+              <Plus />
+              <span className="sr-only">Add Root Domain</span>
             </Button>
-            <Button variant="outline" onClick={() => exportReport.mutate('xlsx')}>
-              Export
+            <Button size="icon" variant="outline" className="size-9" title="Export Report" onClick={() => exportReport.mutate('xlsx')}>
+              <Download />
+              <span className="sr-only">Export</span>
             </Button>
-            <Button variant="outline" onClick={openEditOrganization}>
-              Edit
+            <Button size="icon" variant="outline" className="size-9" title="Edit Organization" onClick={openEditOrganization}>
+              <Pencil />
+              <span className="sr-only">Edit</span>
             </Button>
             <ConfirmDialog
               title="Delete organization"
@@ -282,8 +297,9 @@ export function OrganizationDetailPage() {
               confirmLabel="Move To Recycle Bin"
               onConfirm={() => deleteOrganization.mutate()}
               trigger={
-                <Button variant="outline" className="text-destructive">
-                  Delete
+                <Button size="icon" variant="outline" className="size-9 text-destructive hover:text-destructive" title="Delete Organization">
+                  <Trash2 />
+                  <span className="sr-only">Delete</span>
                 </Button>
               }
             />
@@ -356,11 +372,13 @@ export function OrganizationDetailPage() {
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Filed Root Domains</CardTitle>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
-                  Add
+                <Button size="icon" variant="outline" className="size-8" title="Add Root Domain" onClick={() => setAddOpen(true)}>
+                  <Plus />
+                  <span className="sr-only">Add</span>
                 </Button>
                 <Button size="sm" disabled={!selectedDomains.length} onClick={() => confirm.mutate()}>
-                  Confirm Selected
+                  <Check />
+                  Confirm
                 </Button>
               </div>
             </CardHeader>
@@ -409,12 +427,14 @@ export function OrganizationDetailPage() {
                       header: 'Actions',
                       cell: (row) => (
                         <div className="flex flex-wrap justify-end gap-1">
-                          <Button size="sm" variant="ghost" onClick={() => void showEvidence(row)}>
-                            Evidence
+                          <Button size="icon" variant="outline" className="size-8" title="Evidence" onClick={() => void showEvidence(row)}>
+                            <FileText />
+                            <span className="sr-only">Evidence</span>
                           </Button>
                           {canWrite(role) ? (
-                            <Button size="sm" variant="ghost" onClick={() => editDomain(row)}>
-                              Edit
+                            <Button size="icon" variant="outline" className="size-8" title="Edit Domain" onClick={() => editDomain(row)}>
+                              <Pencil />
+                              <span className="sr-only">Edit</span>
                             </Button>
                           ) : null}
                           {canWrite(role) ? (
@@ -424,23 +444,26 @@ export function OrganizationDetailPage() {
                               confirmLabel="Move To Recycle Bin"
                               onConfirm={() => deleteDomain.mutate(row.id || '')}
                               trigger={
-                                <Button size="sm" variant="ghost" className="text-destructive">
-                                  Delete
+                                <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                                  <Trash2 />
+                                  <span className="sr-only">Delete</span>
                                 </Button>
                               }
                             />
                           ) : null}
                           {canWrite(role) && row.status === 'candidate' ? (
                             <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-destructive"
+                              size="icon"
+                              variant="outline"
+                              className="size-8 text-destructive hover:text-destructive"
+                              title="Remove Candidate"
                               onClick={() => {
                                 setRejectReason('Manually removed')
                                 setRejectTarget(row)
                               }}
                             >
-                              Remove
+                              <X />
+                              <span className="sr-only">Remove</span>
                             </Button>
                           ) : null}
                         </div>
@@ -475,11 +498,13 @@ export function OrganizationDetailPage() {
             placeholder="example.edu.cn"
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setAddOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!domainText.trim() || addDomains.isPending} onClick={() => addDomains.mutate()}>
-              {addDomains.isPending ? 'Adding…' : 'Add Root Domains'}
+              <Plus />
+              {addDomains.isPending ? 'Adding…' : 'Add'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -506,11 +531,13 @@ export function OrganizationDetailPage() {
             ))}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setScanOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setScanOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!scanDomains.length || createScans.isPending} onClick={() => createScans.mutate()}>
-              {createScans.isPending ? 'Submitting…' : 'Create Scan Tasks'}
+              <Play />
+              {createScans.isPending ? 'Submitting…' : 'Scan'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -526,8 +553,9 @@ export function OrganizationDetailPage() {
             <Input value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectTarget(null)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setRejectTarget(null)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               variant="destructive"
@@ -537,7 +565,8 @@ export function OrganizationDetailPage() {
                 setRejectTarget(null)
               }}
             >
-              Remove Domain
+              <Trash2 />
+              Remove
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -576,14 +605,16 @@ export function OrganizationDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={!orgForm.canonicalName.trim() || updateOrganization.isPending}
               onClick={() => updateOrganization.mutate()}
             >
-              {updateOrganization.isPending ? 'Saving…' : 'Save Changes'}
+              <Save />
+              {updateOrganization.isPending ? 'Saving…' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -621,11 +652,13 @@ export function OrganizationDetailPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDomainEditTarget(null)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setDomainEditTarget(null)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={updateDomain.isPending} onClick={() => updateDomain.mutate()}>
-              {updateDomain.isPending ? 'Saving…' : 'Save Changes'}
+              <Save />
+              {updateDomain.isPending ? 'Saving…' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -705,8 +738,9 @@ function FindingTab({ query, organizationId }: { query: ReturnType<typeof useQue
               key: 'actions',
               header: 'Actions',
               cell: (row: FindingItem) => (
-                <Button size="sm" variant="ghost" onClick={() => void history(row)}>
-                  History
+                <Button size="icon" variant="outline" className="size-8" title="History" onClick={() => void history(row)}>
+                  <History />
+                  <span className="sr-only">History</span>
                 </Button>
               ),
             },

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Copy, KeyRound, Plus, X } from 'lucide-react'
 import { formatTime } from '@/lib/format'
 
 export function APIKeysPage() {
@@ -56,7 +57,12 @@ export function APIKeysPage() {
   const rows = (keys.data?.items || []) as APIKey[]
   return (
     <div>
-      <PageHeader title="API Keys" actions={<Button onClick={() => setOpen(true)}>New Key</Button>} />
+      <PageHeader title="API Keys" actions={
+          <Button size="icon" title="New Key" onClick={() => setOpen(true)}>
+            <Plus />
+            <span className="sr-only">New Key</span>
+          </Button>
+        } />
       {keys.isLoading ? (
         <LoadingBlock />
       ) : keys.error ? (
@@ -96,12 +102,14 @@ export function APIKeysPage() {
                 !row.revokedAt ? (
                   <div className="flex justify-end">
                     <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive"
+                      size="icon"
+                      variant="outline"
+                      className="size-8 text-destructive hover:text-destructive"
+                      title="Revoke"
                       onClick={() => remove.mutate(row.id || '')}
                     >
-                      Revoke
+                      <X />
+                      <span className="sr-only">Revoke</span>
                     </Button>
                   </div>
                 ) : null,
@@ -123,11 +131,13 @@ export function APIKeysPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!name.trim()} onClick={() => create.mutate()}>
-              Create key
+              <Plus />
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -141,15 +151,22 @@ export function APIKeysPage() {
           <Textarea readOnly value={secret} className="min-h-28 font-mono text-xs" />
           <DialogFooter>
             <Button
+              size="icon"
               variant="outline"
+              className="size-8"
+              title="Copy"
               onClick={() => {
                 void navigator.clipboard.writeText(secret)
                 toast.success('Copied')
               }}
             >
-              Copy
+              <Copy />
+              <span className="sr-only">Copy</span>
             </Button>
-            <Button onClick={() => setSecret('')}>Done</Button>
+            <Button onClick={() => setSecret('')}>
+              <KeyRound />
+              Done
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

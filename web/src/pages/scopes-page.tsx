@@ -1,3 +1,4 @@
+import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -69,13 +70,16 @@ export function ScopesPage() {
         actions={
           canWrite(role) ? (
             <Button
+              size="icon"
+              title="New Asset Group"
               onClick={() => {
                 setEditingId('')
                 setForm({ name: '', type: 'domain', targets: '' })
                 setOpen(true)
               }}
             >
-              New Asset Group
+              <Plus />
+              <span className="sr-only">New Asset Group</span>
             </Button>
           ) : null
         }
@@ -104,8 +108,9 @@ export function ScopesPage() {
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      Edit
+                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                      <Pencil />
+                      <span className="sr-only">Edit</span>
                     </Button>
                     <ConfirmDialog
                       title="Delete asset group"
@@ -113,8 +118,9 @@ export function ScopesPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="sm" variant="ghost" className="text-destructive">
-                          Delete
+                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                          <Trash2 />
+                          <span className="sr-only">Delete</span>
                         </Button>
                       }
                     />
@@ -149,14 +155,16 @@ export function ScopesPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={!form.name.trim() || !form.targets.trim() || create.isPending || update.isPending}
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
-              {editingId ? 'Save changes' : 'Create asset group'}
+              <Save className="size-4" />
+              {editingId ? 'Save' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>

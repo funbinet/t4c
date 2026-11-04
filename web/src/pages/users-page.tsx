@@ -1,3 +1,4 @@
+import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -64,7 +65,12 @@ export function UsersPage() {
   const rows = (users.data?.items || []) as User[]
   return (
     <div>
-      <PageHeader title="Users" actions={<Button onClick={() => setOpen(true)}>New User</Button>} />
+      <PageHeader title="Users" actions={
+          <Button size="icon" title="New User" onClick={() => setOpen(true)}>
+            <Plus />
+            <span className="sr-only">New User</span>
+          </Button>
+        } />
       {users.isLoading ? (
         <LoadingBlock />
       ) : users.error ? (
@@ -103,8 +109,9 @@ export function UsersPage() {
               header: 'Actions',
               cell: (row) => (
                 <div className="flex justify-end gap-1">
-                  <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                    Edit
+                  <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                    <Pencil />
+                    <span className="sr-only">Edit</span>
                   </Button>
                   <ConfirmDialog
                     title="Delete user"
@@ -112,8 +119,9 @@ export function UsersPage() {
                     confirmLabel="Move To Recycle Bin"
                     onConfirm={() => remove.mutate(row.id || '')}
                     trigger={
-                      <Button size="sm" variant="ghost" className="text-destructive">
-                        Delete
+                      <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Trash2 />
+                        <span className="sr-only">Delete</span>
                       </Button>
                     }
                   />
@@ -153,11 +161,13 @@ export function UsersPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!form.username.trim() || form.password.length < 8} onClick={() => create.mutate()}>
-              Create user
+              <Plus />
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -196,14 +206,16 @@ export function UsersPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={update.isPending || (editForm.password.length > 0 && editForm.password.length < 10)}
               onClick={() => update.mutate()}
             >
-              {update.isPending ? 'Saving…' : 'Save changes'}
+              <Save />
+              {update.isPending ? 'Saving…' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>

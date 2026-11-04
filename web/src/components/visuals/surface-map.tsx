@@ -97,8 +97,8 @@ export function SurfaceMap({
       geo: {
         map: 't4c-world',
         roam: true,
-        zoom: 1.15,
-        center: [105, 28],
+        layoutCenter: ['50%', '50%'],
+        layoutSize: '115%',
         silent: false,
         itemStyle: { areaColor: '#003d00', borderColor: 'rgba(0, 250, 0, 0.25)', borderWidth: 0.7 },
         emphasis: { itemStyle: { areaColor: '#005c00' }, label: { show: false } },

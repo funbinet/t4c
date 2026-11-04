@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
+import { FileText, History, Search, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, type FindingItem } from '@/api'
@@ -24,9 +24,9 @@ const kindLabels: Record<string, string> = {
 }
 
 const views = [
-  { value: 'current', label: 'Current Risks' },
-  { value: 'history', label: 'History' },
-  { value: 'raw', label: 'Raw Scans' },
+  { value: 'current', label: 'Current Risks', icon: ShieldAlert },
+  { value: 'history', label: 'History', icon: History },
+  { value: 'raw', label: 'Raw Scans', icon: FileText },
 ]
 
 export function FindingsPage() {
@@ -75,9 +75,11 @@ export function FindingsPage() {
               key={item.value}
               size="sm"
               variant={view === item.value ? 'default' : 'ghost'}
+              title={item.label}
               onClick={() => setParam('view', item.value)}
             >
-              {item.label}
+              <item.icon className="size-4" />
+              <span className="sr-only">{item.label}</span>
             </Button>
           ))}
         </div>

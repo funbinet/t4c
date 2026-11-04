@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { DataTable } from '@/components/common/data-table'
@@ -86,6 +87,8 @@ export function GitHubPage() {
         actions={
           canWrite(role) ? (
             <Button
+              size="icon"
+              title={tab === 'monitors' ? 'New Monitor' : 'New Search'}
               onClick={() => {
                 setEditingId('')
                 setKeyword('')
@@ -94,7 +97,8 @@ export function GitHubPage() {
                 setOpen(true)
               }}
             >
-              {tab === 'monitors' ? 'New Monitor' : 'New Search'}
+              <Plus />
+              <span className="sr-only">{tab === 'monitors' ? 'New Monitor' : 'New Search'}</span>
             </Button>
           ) : null
         }
@@ -171,8 +175,9 @@ export function GitHubPage() {
                   cell: (row: any) =>
                     canWrite(role) ? (
                       <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => editMonitor(row)}>
-                          Edit
+                        <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => editMonitor(row)}>
+                          <Pencil />
+                          <span className="sr-only">Edit</span>
                         </Button>
                         <ConfirmDialog
                           title="Delete GitHub monitor"
@@ -180,8 +185,9 @@ export function GitHubPage() {
                           confirmLabel="Move To Recycle Bin"
                           onConfirm={() => remove.mutate(row.id)}
                           trigger={
-                            <Button size="sm" variant="ghost" className="text-destructive">
-                              Delete
+                            <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                              <Trash2 />
+                              <span className="sr-only">Delete</span>
                             </Button>
                           }
                         />
@@ -216,8 +222,9 @@ export function GitHubPage() {
             ) : null}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={!keyword.trim()}
@@ -225,7 +232,8 @@ export function GitHubPage() {
                 editingId ? update.mutate() : tab === 'monitors' ? createMonitor.mutate() : createTask.mutate()
               }
             >
-              {editingId ? 'Save Changes' : 'Create'}
+              <Save className="size-4" />
+              {editingId ? 'Save' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>

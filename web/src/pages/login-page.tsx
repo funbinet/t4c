@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ShieldCheck } from 'lucide-react'
+import { LogIn, ShieldCheck } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -118,6 +118,7 @@ export function LoginPage() {
               </div>
             ) : null}
             <Button className="w-full" size="lg" type="submit" disabled={form.formState.isSubmitting}>
+              <LogIn />
               {form.formState.isSubmitting ? 'Signing In…' : 'Sign In'}
             </Button>
           </form>

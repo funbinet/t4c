@@ -21,7 +21,7 @@ import {
   Search,
   Settings2,
   ShieldCheck,
-  User,
+  CircleUserRound,
   Users,
   Workflow,
   X,
@@ -50,11 +50,11 @@ type NavItem = { to: string; label: string; icon: typeof Activity; end?: boolean
 type NavGroup = { label: string; items: NavItem[] }
 
 const ranges = [
-  { value: '24h', label: 'Last 24 Hours' },
-  { value: '7d', label: 'Last 7 Days' },
-  { value: '30d', label: 'Last 30 Days' },
-  { value: '90d', label: 'Last 90 Days' },
-  { value: 'all', label: 'All Time' },
+  { value: '24h', label: '24H' },
+  { value: '7d', label: '7D' },
+  { value: '30d', label: '30D' },
+  { value: '90d', label: '90D' },
+  { value: 'all', label: 'ALL' },
 ]
 
 const groups: NavGroup[] = [
@@ -103,13 +103,13 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
   return (
     <nav
-      className={cn('flex flex-1 flex-col justify-evenly overflow-y-auto py-3 scrollbar-thin', !collapsed && 'px-2')}
+      className="flex flex-1 flex-col items-center justify-evenly overflow-y-auto py-3 scrollbar-thin"
       aria-label="Main navigation"
     >
       {allGroups.map((group) => (
-        <div key={group.label} className={collapsed ? 'contents' : undefined}>
-          {!collapsed ? <div className="mono-label px-2 pb-2">{group.label}</div> : null}
-          <div className={collapsed ? 'contents' : 'space-y-1'}>
+        <div key={group.label} className={collapsed ? 'contents' : 'flex flex-col items-center'}>
+          {!collapsed ? <div className="mono-label pb-2 text-center">{group.label}</div> : null}
+          <div className={collapsed ? 'contents' : 'flex flex-col items-center gap-1'}>
             {group.items.map((item) => {
               const Icon = item.icon
               const link = (
@@ -120,9 +120,10 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      'flex h-9 items-center gap-2.5 rounded-[4px] px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-[rgba(0,250,0,0.06)] hover:text-mint',
-                      isActive && 'bg-[rgba(0,250,0,0.1)] text-mint shadow-[inset_2px_0_0_var(--primary)]',
-                      collapsed && 'justify-center px-0',
+                      'flex h-9 items-center justify-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all hover:bg-[rgba(0,250,0,0.08)] hover:text-mint hover:shadow-[0_0_10px_rgba(0,250,0,0.12)]',
+                      collapsed ? 'w-9' : 'w-auto gap-2 px-3',
+                      isActive &&
+                        'bg-[rgba(0,250,0,0.1)] text-mint shadow-[inset_0_0_0_1px_rgba(0,250,0,0.35)] hover:shadow-[inset_0_0_0_1px_rgba(0,250,0,0.35)]',
                     )
                   }
                 >
@@ -275,28 +276,28 @@ export function AppShell() {
               variant="outline"
               size="icon"
               title="Refresh"
-              className="hidden sm:inline-flex"
+              className="group size-8 hover:text-mint"
               onClick={() => window.dispatchEvent(new CustomEvent('t4c:refresh'))}
             >
-              <RefreshCw />
+              <RefreshCw className="transition-transform duration-500 group-hover:rotate-180 group-active:animate-spin" />
               <span className="sr-only">Refresh</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="hidden min-w-52 justify-start text-muted-foreground sm:flex"
+              className="hidden min-w-52 justify-start text-muted-foreground hover:text-mint sm:flex"
               onClick={() => setSearchOpen(true)}
             >
               <Search />
               Search<span className="mono-label ml-auto !text-[10px] normal-case tracking-normal">⌘K</span>
             </Button>
-            <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setSearchOpen(true)}>
+            <Button variant="ghost" size="icon" className="size-8 sm:hidden" onClick={() => setSearchOpen(true)}>
               <Search />
               <span className="sr-only">Search</span>
             </Button>
             {isOverview ? (
-              <Select value={rangeParam || '30d'} onValueChange={(value) => setRangeParam(value)}>
-                <SelectTrigger className="w-32">
+              <Select value={rangeParam} onValueChange={setRangeParam}>
+                <SelectTrigger className="h-8 w-20 text-xs" title="Time range">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -310,11 +311,9 @@ export function AppShell() {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="max-w-44">
-                  <span className="grid size-6 place-items-center rounded-full bg-[rgba(0,250,0,0.12)] text-mint">
-                    <User className="size-3.5" />
-                  </span>
-                  <span className="hidden truncate sm:inline">{user?.username || 'Account'}</span>
+                <Button variant="ghost" size="sm" className="max-w-44" title="Account">
+                  <CircleUserRound className="size-5 text-mint" />
+                  <span className="hidden truncate normal-case sm:inline">{user?.username || 'Account'}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

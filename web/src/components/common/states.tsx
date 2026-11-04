@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { AlertTriangle, LoaderCircle } from 'lucide-react'
+import { AlertTriangle, LoaderCircle, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
@@ -45,6 +45,7 @@ export function ErrorState({ error, retry }: { error: unknown; retry?: () => voi
         </div>
         {retry ? (
           <Button size="sm" variant="outline" onClick={retry}>
+            <RotateCcw />
             Retry
           </Button>
         ) : null}

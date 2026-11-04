@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
+import { Globe, List, Pencil, Plus, Save, Search, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -146,23 +146,34 @@ export function AssetsPage() {
     <div>
       <PageHeader
         title="Assets"
-        actions={canWrite(role) && view === 'inventory' ? <Button onClick={openCreate}>New Asset</Button> : null}
+        actions={
+        canWrite(role) && view === 'inventory' ? (
+          <Button size="icon" title="New Asset" onClick={openCreate}>
+            <Plus />
+            <span className="sr-only">New Asset</span>
+          </Button>
+        ) : null
+      }
       />
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex rounded-[4px] bg-muted p-1">
           <Button
             size="sm"
             variant={view === 'surface' ? 'default' : 'ghost'}
+            title="Exposure view"
             onClick={() => setParam('view', 'surface')}
           >
-            Exposure
+            <Globe className="size-4" />
+            <span className="sr-only">Exposure</span>
           </Button>
           <Button
             size="sm"
             variant={view === 'inventory' ? 'default' : 'ghost'}
+            title="Raw inventory view"
             onClick={() => setParam('view', 'inventory')}
           >
-            Raw Inventory
+            <List className="size-4" />
+            <span className="sr-only">Raw Inventory</span>
           </Button>
         </div>
         <form
@@ -253,8 +264,9 @@ export function AssetsPage() {
                 cell: (row) =>
                   canWrite(role) ? (
                     <div className="flex justify-end gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => openEdit(row)}>
-                        Edit
+                      <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => openEdit(row)}>
+                        <Pencil />
+                        <span className="sr-only">Edit</span>
                       </Button>
                       <ConfirmDialog
                         title="Delete asset"
@@ -262,8 +274,9 @@ export function AssetsPage() {
                         confirmLabel="Move To Recycle Bin"
                         onConfirm={() => remove.mutate(row.id || '')}
                         trigger={
-                          <Button size="sm" variant="ghost" className="text-destructive">
-                            Delete
+                          <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                            <Trash2 />
+                            <span className="sr-only">Delete</span>
                           </Button>
                         }
                       />
@@ -292,8 +305,9 @@ export function AssetsPage() {
             <div className="space-y-4">
               {canWrite(role) ? (
                 <div className="flex flex-wrap justify-end gap-2">
-                  <Button size="sm" variant="outline" onClick={() => openEdit(visible)}>
-                    Edit
+                  <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => openEdit(visible)}>
+                    <Pencil />
+                    <span className="sr-only">Edit</span>
                   </Button>
                   <ConfirmDialog
                     title="Delete asset"
@@ -301,8 +315,9 @@ export function AssetsPage() {
                     confirmLabel="Move To Recycle Bin"
                     onConfirm={() => remove.mutate(visible.id || '')}
                     trigger={
-                      <Button size="sm" variant="outline" className="text-destructive">
-                        Delete
+                      <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Trash2 />
+                        <span className="sr-only">Delete</span>
                       </Button>
                     }
                   />
@@ -437,14 +452,16 @@ export function AssetsPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditorOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditorOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={(!editingId && (!form.kind || !form.key.trim())) || create.isPending || update.isPending}
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
-              {create.isPending || update.isPending ? 'Saving…' : editingId ? 'Save Changes' : 'Create Asset'}
+              <Save className="size-4" />
+              {create.isPending || update.isPending ? 'Saving…' : editingId ? 'Save' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -19,13 +19,27 @@ export function Pagination({
         {total} total · Page {page} of {pages}
       </span>
       <div className="flex gap-1">
-        <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => onChange(page - 1)}>
+        <Button
+          size="icon"
+          variant="outline"
+          className="size-8"
+          title="Previous page"
+          disabled={page <= 1}
+          onClick={() => onChange(page - 1)}
+        >
           <ChevronLeft />
-          Previous
+          <span className="sr-only">Previous</span>
         </Button>
-        <Button size="sm" variant="outline" disabled={page >= pages} onClick={() => onChange(page + 1)}>
-          Next
+        <Button
+          size="icon"
+          variant="outline"
+          className="size-8"
+          title="Next page"
+          disabled={page >= pages}
+          onClick={() => onChange(page + 1)}
+        >
           <ChevronRight />
+          <span className="sr-only">Next</span>
         </Button>
       </div>
     </div>

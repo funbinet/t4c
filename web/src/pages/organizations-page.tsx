@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
+import { FileUp, Pencil, Plus, Save, Search, Trash2, Upload, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -115,10 +115,14 @@ export function OrganizationsPage() {
         actions={
           canWrite(role) ? (
             <>
-              <Button variant="outline" onClick={() => setImportOpen(true)}>
-                Import CSV
+              <Button size="icon" variant="outline" title="Import CSV" onClick={() => setImportOpen(true)}>
+                <Upload />
+                <span className="sr-only">Import CSV</span>
               </Button>
-              <Button onClick={() => setCreateOpen(true)}>New Organization</Button>
+              <Button size="icon" title="New Organization" onClick={() => setCreateOpen(true)}>
+                <Plus />
+                <span className="sr-only">New Organization</span>
+              </Button>
             </>
           ) : null
         }
@@ -156,7 +160,10 @@ export function OrganizationsPage() {
               title="No organizations yet"
               description="Import a CSV with organization names and root domains, or create a single organization first."
               action={
-                canWrite(role) ? <Button onClick={() => setImportOpen(true)}>Import Organizations</Button> : undefined
+                canWrite(role) ? <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp />
+            Import
+          </Button> : undefined
               }
             />
           }
@@ -205,8 +212,9 @@ export function OrganizationsPage() {
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => editOrganization(row)}>
-                      Edit
+                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => editOrganization(row)}>
+                      <Pencil />
+                      <span className="sr-only">Edit</span>
                     </Button>
                     <ConfirmDialog
                       title="Delete organization"
@@ -214,8 +222,9 @@ export function OrganizationsPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="sm" variant="ghost" className="text-destructive">
-                          Delete
+                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                          <Trash2 />
+                          <span className="sr-only">Delete</span>
                         </Button>
                       }
                     />
@@ -251,11 +260,13 @@ export function OrganizationsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setCreateOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!form.canonicalName.trim() || create.isPending} onClick={() => create.mutate()}>
-              {create.isPending ? 'Creating…' : 'Create Organization'}
+              <Plus />
+              {create.isPending ? 'Creating…' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -282,8 +293,9 @@ export function OrganizationsPage() {
             }}
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setImportOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setImportOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -314,11 +326,13 @@ export function OrganizationsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!form.canonicalName.trim() || update.isPending} onClick={() => update.mutate()}>
-              {update.isPending ? 'Saving…' : 'Save Changes'}
+              <Save />
+              {update.isPending ? 'Saving…' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>

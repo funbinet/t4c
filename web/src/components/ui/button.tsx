@@ -4,16 +4,17 @@ import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[4px] text-xs font-medium uppercase tracking-[0.06em] transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[4px] text-xs font-medium uppercase tracking-[0.06em] transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default:
           'text-black shadow-[0_0_12px_rgba(0,250,0,0.25)] [background:var(--grad-button)] hover:[background:var(--accent-600)]',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-[#1a1a1a]',
-        outline: 'border border-border bg-card text-foreground hover:bg-secondary hover:text-mint',
-        ghost: 'hover:bg-secondary hover:text-mint',
-        destructive: 'bg-destructive text-black hover:bg-[#ff8585]',
+        outline:
+          'border border-border bg-card text-foreground hover:border-[rgba(0,250,0,0.45)] hover:bg-secondary hover:text-mint hover:shadow-[0_0_12px_rgba(0,250,0,0.18)]',
+        ghost: 'hover:bg-secondary hover:text-mint hover:shadow-[0_0_10px_rgba(0,250,0,0.12)]',
+        destructive: 'bg-destructive text-black hover:bg-[#ff8585] hover:shadow-[0_0_12px_rgba(255,107,107,0.3)]',
         link: 'text-mint underline-offset-4 hover:text-primary hover:underline',
       },
       size: {

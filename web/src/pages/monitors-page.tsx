@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Pause, Pencil, Play, Plus, Save, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type Monitor } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
@@ -97,6 +98,8 @@ export function MonitorsPage() {
         actions={
           canWrite(role) ? (
             <Button
+              size="icon"
+              title="New Monitor"
               onClick={() => {
                 setEditingId('')
                 setForm({
@@ -110,7 +113,8 @@ export function MonitorsPage() {
                 setOpen(true)
               }}
             >
-              New Monitor
+              <Plus />
+              <span className="sr-only">New Monitor</span>
             </Button>
           ) : null
         }
@@ -136,24 +140,25 @@ export function MonitorsPage() {
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => edit(row)}>
-                      Edit
+                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                      <Pencil />
+                      <span className="sr-only">Edit</span>
+                    </Button>
+                    <Button size="icon" variant="outline" className="size-8" title="Run" onClick={() => action.mutate({ id: row.id || '', action: 'run' })}>
+                      <Play />
+                      <span className="sr-only">Run</span>
                     </Button>
                     <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => action.mutate({ id: row.id || '', action: 'run' })}
-                    >
-                      Run
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
+                      size="icon"
+                      variant="outline"
+                      className="size-8"
+                      title={row.status === 'active' ? 'Pause' : 'Resume'}
                       onClick={() =>
                         action.mutate({ id: row.id || '', action: row.status === 'active' ? 'pause' : 'resume' })
                       }
                     >
-                      {row.status === 'active' ? 'Pause' : 'Resume'}
+                      {row.status === 'active' ? <Pause /> : <Play />}
+                      <span className="sr-only">{row.status === 'active' ? 'Pause' : 'Resume'}</span>
                     </Button>
                     <ConfirmDialog
                       title="Delete monitor"
@@ -161,8 +166,9 @@ export function MonitorsPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="sm" variant="ghost" className="text-destructive">
-                          Delete
+                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                          <Trash2 />
+                          <span className="sr-only">Delete</span>
                         </Button>
                       }
                     />
@@ -241,8 +247,9 @@ export function MonitorsPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button
               disabled={
@@ -250,7 +257,8 @@ export function MonitorsPage() {
               }
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
-              {editingId ? 'Save changes' : 'Create monitor'}
+              <Save className="size-4" />
+              {editingId ? 'Save' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>

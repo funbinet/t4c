@@ -1,3 +1,4 @@
+import { Download, RefreshCw, RotateCcw, Square } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
@@ -133,22 +134,30 @@ export function TaskDetailPage() {
         </div>
         {canWrite(role) ? (
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={() => exportTask.mutate()}>
-              Export
+            <Button size="icon" variant="outline" className="size-8" title="Export" onClick={() => exportTask.mutate()}>
+              <Download />
+              <span className="sr-only">Export</span>
             </Button>
-            <Button variant="outline" onClick={() => action.mutate({ kind: 'sync' })}>
-              Sync
+            <Button size="icon" variant="outline" className="size-8" title="Sync" onClick={() => action.mutate({ kind: 'sync' })}>
+              <RefreshCw />
+              <span className="sr-only">Sync</span>
             </Button>
             <Button
+              size="icon"
               variant="outline"
-              className="text-destructive"
+              className="size-8 text-destructive hover:text-destructive"
+              title="Stop"
               disabled={['succeeded', 'failed', 'canceled', 'partial'].includes(task.status || '')}
               onClick={() => action.mutate({ kind: 'cancel' })}
             >
-              Stop
+              <Square />
+              <span className="sr-only">Stop</span>
             </Button>
             {['failed', 'partial'].includes(task.status || '') ? (
-              <Button onClick={() => action.mutate({ kind: 'retry' })}>Retry</Button>
+              <Button size="icon" title="Retry" onClick={() => action.mutate({ kind: 'retry' })}>
+                <RotateCcw />
+                <span className="sr-only">Retry</span>
+              </Button>
             ) : null}
           </div>
         ) : null}

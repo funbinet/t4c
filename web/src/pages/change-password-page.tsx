@@ -1,3 +1,4 @@
+import { KeyRound } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -85,6 +86,7 @@ export function ChangePasswordPage() {
               </div>
             ) : null}
             <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>
+              <KeyRound />
               {form.formState.isSubmitting ? 'Saving…' : 'Change password'}
             </Button>
           </form>

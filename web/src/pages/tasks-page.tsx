@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
+import { Crosshair, List, Plus, Search, Square, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -72,19 +72,29 @@ export function TasksPage() {
     <div>
       <PageHeader
         title="Tasks"
-        actions={canWrite(role) ? <Button onClick={() => setCreateOpen(true)}>New Task</Button> : null}
+        actions={
+          canWrite(role) ? (
+            <Button size="icon" title="New Task" onClick={() => setCreateOpen(true)}>
+              <Plus />
+              <span className="sr-only">New Task</span>
+            </Button>
+          ) : null
+        }
       />
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex rounded-[4px] bg-muted p-1">
           <Button
             size="sm"
             variant={origin === 'surface' ? 'default' : 'ghost'}
+            title="Attack Surface Tasks"
             onClick={() => setParam('origin', 'surface')}
           >
-            Attack Surface Tasks
+            <Crosshair className="size-4" />
+            <span className="sr-only">Attack Surface</span>
           </Button>
-          <Button size="sm" variant={origin === 'all' ? 'default' : 'ghost'} onClick={() => setParam('origin', 'all')}>
-            All Tasks
+          <Button size="sm" variant={origin === 'all' ? 'default' : 'ghost'} title="All Tasks" onClick={() => setParam('origin', 'all')}>
+            <List className="size-4" />
+            <span className="sr-only">All Tasks</span>
           </Button>
         </div>
         <form className="relative min-w-0 flex-1 sm:max-w-sm" onSubmit={(event) => event.preventDefault()}>
@@ -168,17 +178,22 @@ export function TasksPage() {
                 header: 'Actions',
                 cell: (row) => (
                   <div className="flex justify-end gap-1">
-                    <Button asChild size="sm" variant="ghost">
-                      <Link to={`/tasks/${row.id}`}>Details</Link>
+                    <Button asChild size="icon" variant="outline" className="size-8" title="Details">
+                      <Link to={`/tasks/${row.id}`}>
+                        <Search className="size-4" />
+                        <span className="sr-only">Details</span>
+                      </Link>
                     </Button>
                     {canWrite(role) && !['succeeded', 'failed', 'canceled', 'partial'].includes(row.status || '') ? (
                       <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive"
+                        size="icon"
+                        variant="outline"
+                        className="size-8 text-destructive hover:text-destructive"
+                        title="Stop"
                         onClick={() => cancel.mutate(row.id || '')}
                       >
-                        Stop
+                        <Square />
+                        <span className="sr-only">Stop</span>
                       </Button>
                     ) : null}
                   </div>
@@ -230,11 +245,13 @@ export function TasksPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setCreateOpen(false)}>
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!form.target.trim() || create.isPending} onClick={() => create.mutate()}>
-              {create.isPending ? 'Creating…' : 'Create Task'}
+              <Plus />
+              {create.isPending ? 'Creating…' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
