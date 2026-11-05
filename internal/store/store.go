@@ -108,6 +108,8 @@ func (s *Store) Migrate(ctx context.Context) error {
 			&domain.GitHubTask{}, &domain.GitHubMonitor{}, &domain.GitHubFinding{}, &domain.ExportJob{},
 			&domain.Organization{}, &domain.OrganizationDomain{}, &domain.ICPEvidence{},
 			&domain.IPLocation{}, &domain.ICPJob{}, &domain.GraphOutbox{},
+			&domain.ShellSession{}, &domain.ShellCommand{}, &domain.Artifact{},
+			&domain.Objective{}, &domain.ObjectiveAction{},
 		); err != nil {
 			return fmt.Errorf("automigrate postgres: %w", err)
 		}
@@ -217,6 +219,12 @@ var postgresIndexes = []string{
 	`CREATE INDEX IF NOT EXISTS idx_monitors_stage ON monitors (stage)`,
 	`CREATE INDEX IF NOT EXISTS idx_schedules_stage ON schedules (stage)`,
 	`CREATE INDEX IF NOT EXISTS idx_scopes_stage ON scopes (stage)`,
+	// Exploit / objectives indexes
+	`CREATE INDEX IF NOT EXISTS idx_shell_sessions_org_state ON shell_sessions (organization_id, state)`,
+	`CREATE INDEX IF NOT EXISTS idx_shell_commands_session_seq ON shell_commands (session_id, seq)`,
+	`CREATE INDEX IF NOT EXISTS idx_artifacts_org_objective ON artifacts (organization_id, objective_id)`,
+	`CREATE INDEX IF NOT EXISTS idx_objectives_org_kind_status ON objectives (organization_id, kind, status)`,
+	`CREATE INDEX IF NOT EXISTS idx_objective_actions_objective ON objective_actions (objective_id, created_at DESC)`,
 }
 
 type PageQuery struct {

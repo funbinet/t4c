@@ -632,6 +632,12 @@ func NewModel[T any](v T) T {
 	case Asset:
 		x.FirstSeen, x.LastSeen, x.SchemaVersion = now, now, SchemaVersion
 		return any(x).(T)
+	case ShellSession:
+		x.OpenedAt, x.LastActive, x.SchemaVersion = now, now, SchemaVersion
+		return any(x).(T)
+	case Artifact:
+		x.ExportedAt, x.SchemaVersion = now, SchemaVersion
+		return any(x).(T)
 	case Finding:
 		x.CreatedAt, x.SchemaVersion = now, SchemaVersion
 		return any(x).(T)
