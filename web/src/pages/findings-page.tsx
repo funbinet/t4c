@@ -126,6 +126,8 @@ export function FindingsPage() {
           <DataTable
             rows={query.data?.items || []}
             rowKey={(row) => row.finding?.id || `${row.finding?.target}-${row.finding?.dedupeKey}`}
+            onRowClick={(row) => void open(row)}
+            rowLabel={(row) => `Open risk ${row.finding?.title}`}
             empty={
               <EmptyState
                 title="No matching risks"
@@ -140,6 +142,7 @@ export function FindingsPage() {
               {
                 key: 'title',
                 header: 'Risk',
+                stopRowClick: true,
                 cell: (row) => (
                   <button className="max-w-[380px] text-left" onClick={() => void open(row)}>
                     <div className="truncate font-medium text-primary hover:underline">{row.finding?.title}</div>

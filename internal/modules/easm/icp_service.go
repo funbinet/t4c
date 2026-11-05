@@ -20,6 +20,7 @@ type ICPServiceStore interface {
 	FindOrganizationByName(ctx context.Context, name string) (*domain.Organization, error)
 	FindOrganizationByNameAndRegion(ctx context.Context, name, region string) (*domain.Organization, error)
 	GetOrganization(ctx context.Context, id string) (*domain.Organization, error)
+	GetPolicy(ctx context.Context, id string) (*domain.Policy, error)
 	UpsertOrganizationDomain(ctx context.Context, od *domain.OrganizationDomain) error
 	ListOrganizationDomains(ctx context.Context, orgID string, status string) ([]domain.OrganizationDomain, error)
 	ConfirmOrganizationDomains(ctx context.Context, orgID string, domains []string, actor string) (int, error)

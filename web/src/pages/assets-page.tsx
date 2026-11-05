@@ -217,6 +217,8 @@ export function AssetsPage() {
             rows={query.data?.items || []}
             rowKey={(row) => `${row.kind}-${row.id || row.key}`}
             scrollable
+            onRowClick={(row) => open(row)}
+            rowLabel={(row) => `Open asset ${row.key}`}
             empty={
               <EmptyState
                 title="No matching assets"
@@ -227,6 +229,7 @@ export function AssetsPage() {
               {
                 key: 'key',
                 header: 'Asset',
+                stopRowClick: true,
                 cell: (row) => (
                   <button
                     className="mono max-w-[360px] truncate text-left font-medium text-primary hover:underline"
@@ -249,6 +252,7 @@ export function AssetsPage() {
               {
                 key: 'actions',
                 header: 'Actions',
+                stopRowClick: true,
                 cell: (row) =>
                   canWrite(role) ? (
                     <div className="flex justify-end gap-1">

@@ -306,6 +306,17 @@ func (s *Store) MarkOutbox(ctx context.Context, id, status string, attempts int)
 	return s.db.WithContext(ctx).Model(&domain.OutboxMessage{}).Where("id = ?", id).Updates(fields).Error
 }
 
+// ListActiveTasks returns tasks that are still in a non-terminal state
+// (queued or running). It is used by the stale-task reaper to find tasks that
+// have exceeded their runtime budget and must be terminated.
+func (s *Store) ListActiveTasks(ctx context.Context) ([]domain.Task, error) {
+	var out []domain.Task
+	err := s.db.WithContext(ctx).
+		Where("status IN ?", []string{string(domain.TaskQueued), string(domain.TaskRunning)}).
+		Find(&out).Error
+	return out, err
+}
+
 func (s *Store) CountTasksByStatus(ctx context.Context) (map[string]int64, error) {
 	var rows []struct {
 		Status string

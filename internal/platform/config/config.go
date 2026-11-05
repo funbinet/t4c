@@ -64,17 +64,18 @@ type AuthConfig struct {
 }
 
 type ScanConfig struct {
-	BlackCIDRs       []string `yaml:"blackCIDRs"`
-	ForbiddenDomains []string `yaml:"forbiddenDomains"`
-	DNSServers       []string `yaml:"dnsServers"`
-	Concurrency      int      `yaml:"concurrency"`
-	HTTPConcurrency  int      `yaml:"httpConcurrency"`
-	MaxHosts         int      `yaml:"maxHosts"`
-	MaxPorts         int      `yaml:"maxPorts"`
-	MaxRuntime       string   `yaml:"maxRuntime"`
-	ProxyURL         string   `yaml:"proxyURL"`
-	AllowPrivate     bool     `yaml:"allowPrivate"`
-	AllowLoopback    bool     `yaml:"allowLoopback"`
+	BlackCIDRs       []string          `yaml:"blackCIDRs"`
+	ForbiddenDomains []string          `yaml:"forbiddenDomains"`
+	DNSServers       []string          `yaml:"dnsServers"`
+	Concurrency      int               `yaml:"concurrency"`
+	HTTPConcurrency  int               `yaml:"httpConcurrency"`
+	MaxHosts         int               `yaml:"maxHosts"`
+	MaxPorts         int               `yaml:"maxPorts"`
+	MaxRuntime       string            `yaml:"maxRuntime"`
+	StepTimeouts     map[string]string `yaml:"stepTimeouts"`
+	ProxyURL         string            `yaml:"proxyURL"`
+	AllowPrivate     bool              `yaml:"allowPrivate"`
+	AllowLoopback    bool              `yaml:"allowLoopback"`
 }
 
 type StorageConfig struct {
@@ -464,6 +465,38 @@ func (c Config) MaxRuntime() time.Duration {
 		return 2 * time.Hour
 	}
 	return d
+}
+
+// StepTimeout resolves how long a single task step may run. A configured
+// scan.stepTimeouts[kind] wins; otherwise a sensible per-step default is used
+// so that one slow stage (a large port scan or a PoC sweep) cannot consume the
+// entire task budget and hang an organization scan for hours.
+func (c Config) StepTimeout(kind string) time.Duration {
+	if c.Scan.StepTimeouts != nil {
+		if raw, ok := c.Scan.StepTimeouts[kind]; ok && raw != "" {
+			if d, err := time.ParseDuration(raw); err == nil && d > 0 {
+				return d
+			}
+		}
+	}
+	switch kind {
+	case "dns":
+		return 30 * time.Minute
+	case "port":
+		return 45 * time.Minute
+	case "http":
+		return 30 * time.Minute
+	case "webintel", "wih":
+		return 30 * time.Minute
+	case "poc":
+		return 45 * time.Minute
+	case "fofa":
+		return 20 * time.Minute
+	case "github":
+		return 15 * time.Minute
+	default:
+		return 15 * time.Minute
+	}
 }
 
 func (c Config) EnsureDirs() error {

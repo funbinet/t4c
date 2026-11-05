@@ -175,12 +175,16 @@ func runSingleNode(args []string) error {
 		a.Log.Warn("single-node mode uses the in-memory queue; pending jobs will be lost on restart")
 	}
 	go a.Engine.OutboxRelay(ctx)
+	go a.Engine.StaleTaskReaper(ctx)
 	stopProjector := startProjector(ctx, a, a.Log)
 	if stopProjector != nil {
 		defer stopProjector()
 	}
 	icpSvc := newEASMService(a)
 	a.Server.EASM = icpSvc
+	// Refresh the cached organization closures as soon as a scan finishes so the
+	// console shows new assets and findings without waiting for the cache TTL.
+	a.Engine.OnFinalize = func(context.Context) { icpSvc.InvalidateClosureCache() }
 	go a.Scheduler.Run(ctx)
 	a.Log.Info("single-node server listening", "address", cfg.Server.Listen, "queue", cfg.Queue.Driver)
 	return runComponents(ctx,

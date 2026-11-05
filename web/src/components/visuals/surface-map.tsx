@@ -72,9 +72,18 @@ export function SurfaceMap({
       name: risk,
       type: 'scatter',
       coordinateSystem: 'geo',
-      symbolSize: risk === 'critical' ? 11 : risk === 'high' ? 9 : 7,
-      itemStyle: { color, borderColor: '#000500', borderWidth: 1.5, opacity: 0.9 },
-      emphasis: { scale: 1.5 },
+      symbol: 'pin',
+      symbolSize: risk === 'critical' ? 30 : risk === 'high' ? 26 : risk === 'medium' ? 22 : 18,
+      symbolOffset: [0, '-50%'],
+      label: {
+        show: risk === 'critical',
+        position: 'top',
+        formatter: (params: any) => params.data?.name || '',
+        color: '#eaffea',
+        fontSize: 10,
+      },
+      itemStyle: { color, borderColor: '#000500', borderWidth: 1.5, opacity: 0.95 },
+      emphasis: { scale: 1.4, label: { show: true } },
       data: points
         .filter((point) => (point.risk || 'info') === risk)
         .map((point) => ({

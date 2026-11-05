@@ -1,16 +1,25 @@
 import type { ReactNode } from 'react'
-import { AlertTriangle, LoaderCircle, RotateCcw } from 'lucide-react'
+import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  SkeletonCard,
+  SkeletonGrid,
+  SkeletonTable,
+  SkeletonText,
+} from '@/components/ui/skeleton'
 
-export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
-  return (
-    <div className="grid min-h-40 place-items-center rounded-[4px] border bg-card">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <LoaderCircle className="size-4 animate-spin" />
-        {label}
-      </div>
-    </div>
-  )
+export function LoadingBlock({ label, variant = 'table' }: { label?: string; variant?: 'table' | 'grid' | 'card' | 'text' }) {
+  switch (variant) {
+    case 'grid':
+      return <SkeletonGrid />
+    case 'card':
+      return <SkeletonCard lines={3} />
+    case 'text':
+      return <SkeletonText lines={4} />
+    case 'table':
+    default:
+      return <SkeletonTable columns={4} rows={6} />
+  }
 }
 
 export function EmptyState({
@@ -40,7 +49,7 @@ export function ErrorState({ error, retry }: { error: unknown; retry?: () => voi
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 size-4 text-destructive" />
         <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-destructive">Failed to load data</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-destructive">Unable to load</div>
           <p className="mt-1 break-words text-xs leading-5 text-[#ff9d9d]">{message}</p>
         </div>
         {retry ? (

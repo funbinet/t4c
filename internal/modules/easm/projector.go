@@ -66,12 +66,14 @@ func (p *Projector) Run(ctx context.Context) {
 			continue
 		}
 		delay := time.Second
-		for i := 0; i < failures && delay < time.Minute; i++ {
+		for i := 0; i < failures && delay < 10*time.Second; i++ {
 			delay *= 2
 		}
-		if delay > time.Minute {
-			delay = time.Minute
+		if delay > 10*time.Second {
+			delay = 10 * time.Second
 		}
+		// Spread concurrent workers so they don't retry in lockstep.
+		delay += time.Duration(failures%5) * 250 * time.Millisecond
 		select {
 		case <-ctx.Done():
 			return

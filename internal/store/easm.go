@@ -406,8 +406,8 @@ func (s *Store) ClaimGraphOutbox(ctx context.Context, limit int) ([]domain.Graph
 		var ids []string
 		if err := tx.Raw(`
 SELECT id FROM graph_outbox
-WHERE processed_at IS NULL
-  AND attempts < 5
+	WHERE processed_at IS NULL
+  AND attempts < 50
   AND (processing_at IS NULL OR processing_at < ?)
 ORDER BY created_at ASC
 LIMIT ?
@@ -509,6 +509,7 @@ func (s *Store) UpdateOrganization(ctx context.Context, org *domain.Organization
 	return activeUpdateResult(s.db.WithContext(ctx).Model(&domain.Organization{}).Where("id = ? AND deleted_at IS NULL", org.ID).Updates(map[string]any{
 		"canonical_name": org.CanonicalName, "aliases": jsonbExpr(org.Aliases), "region": org.Region,
 		"uscc": org.USCC, "status": org.Status, "merged_into": org.MergedInto,
+		"default_policy_id": org.DefaultPolicyID,
 		"updated_at": org.UpdatedAt,
 	}))
 }

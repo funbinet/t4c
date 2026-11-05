@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Check, Crosshair, Download, FileText, Globe, History, LayoutDashboard, Pencil, Play, Plus, Save, Search, ShieldAlert, Trash2, Workflow, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type EasmAsset, type FindingItem, type OrganizationDomain, type Task } from '@/api'
@@ -11,6 +11,7 @@ import { Breadcrumb, Fact, Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { RiskDistributionChart, RiskLegend, type RiskKey } from '@/components/visuals/risk-distribution'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -349,9 +350,9 @@ export function OrganizationDetailPage() {
               ['tasks', 'Tasks', Workflow],
             ] as const
           ).map(([value, label, Icon]) => (
-            <TabsTrigger key={value} value={value} className="min-w-32 gap-2 px-5">
+            <TabsTrigger key={value} value={value} className="size-9 gap-0 px-0" title={label}>
               <Icon className="size-4" />
-              {label}
+              <span className="sr-only">{label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -372,25 +373,32 @@ export function OrganizationDetailPage() {
             </Card>
             <Card>
               <CardHeader className="border-b py-3">
-                <CardTitle>Risk Breakdown</CardTitle>
+                <CardTitle>Risk Distribution</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 text-xs">
-                {(
-                  [
-                    ['critical', 'Critical'],
-                    ['high', 'High'],
-                    ['medium', 'Medium'],
-                    ['low', 'Low'],
-                    ['info', 'Info'],
-                  ] as const
-                ).map(([key, label]) => (
-                  <div key={key} className="flex items-center justify-between border-b pb-2 last:border-0">
-                    <span className={`risk-${key}`}>{label}</span>
-                    <span className="tabular-nums">
-                      {(summary.data?.[`${key}Findings` as keyof typeof summary.data] as number) || 0}
-                    </span>
+              <CardContent className="space-y-3 text-xs">
+                <RiskDistributionChart
+                  counts={{
+                    critical: summary.data?.criticalFindings || 0,
+                    high: summary.data?.highFindings || 0,
+                    medium: summary.data?.mediumFindings || 0,
+                    low: summary.data?.lowFindings || 0,
+                    info: summary.data?.infoFindings || 0,
+                  }}
+                />
+                <RiskLegend
+                  counts={{
+                    critical: summary.data?.criticalFindings || 0,
+                    high: summary.data?.highFindings || 0,
+                    medium: summary.data?.mediumFindings || 0,
+                    low: summary.data?.lowFindings || 0,
+                    info: summary.data?.infoFindings || 0,
+                  }}
+                />
+                {(summary.data?.criticalFindings || 0) > 0 ? (
+                  <div className="rounded-[4px] border border-[rgba(255,77,79,0.35)] bg-[rgba(255,77,79,0.08)] px-3 py-2 text-[11px] text-[#ff9d9d]">
+                    {summary.data?.criticalFindings} critical risk(s) require immediate attention.
                   </div>
-                ))}
+                ) : null}
               </CardContent>
             </Card>
             <Card>
@@ -804,6 +812,7 @@ export function OrganizationDetailPage() {
 }
 
 function AssetTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
+  const navigate = useNavigate()
   if (query.isLoading) return <LoadingBlock />
   const items = query.data?.items || []
   return (
@@ -812,6 +821,8 @@ function AssetTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
         <DataTable
           rows={items}
           rowKey={(row: EasmAsset) => row.id || row.key || ''}
+          onRowClick={(row: EasmAsset) => row.id && navigate(`/assets?focus=${row.id}`)}
+          rowLabel={(row: EasmAsset) => `Open asset ${row.key}`}
           empty={<EmptyState title="No assets" />}
           columns={[
             { key: 'key', header: 'Asset', cell: (row: EasmAsset) => <span className="mono">{row.key}</span> },
@@ -877,6 +888,7 @@ function FindingTab({ query, organizationId }: { query: ReturnType<typeof useQue
   )
 }
 function TaskTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
+  const navigate = useNavigate()
   if (query.isLoading) return <LoadingBlock />
   const items = query.data?.items || []
   return (
@@ -885,11 +897,14 @@ function TaskTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
         <DataTable
           rows={items}
           rowKey={(row: Task) => row.id || ''}
+          onRowClick={(row: Task) => row.id && navigate(`/tasks/${row.id}`)}
+          rowLabel={(row: Task) => `Open task ${row.name}`}
           empty={<EmptyState title="No tasks" />}
           columns={[
             {
               key: 'name',
               header: 'Task',
+              stopRowClick: true,
               cell: (row: Task) => (
                 <Link className="font-medium text-primary hover:underline" to={`/tasks/${row.id}`}>
                   {row.name}

@@ -590,7 +590,7 @@ func (e *Engine) stepPOC(ctx context.Context, task *domain.Task, step *domain.Ta
 				for k, v := range res.Data {
 					data[k] = v
 				}
-				add, err := e.addFinding(ctx, task, kind, p.Meta().Name+":"+res.VerifyData, title, res.Target, "medium", data)
+				add, err := e.addFinding(ctx, task, kind, p.Meta().Name+":"+res.VerifyData, title, res.Target, p.Meta().EffectiveSeverity(), data)
 				if err == nil && add {
 					mu.Lock()
 					count++

@@ -43,6 +43,29 @@ func (s *Store) ListServiceAssetsByIPs(ctx context.Context, ips []string) ([]dom
 	return out, err
 }
 
+// ListSiteAssetsByHostsOrIPs loads site assets that belong to any of the given
+// hostnames (domains under a confirmed root) or IP addresses. This is how site
+// assets are attributed to an organization during closure construction.
+func (s *Store) ListSiteAssetsByHostsOrIPs(ctx context.Context, hosts, ips []string) ([]domain.Asset, error) {
+	hosts = uniqueStrings(hosts)
+	ips = uniqueStrings(ips)
+	if len(hosts) == 0 && len(ips) == 0 {
+		return nil, nil
+	}
+	db := active(s.db.WithContext(ctx)).Where("kind = ?", domain.AssetSite)
+	switch {
+	case len(hosts) > 0 && len(ips) > 0:
+		db = db.Where("data->>'hostname' IN ? OR data->>'ip' IN ?", hosts, ips)
+	case len(hosts) > 0:
+		db = db.Where("data->>'hostname' IN ?", hosts)
+	default:
+		db = db.Where("data->>'ip' IN ?", ips)
+	}
+	var out []domain.Asset
+	err := db.Limit(5000).Find(&out).Error
+	return out, err
+}
+
 func (s *Store) ListFindingsByTargets(ctx context.Context, targets []string) ([]domain.Finding, error) {
 	targets = uniqueStrings(targets)
 	if len(targets) == 0 {

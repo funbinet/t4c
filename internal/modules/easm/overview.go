@@ -68,7 +68,7 @@ type SearchResult struct {
 }
 
 func (s *Service) Overview(ctx context.Context, since time.Time) (*Overview, error) {
-	c, err := s.closure(ctx, nil)
+	c, err := s.cachedClosure(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (s *Service) Search(ctx context.Context, query string, limit int) (*SearchR
 	if limit > 20 {
 		limit = 20
 	}
-	c, err := s.closure(ctx, nil)
+	c, err := s.cachedClosure(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -220,11 +220,49 @@ type Policy struct {
 	ID            string       `gorm:"primaryKey;size:24" json:"id"`
 	Name          string       `json:"name"`
 	Description   string       `json:"description"`
+	Category      string       `json:"category"`
 	Config        PolicyConfig `gorm:"type:jsonb;serializer:json" json:"config"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
 	SchemaVersion int          `json:"schemaVersion"`
 	Lifecycle     `gorm:"embedded"`
+}
+
+const (
+	// PolicyCategoryAttackSurface is the default module: external attack surface mapping.
+	PolicyCategoryAttackSurface = "attack-surface"
+	// PolicyCategoryVulnAssessment covers vulnerability scanning/assessment of discovered assets.
+	PolicyCategoryVulnAssessment = "vuln-assessment"
+	// PolicyCategoryProbing covers active probing / service & protocol deep inspection.
+	PolicyCategoryProbing = "probing"
+	// PolicyCategoryExploitation covers controlled exploitation / validation of findings.
+	PolicyCategoryExploitation = "exploitation"
+)
+
+// PolicyCategories lists the supported, extensible policy categories (modules).
+var PolicyCategories = []string{
+	PolicyCategoryAttackSurface,
+	PolicyCategoryVulnAssessment,
+	PolicyCategoryProbing,
+	PolicyCategoryExploitation,
+}
+
+// PolicyCategoriesByLabel maps a category to a human-friendly label for the UI.
+var PolicyCategoriesByLabel = map[string]string{
+	PolicyCategoryAttackSurface: "Attack Surface",
+	PolicyCategoryVulnAssessment: "Vulnerability Assessment",
+	PolicyCategoryProbing:       "Probing",
+	PolicyCategoryExploitation:  "Exploitation",
+}
+
+// NormalizePolicyCategory returns a valid category, defaulting to attack-surface.
+func NormalizePolicyCategory(value string) string {
+	for _, c := range PolicyCategories {
+		if c == value {
+			return c
+		}
+	}
+	return PolicyCategoryAttackSurface
 }
 
 type Scope struct {

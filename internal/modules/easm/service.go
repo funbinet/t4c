@@ -62,6 +62,62 @@ type Service struct {
 	chinazGuard      providerGuard
 	icpGuard         providerGuard
 	lookupGroup      singleflight.Group
+	closureMu        sync.Mutex
+	closureCache     map[string]*closureCacheEntry
+	closureGroup     singleflight.Group
+}
+
+// closureCacheEntry caches a built closure for a short TTL. The organization
+// detail page fires several requests (summary, assets, findings, …) at once and
+// each one used to rebuild the full closure, so caching collapses that burst
+// into a single build and keeps the overview endpoints responsive.
+type closureCacheEntry struct {
+	c         *closure
+	expiresAt time.Time
+}
+
+const closureCacheTTL = 10 * time.Second
+
+// InvalidateClosureCache clears the cached organization closures. Call it after
+// data changes (for example when a scan task finalizes) so fresh results show
+// up immediately instead of waiting for the TTL to lapse.
+func (s *Service) InvalidateClosureCache() {
+	s.closureMu.Lock()
+	s.closureCache = nil
+	s.closureMu.Unlock()
+}
+
+// cachedClosure returns a closure for the organization, building and caching it
+// on first use and collapsing concurrent builds for the same key.
+func (s *Service) cachedClosure(ctx context.Context, orgID *string) (*closure, error) {
+	key := "*"
+	if orgID != nil {
+		key = *orgID
+	}
+	s.closureMu.Lock()
+	if ent, ok := s.closureCache[key]; ok && time.Now().Before(ent.expiresAt) {
+		c := ent.c
+		s.closureMu.Unlock()
+		return c, nil
+	}
+	s.closureMu.Unlock()
+	v, err, _ := s.closureGroup.Do(key, func() (any, error) {
+		c, err := s.closure(ctx, orgID)
+		if err != nil {
+			return nil, err
+		}
+		s.closureMu.Lock()
+		if s.closureCache == nil {
+			s.closureCache = map[string]*closureCacheEntry{}
+		}
+		s.closureCache[key] = &closureCacheEntry{c: c, expiresAt: time.Now().Add(closureCacheTTL)}
+		s.closureMu.Unlock()
+		return c, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return v.(*closure), nil
 }
 
 func NewService(repo Repository, store ICPServiceStore, queue jobs.Queue, chinaz DomainLookupProvider, icpQuery OrganizationLookupProvider, log *slog.Logger) *Service {

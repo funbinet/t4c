@@ -16,10 +16,11 @@ func (s *Server) handleUpdateOrganization(w http.ResponseWriter, r *http.Request
 		return
 	}
 	var req struct {
-		CanonicalName *string   `json:"canonicalName"`
-		Aliases       *[]string `json:"aliases"`
-		Region        *string   `json:"region"`
-		USCC          *string   `json:"uscc"`
+		CanonicalName   *string   `json:"canonicalName"`
+		Aliases         *[]string `json:"aliases"`
+		Region          *string   `json:"region"`
+		USCC            *string   `json:"uscc"`
+		DefaultPolicyID *string   `json:"defaultPolicyId"`
 	}
 	if !httpx.DecodeJSON(w, r, &req) {
 		return
@@ -44,6 +45,9 @@ func (s *Server) handleUpdateOrganization(w http.ResponseWriter, r *http.Request
 	}
 	if req.USCC != nil {
 		org.USCC = strings.TrimSpace(*req.USCC)
+	}
+	if req.DefaultPolicyID != nil {
+		org.DefaultPolicyID = strings.TrimSpace(*req.DefaultPolicyID)
 	}
 	if err := s.Store.UpdateOrganization(r.Context(), org); err != nil {
 		httpx.WriteProblem(w, r, http.StatusConflict, "organization_update_failed", err.Error())

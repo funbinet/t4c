@@ -52,7 +52,9 @@ export function OverviewPage() {
     queryKey: ['graph', selectedOrg],
     queryFn: () => api.graph(selectedOrg),
     enabled: Boolean(selectedOrg) && visual === 'graph',
-    retry: 0,
+    // Let the global retry policy absorb transient Neo4j/restart hiccups
+    // instead of permanently showing "Graph unavailable" on the first miss.
+    staleTime: 15_000,
   })
   const summary = useQuery({
     queryKey: ['organization-summary', selectedOrg],
@@ -238,12 +240,23 @@ export function OverviewPage() {
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.06em]">Graph unavailable</div>
                     <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
-                      Select an organization with graph data.
+                      {graph.isFetching
+                        ? 'Reconnecting to the graph store…'
+                        : 'The relationship graph is unavailable or still projecting. Try again shortly.'}
                     </p>
                   </div>
                 </div>
               ) : graph.isLoading ? (
                 <LoadingBlock label="Loading relationship graph…" />
+              ) : !graph.data || (graph.data.nodes?.length || 0) === 0 ? (
+                <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.06em]">No graph data yet</div>
+                    <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
+                      Run a scan for this organization so its assets and risks can be projected.
+                    </p>
+                  </div>
+                </div>
               ) : (
                 <AssetGraph
                   snapshot={graph.data}

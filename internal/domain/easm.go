@@ -82,18 +82,19 @@ func (o GraphOutboxOp) Valid() bool {
 }
 
 type Organization struct {
-	ID            string            `gorm:"primaryKey;size:24" json:"id"`
-	CanonicalName string            `json:"canonicalName"`
-	Aliases       []string          `gorm:"type:jsonb;serializer:json" json:"aliases,omitempty"`
-	USCC          string            `json:"uscc,omitempty"`
-	Region        string            `json:"region,omitempty"`
-	ExternalIDs   map[string]string `gorm:"type:jsonb;serializer:json" json:"externalIds,omitempty"`
-	Status        OrgStatus         `json:"status"`
-	MergedInto    *string           `json:"mergedInto,omitempty"`
-	CreatedAt     time.Time         `json:"createdAt"`
-	UpdatedAt     time.Time         `json:"updatedAt"`
-	SchemaVersion int               `json:"schemaVersion"`
-	Lifecycle     `gorm:"embedded"`
+	ID              string            `gorm:"primaryKey;size:24" json:"id"`
+	CanonicalName   string            `json:"canonicalName"`
+	Aliases         []string          `gorm:"type:jsonb;serializer:json" json:"aliases,omitempty"`
+	USCC            string            `json:"uscc,omitempty"`
+	Region          string            `json:"region,omitempty"`
+	ExternalIDs     map[string]string `gorm:"type:jsonb;serializer:json" json:"externalIds,omitempty"`
+	Status          OrgStatus         `json:"status"`
+	MergedInto      *string           `json:"mergedInto,omitempty"`
+	DefaultPolicyID string            `json:"defaultPolicyId,omitempty"`
+	CreatedAt       time.Time         `json:"createdAt"`
+	UpdatedAt       time.Time         `json:"updatedAt"`
+	SchemaVersion   int               `json:"schemaVersion"`
+	Lifecycle       `gorm:"embedded"`
 }
 
 func (o *Organization) Validate() error {

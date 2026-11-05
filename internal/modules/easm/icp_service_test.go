@@ -53,6 +53,7 @@ type fakeICPStore struct {
 	domains  map[string]*domain.OrganizationDomain
 	evidence []*domain.ICPEvidence
 	jobs     map[string]*domain.ICPJob
+	policies map[string]*domain.Policy
 	audits   []domain.AuditEvent
 	outbox   []string
 }
@@ -61,6 +62,7 @@ func newFakeICPStore() *fakeICPStore {
 	return &fakeICPStore{
 		orgs: map[string]*domain.Organization{}, byName: map[string]*domain.Organization{},
 		domains: map[string]*domain.OrganizationDomain{}, jobs: map[string]*domain.ICPJob{},
+		policies: map[string]*domain.Policy{},
 	}
 }
 
@@ -154,6 +156,12 @@ func (f *fakeICPStore) UpdateICPJob(_ context.Context, id string, fields store.I
 }
 func (f *fakeICPStore) GetICPJob(_ context.Context, id string) (*domain.ICPJob, error) {
 	return f.jobs[id], nil
+}
+func (f *fakeICPStore) GetPolicy(_ context.Context, id string) (*domain.Policy, error) {
+	if p, ok := f.policies[id]; ok {
+		return p, nil
+	}
+	return nil, nil
 }
 func (f *fakeICPStore) AddAudit(_ context.Context, e domain.AuditEvent) {
 	f.audits = append(f.audits, e)

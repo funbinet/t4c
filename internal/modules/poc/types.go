@@ -30,6 +30,7 @@ type Meta struct {
 	AppName      string
 	VulName      string
 	Category     string
+	Severity     string
 	Schemes      []string
 	DefaultPorts []int
 }
@@ -47,6 +48,32 @@ type Plugin interface {
 }
 
 var ErrUnsupported = errors.New("plugin is registered but not supported by the native implementation")
+
+// EffectiveSeverity returns the plugin's declared severity, or derives a
+// sensible default from its category/type when the author did not set one.
+// This keeps risk distribution meaningful instead of collapsing every finding
+// to a single hardcoded level.
+func (m Meta) EffectiveSeverity() string {
+	if m.Severity != "" {
+		return m.Severity
+	}
+	switch {
+	case m.Type == TypeBrute:
+		return "high"
+	case containsAny(m.Category, []string{"Unauthorized access", "unauthorized"}):
+		return "high"
+	case containsAny(m.Category, []string{"SSRF", "XSS", "injection", "RCE", "command"}):
+		return "high"
+	case containsAny(m.Category, []string{"information disclosure", "information leak"}):
+		return "medium"
+	case containsAny(m.Category, []string{"Weak password"}):
+		return "high"
+	case m.Type == TypeSniffer || containsAny(m.Category, []string{"Protocol detection", "Application detection"}):
+		return "low"
+	default:
+		return "medium"
+	}
+}
 
 func ParseTarget(raw string, defaultScheme string, defaultPort int) (Target, error) {
 	raw = strings.TrimSpace(raw)

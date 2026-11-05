@@ -3,7 +3,6 @@ package easm
 import (
 	"context"
 	"errors"
-	"net/netip"
 	"sort"
 	"strings"
 	"time"
@@ -104,6 +103,7 @@ type closure struct {
 	domains       []domain.Asset
 	ips           []domain.Asset
 	services      []domain.Asset
+	sites         []domain.Asset
 	findings      []domain.Finding
 	rootByOrg     map[string][]string
 	domainOrgs    map[string][]string
@@ -111,6 +111,7 @@ type closure struct {
 	ipRoots       map[string][]string
 	targetOrgs    map[string][]string
 	targetRoots   map[string][]string
+	targetSet     map[string]bool
 	unlocatedIPs  map[string]bool
 	truncated     bool
 	unlinkedCount int
@@ -221,8 +222,10 @@ func (s *Service) closure(ctx context.Context, orgID *string) (*closure, error) 
 		return nil, err
 	}
 	var targets []string
+	var domainKeys []string
 	for _, asset := range c.domains {
 		targets = appendUnique(targets, asset.Key)
+		domainKeys = appendUnique(domainKeys, asset.Key)
 	}
 	targets = appendUnique(targets, ipKeys...)
 	for _, svc := range c.services {
@@ -231,20 +234,49 @@ func (s *Service) closure(ctx context.Context, orgID *string) (*closure, error) 
 		c.targetRoots[svc.Key] = appendUnique(c.targetRoots[svc.Key], c.ipRoots[ip]...)
 		targets = appendUnique(targets, svc.Key)
 	}
+	// Site assets (http/https services discovered by the HTTP step) belong to an
+	// organization through their hostname (a domain under a confirmed root) or
+	// through the IP they were probed on. Previously they were never loaded, so
+	// sites never appeared on the organization page.
+	if siteLister, ok := s.Repo.(SiteAssetRepository); ok {
+		c.sites, err = siteLister.ListSiteAssetsByHostsOrIPs(ctx, domainKeys, ipKeys)
+		if err != nil {
+			return nil, err
+		}
+		for _, site := range c.sites {
+			host := stringValue(site.Data["hostname"])
+			ip := stringValue(site.Data["ip"])
+			orgs := appendUnique(append([]string{}, c.domainOrgs[host]...), c.ipOrgs[ip]...)
+			roots := appendUnique(append([]string{}, c.targetRoots[host]...), c.ipRoots[ip]...)
+			c.targetOrgs[site.Key] = orgs
+			c.targetRoots[site.Key] = roots
+			targets = appendUnique(targets, site.Key)
+		}
+	}
 	c.findings, err = s.Repo.ListFindingsByTargets(ctx, targets)
 	if err != nil {
 		return nil, err
 	}
-	targetSet := make(map[string]bool, len(targets))
+	// Build the target lookup set exactly once and cache it on the closure. The
+	// previous implementation rebuilt this set (O(assets)) for every finding,
+	// which made overview/summary/findings O(findings x assets) and caused the
+	// timeouts and slow UI.
+	c.targetSet = make(map[string]bool, len(targets))
 	for _, t := range targets {
-		targetSet[t] = true
+		c.targetSet[t] = true
 	}
 	for _, f := range c.findings {
-		if findingTargetKey(f.Target, targetSet) == "" {
+		if findingTargetKey(f.Target, c.targetSet) == "" {
 			c.unlinkedCount++
 		}
 	}
 	return c, nil
+}
+
+// SiteAssetRepository is implemented by the store to load site assets that
+// belong to a set of hostnames or IP addresses.
+type SiteAssetRepository interface {
+	ListSiteAssetsByHostsOrIPs(ctx context.Context, hosts, ips []string) ([]domain.Asset, error)
 }
 
 func findingTargetKey(raw string, targets map[string]bool) string {
@@ -278,7 +310,7 @@ func (c *closure) rootsForTarget(target string) []string {
 }
 
 func (s *Service) Summary(ctx context.Context, orgID string) (*OrganizationSummary, error) {
-	c, err := s.closure(ctx, &orgID)
+	c, err := s.cachedClosure(ctx, &orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -303,22 +335,9 @@ func (s *Service) Summary(ctx context.Context, orgID string) (*OrganizationSumma
 			summary.InfoFindings++
 		}
 	}
-	if s.Geo == nil {
-		for range c.ips {
-			summary.UnlocatedAssets++
-		}
-	} else {
-		for _, ip := range c.ips {
-			addr, err := netip.ParseAddr(ip.Key)
-			if err != nil {
-				summary.UnlocatedAssets++
-				continue
-			}
-			if _, err := s.Geo.Resolve(ctx, addr); err != nil {
-				summary.UnlocatedAssets++
-			}
-		}
-	}
+	// Use the locations already loaded by the closure instead of resolving each
+	// IP again here (which was an N+1 against the Geo resolver on every request).
+	summary.UnlocatedAssets = len(c.unlocatedIPs)
 	if lister, ok := s.Repo.(TaskSummaryRepository); ok {
 		n, last, err := lister.SummaryTasks(ctx, orgID)
 		if err == nil {
@@ -333,7 +352,7 @@ type TaskSummaryRepository interface {
 }
 
 func (s *Service) Assets(ctx context.Context, orgID *string, filter AssetFilter) (*AssetPage, error) {
-	c, err := s.closure(ctx, orgID)
+	c, err := s.cachedClosure(ctx, orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -358,6 +377,7 @@ func (s *Service) Assets(ctx context.Context, orgID *string, filter AssetFilter)
 	}, func(a domain.Asset) []string {
 		return c.ipRoots[stringValue(a.Data["ip"])]
 	})
+	add(domain.AssetSite, c.sites, func(a domain.Asset) []string { return c.targetOrgs[a.Key] }, func(a domain.Asset) []string { return c.targetRoots[a.Key] })
 	sortAssets(items, filter.Sort)
 	page, pageSize := normalizePage(filter.Page, filter.PageSize, len(items))
 	start := (page - 1) * pageSize
@@ -372,7 +392,7 @@ func (s *Service) Assets(ctx context.Context, orgID *string, filter AssetFilter)
 }
 
 func (s *Service) Asset(ctx context.Context, orgID *string, id string) (*AssetItem, error) {
-	c, err := s.closure(ctx, orgID)
+	c, err := s.cachedClosure(ctx, orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -395,11 +415,17 @@ func (s *Service) Asset(ctx context.Context, orgID *string, id string) (*AssetIt
 			return &item, nil
 		}
 	}
+	for _, asset := range c.sites {
+		if asset.ID == id {
+			item := newAssetItem(asset, risks[asset.Key], c.orgsForTarget(asset.Key), c.rootsForTarget(asset.Key))
+			return &item, nil
+		}
+	}
 	return nil, ErrAssetNotFound
 }
 
 func (s *Service) Findings(ctx context.Context, orgID *string, filter FindingFilter) (*FindingPage, error) {
-	c, err := s.closure(ctx, orgID)
+	c, err := s.cachedClosure(ctx, orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -407,7 +433,7 @@ func (s *Service) Findings(ctx context.Context, orgID *string, filter FindingFil
 	items := make([]FindingItem, 0, len(current))
 	if strings.EqualFold(strings.TrimSpace(filter.State), "all") {
 		for _, f := range c.findings {
-			if findingTargetKey(f.Target, targetSetFromClosure(c, f)) == "" {
+			if findingTargetKey(f.Target, c.targetSet) == "" {
 				continue
 			}
 			item := FindingItem{Finding: f, Occurrences: 1, OrganizationIDs: orgsForFinding(c, f), RootDomains: rootsForFinding(c, f)}
@@ -437,7 +463,7 @@ func (s *Service) Findings(ctx context.Context, orgID *string, filter FindingFil
 }
 
 func (s *Service) FindingHistory(ctx context.Context, orgID string, findingID string) ([]domain.Finding, error) {
-	c, err := s.closure(ctx, &orgID)
+	c, err := s.cachedClosure(ctx, &orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -449,7 +475,7 @@ func (s *Service) FindingHistory(ctx context.Context, orgID string, findingID st
 			break
 		}
 	}
-	if !found || findingTargetKey(target.Target, targetSetFromClosure(c, target)) == "" {
+	if !found || findingTargetKey(target.Target, c.targetSet) == "" {
 		return nil, ErrAssetNotFound
 	}
 	var out []domain.Finding
@@ -471,7 +497,7 @@ func currentFindings(all []domain.Finding, c *closure) ([]domain.Finding, map[st
 	latest := map[string]domain.Finding{}
 	occurrences := map[string]int{}
 	for _, f := range all {
-		if findingTargetKey(f.Target, targetSetFromClosure(c, f)) == "" {
+		if findingTargetKey(f.Target, c.targetSet) == "" {
 			continue
 		}
 		key := findingGroupKey(f)
@@ -493,35 +519,13 @@ func currentFindings(all []domain.Finding, c *closure) ([]domain.Finding, map[st
 	return out, occurrences, nil
 }
 
-func targetSetFromClosure(c *closure, f domain.Finding) map[string]bool {
-	set := map[string]bool{}
-	for _, a := range c.domains {
-		set[a.Key] = true
-	}
-	for _, a := range c.ips {
-		set[a.Key] = true
-	}
-	for _, a := range c.services {
-		set[a.Key] = true
-	}
-	if findingTargetKey(f.Target, set) != "" {
-		return set
-	}
-	label, value, port := findingTargetNode(f.Target)
-	if label == "IP" && port != "" {
-		set[value+":"+port+"/tcp"] = true
-		set[value+":"+port+"/udp"] = true
-	}
-	return set
-}
-
 func orgsForFinding(c *closure, f domain.Finding) []string {
-	key := findingTargetKey(f.Target, targetSetFromClosure(c, f))
+	key := findingTargetKey(f.Target, c.targetSet)
 	return c.orgsForTarget(key)
 }
 
 func rootsForFinding(c *closure, f domain.Finding) []string {
-	key := findingTargetKey(f.Target, targetSetFromClosure(c, f))
+	key := findingTargetKey(f.Target, c.targetSet)
 	return c.rootsForTarget(key)
 }
 
@@ -529,7 +533,7 @@ func assetRisks(c *closure) map[string]string {
 	current, _, _ := currentFindings(c.findings, c)
 	targets := map[string][]domain.Finding{}
 	for _, f := range current {
-		key := findingTargetKey(f.Target, targetSetFromClosure(c, f))
+		key := findingTargetKey(f.Target, c.targetSet)
 		if key != "" {
 			targets[key] = append(targets[key], f)
 		}

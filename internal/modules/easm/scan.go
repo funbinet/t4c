@@ -35,6 +35,15 @@ func (s *Service) CreateScans(ctx context.Context, orgID string, rootDomains []s
 	if org == nil || org.Status != domain.OrgStatusActive {
 		return nil, nil, ErrOrganizationNotFound
 	}
+	// Fall back to the organization's configured default policy when none is supplied.
+	if policyID == "" {
+		policyID = org.DefaultPolicyID
+	}
+	if policyID != "" {
+		if p, perr := s.Store.GetPolicy(ctx, policyID); perr != nil || p == nil {
+			return nil, nil, fmt.Errorf("policy %q not found", policyID)
+		}
+	}
 	confirmed, err := s.Store.ListOrganizationDomains(ctx, orgID, string(domain.DomainStatusConfirmed))
 	if err != nil {
 		return nil, nil, err

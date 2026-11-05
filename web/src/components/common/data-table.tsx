@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { SkeletonTable } from '@/components/ui/skeleton'
 
 export type Column<T> = {
   key: string
@@ -31,8 +32,7 @@ export function DataTable<T>({
   onRowClick?: (row: T) => void
   rowLabel?: (row: T) => string
 }) {
-  if (loading)
-    return <div className="rounded-[4px] border bg-card p-8 text-center text-xs text-muted-foreground">Loading…</div>
+  if (loading) return <SkeletonTable columns={columns.length || 4} rows={6} />
   if (!rows.length) return <>{empty}</>
   return (
     <>

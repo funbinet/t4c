@@ -58,9 +58,13 @@ type Engine struct {
 	POCClient     *poc.HTTPClient
 	AssetsDir     string
 	Notifier      Notifier
-	pluginsOnce   sync.Once
-	plugins       []poc.Plugin
-	pluginByID    map[string]poc.Plugin
+	// OnFinalize is invoked (in a goroutine) after a task reaches a terminal
+	// state. The EASM layer uses it to invalidate its cached organization
+	// closures so freshly discovered assets and findings show up immediately.
+	OnFinalize   func(ctx context.Context)
+	pluginsOnce  sync.Once
+	plugins      []poc.Plugin
+	pluginByID   map[string]poc.Plugin
 }
 
 type Notifier interface {
@@ -396,6 +400,12 @@ func (e *Engine) RunStep(ctx context.Context, taskID, stepID string) error {
 		_ = e.Store.UpdateStepFields(ctx, stepID, store.StepPatch{Status: ptr(domain.StepCanceled), Message: ptr("task canceled")})
 		return nil
 	}
+	// If the task already reached a terminal state (for example a required step
+	// failed and the queue is redelivering the message), do not run more steps.
+	// This stops failed tasks from being re-executed and amplified by retries.
+	if task.Status.Terminal() {
+		return nil
+	}
 	step, err := e.Store.GetStep(ctx, stepID)
 	if err != nil || step == nil {
 		return fmt.Errorf("step not found")
@@ -412,11 +422,17 @@ func (e *Engine) RunStep(ctx context.Context, taskID, stepID string) error {
 		TaskID: taskID, Type: "step.status", Message: "Step started: " + step.Kind,
 		Payload: map[string]any{"stepId": stepID, "kind": step.Kind, "status": "running"},
 	})
-	runCtx, cancel := context.WithTimeout(ctx, e.Config.MaxRuntime())
+	runCtx, cancel := context.WithTimeout(ctx, e.stepTimeout(task, step.Kind))
 	defer cancel()
 	err = e.executeStep(runCtx, task, step)
 	finished := time.Now().UTC()
 	if err != nil {
+		// A step that exceeded its own time budget is recorded as a timeout so
+		// operators can distinguish it from a hard failure, but it still follows
+		// the same optional/required handling.
+		if errors.Is(err, context.DeadlineExceeded) {
+			err = fmt.Errorf("step %q timed out after %s", step.Kind, e.stepTimeout(task, step.Kind))
+		}
 		if step.Optional {
 			_ = e.Store.UpdateStepFields(ctx, stepID, store.StepPatch{Status: ptr(domain.StepFailed), Error: ptr(err.Error()), FinishedAt: &finished})
 			task.Warnings = append(task.Warnings, fmt.Sprintf("%s: %v", step.Kind, err))
@@ -487,6 +503,9 @@ func (e *Engine) finalize(ctx context.Context, taskID string) error {
 		TaskID: taskID, Type: "task.status", Message: "Task completed",
 		Payload: map[string]any{"status": string(status), "statistics": stats},
 	})
+	if e.OnFinalize != nil {
+		go e.OnFinalize(context.Background())
+	}
 	if task.Options.MonitorID != "" && task.ScopeID != "" {
 		if monitorID, err := domain.ParseID(task.Options.MonitorID); err == nil {
 			_ = e.Store.CreateMonitorRun(ctx, &domain.MonitorRun{
@@ -564,6 +583,96 @@ func (e *Engine) OutboxRelay(ctx context.Context) {
 					continue
 				}
 				_ = e.Store.MarkOutbox(ctx, msg.ID, "published", msg.Attempts+1)
+			}
+		}
+	}
+}
+
+// effectiveTimeout resolves the total runtime budget for a task. A per-task
+// options.maxRuntime override wins; otherwise the global scan.maxRuntime is
+// used. This finally wires the previously dead TaskOptions.MaxRuntime field.
+func (e *Engine) effectiveTimeout(task *domain.Task) time.Duration {
+	if task != nil && strings.TrimSpace(task.Options.MaxRuntime) != "" {
+		if d, err := time.ParseDuration(task.Options.MaxRuntime); err == nil && d > 0 {
+			return d
+		}
+	}
+	return e.Config.MaxRuntime()
+}
+
+// stepTimeout resolves how long a single step may run. The per-step budget is
+// capped by the task's total remaining budget so a single stage cannot blow
+// past the operator-configured maxRuntime.
+func (e *Engine) stepTimeout(task *domain.Task, kind string) time.Duration {
+	budget := e.Config.StepTimeout(kind)
+	if total := e.effectiveTimeout(task); total > 0 && total < budget {
+		return total
+	}
+	return budget
+}
+
+// ReapStaleTasks marks tasks that have exceeded their runtime budget as failed
+// and cancels their unfinished steps. It is the safety net that prevents a task
+// from being stuck in queued/running forever (for example when a worker crashed
+// or the in-memory queue lost a job on restart).
+func (e *Engine) ReapStaleTasks(ctx context.Context) (int, error) {
+	tasks, err := e.Store.ListActiveTasks(ctx)
+	if err != nil {
+		return 0, err
+	}
+	now := time.Now().UTC()
+	reaped := 0
+	for i := range tasks {
+		t := &tasks[i]
+		ref := t.CreatedAt
+		if t.StartedAt != nil {
+			ref = *t.StartedAt
+		}
+		timeout := e.effectiveTimeout(t)
+		if now.Sub(ref) < timeout {
+			continue
+		}
+		errMsg := fmt.Sprintf("task timed out after %s", timeout)
+		finished := now
+		if err := e.Store.UpdateTaskFields(ctx, t.ID, store.TaskPatch{
+			Status: ptr(domain.TaskFailed), Error: ptr(errMsg), FinishedAt: &finished,
+		}); err != nil {
+			continue
+		}
+		steps, _ := e.Store.ListSteps(ctx, t.ID)
+		for _, step := range steps {
+			if step.Status == domain.StepPending || step.Status == domain.StepQueued || step.Status == domain.StepRunning {
+				_ = e.Store.UpdateStepFields(ctx, step.ID, store.StepPatch{
+					Status: ptr(domain.StepFailed), Error: ptr("task timed out"), FinishedAt: &finished,
+				})
+			}
+		}
+		_ = e.Store.AppendTaskEvent(ctx, &domain.TaskEvent{
+			TaskID: t.ID, Type: "task.status", Message: "Task timed out",
+			Payload: map[string]any{"status": string(domain.TaskFailed), "error": errMsg},
+		})
+		reaped++
+	}
+	return reaped, nil
+}
+
+// StaleTaskReaper periodically sweeps for tasks that have outlived their
+// runtime budget and terminates them. Run it as a goroutine alongside the
+// worker loop and outbox relay.
+func (e *Engine) StaleTaskReaper(ctx context.Context) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if n, err := e.ReapStaleTasks(ctx); err != nil {
+				if e.Log != nil {
+					e.Log.Warn("stale task reaper sweep failed", "error", err)
+				}
+			} else if n > 0 && e.Log != nil {
+				e.Log.Info("reaped stale tasks", "count", n)
 			}
 		}
 	}

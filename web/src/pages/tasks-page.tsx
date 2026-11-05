@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Crosshair, List, Plus, Search, Square, X } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { StatusBadge } from '@/components/common/badges'
@@ -22,6 +22,7 @@ import { relativeTime } from '@/lib/format'
 
 export function TasksPage() {
   const { role } = useAuth()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [params, setParams] = useSearchParams()
   const [createOpen, setCreateOpen] = useState(false)
@@ -143,6 +144,8 @@ export function TasksPage() {
           <DataTable
             rows={tasks.data?.items || []}
             rowKey={(row) => row.id || ''}
+            onRowClick={(row) => row.id && navigate(`/tasks/${row.id}`)}
+            rowLabel={(row) => `Open task ${row.name || row.id}`}
             empty={
               <EmptyState
                 title="No matching tasks"
@@ -153,6 +156,7 @@ export function TasksPage() {
               {
                 key: 'name',
                 header: 'Task',
+                stopRowClick: true,
                 cell: (row) => (
                   <Link to={`/tasks/${row.id}`} className="font-medium text-primary hover:underline">
                     {row.name || row.id}
@@ -177,6 +181,7 @@ export function TasksPage() {
               {
                 key: 'actions',
                 header: 'Actions',
+                stopRowClick: true,
                 cell: (row) => (
                   <div className="flex justify-end gap-1">
                     <Button asChild size="icon" variant="outline" className="size-8" title="Details">

@@ -13,6 +13,7 @@ func DefaultPolicy() domain.Policy {
 	return domain.Policy{
 		Name:        "Default policy",
 		Description: "System default asset discovery policy",
+		Category:    domain.PolicyCategoryAttackSurface,
 		Config: domain.PolicyConfig{
 			Domain: domain.DomainPolicy{DomainBrute: false, DomainBruteType: "test", AltDNS: false, T4CSearch: true, DNSQueryPlugin: true},
 			IP: domain.IPPolicy{
@@ -24,23 +25,74 @@ func DefaultPolicy() domain.Policy {
 	}
 }
 
+// ModulePolicyTemplates returns example policies for each non-default module so the
+// framework can be extended beyond pure attack-surface mapping.
+func ModulePolicyTemplates() []domain.Policy {
+	return []domain.Policy{
+		{
+			Name:        "Vulnerability Assessment",
+			Description: "Deep vulnerability assessment of discovered assets using nuclei and PoC plugins.",
+			Category:    domain.PolicyCategoryVulnAssessment,
+			Config: domain.PolicyConfig{
+				Domain: domain.DomainPolicy{T4CSearch: true, DNSQueryPlugin: true},
+				IP:     domain.IPPolicy{PortScan: true, PortScanType: "top1000", ServiceDetection: true, SSLCert: true, HostTimeout: 900},
+				Site:   domain.SitePolicy{SiteIdentify: true, NucleiScan: true, WebInfoHunter: true, FileLeak: true},
+			},
+		},
+		{
+			Name:        "Active Probing",
+			Description: "Aggressive service and protocol probing for hidden assets and vhosts.",
+			Category:    domain.PolicyCategoryProbing,
+			Config: domain.PolicyConfig{
+				Domain: domain.DomainPolicy{DomainBrute: true, DomainBruteType: "test", AltDNS: true, T4CSearch: true, DNSQueryPlugin: true},
+				IP:     domain.IPPolicy{PortScan: true, PortScanType: "all", ServiceDetection: true, OSDetection: true, SSLCert: true, HostTimeout: 1200, PortParallelism: 64, PortMinRate: 120},
+				Site:   domain.SitePolicy{SiteIdentify: true, SiteCapture: true, SiteSpider: true, FindVhost: true, SearchEngines: true},
+			},
+		},
+		{
+			Name:        "Controlled Exploitation",
+			Description: "Validates findings with controlled exploitation. Run only with explicit authorization.",
+			Category:    domain.PolicyCategoryExploitation,
+			Config: domain.PolicyConfig{
+				Domain: domain.DomainPolicy{T4CSearch: true, DNSQueryPlugin: true},
+				IP:     domain.IPPolicy{PortScan: true, PortScanType: "top1000", ServiceDetection: true, SSLCert: true, HostTimeout: 900},
+				Site:   domain.SitePolicy{SiteIdentify: true, NucleiScan: true, WebInfoHunter: true, FileLeak: true},
+			},
+		},
+	}
+}
+
 func (s *Store) SeedDefaultPolicy(ctx context.Context) error {
 	var n int64
 	if err := s.db.WithContext(ctx).Model(&domain.Policy{}).Count(&n).Error; err != nil || n > 0 {
 		return err
 	}
+	now := time.Now().UTC()
 	p := DefaultPolicy()
-	p.CreatedAt, p.UpdatedAt, p.SchemaVersion = time.Now().UTC(), time.Now().UTC(), domain.SchemaVersion
-	err := s.db.WithContext(ctx).Create(&p).Error
-	if isDuplicate(err) {
-		return nil
+	p.CreatedAt, p.UpdatedAt, p.SchemaVersion = now, now, domain.SchemaVersion
+	if err := s.db.WithContext(ctx).Create(&p).Error; err != nil && !isDuplicate(err) {
+		return err
 	}
-	return err
+	for _, t := range ModulePolicyTemplates() {
+		var exists int64
+		if err := s.db.WithContext(ctx).Model(&domain.Policy{}).Where("name = ?", t.Name).Count(&exists).Error; err != nil {
+			return err
+		}
+		if exists > 0 {
+			continue
+		}
+		t.CreatedAt, t.UpdatedAt, t.SchemaVersion = now, now, domain.SchemaVersion
+		if err := s.db.WithContext(ctx).Create(&t).Error; err != nil && !isDuplicate(err) {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Store) CreatePolicy(ctx context.Context, p *domain.Policy) error {
 	now := time.Now().UTC()
 	p.CreatedAt, p.UpdatedAt, p.SchemaVersion = now, now, domain.SchemaVersion
+	p.Category = domain.NormalizePolicyCategory(p.Category)
 	if p.ID == "" {
 		id, err := domain.NewID()
 		if err != nil {
@@ -49,6 +101,17 @@ func (s *Store) CreatePolicy(ctx context.Context, p *domain.Policy) error {
 		p.ID = id
 	}
 	return s.db.WithContext(ctx).Create(p).Error
+}
+
+// ListPoliciesByCategory returns policies, optionally filtered to a single category.
+func (s *Store) ListPoliciesByCategory(ctx context.Context, category string) ([]domain.Policy, error) {
+	var out []domain.Policy
+	q := active(s.db.WithContext(ctx)).Order("created_at ASC, id ASC")
+	if category != "" {
+		q = q.Where("category = ?", domain.NormalizePolicyCategory(category))
+	}
+	err := q.Find(&out).Error
+	return out, err
 }
 
 func (s *Store) GetPolicy(ctx context.Context, id string) (*domain.Policy, error) {
@@ -71,10 +134,12 @@ func (s *Store) ListPolicies(ctx context.Context) ([]domain.Policy, error) {
 
 func (s *Store) UpdatePolicy(ctx context.Context, p *domain.Policy) error {
 	p.UpdatedAt = time.Now().UTC()
+	p.Category = domain.NormalizePolicyCategory(p.Category)
 	return activeUpdateResult(s.db.WithContext(ctx).Model(&domain.Policy{}).
 		Where("id = ? AND deleted_at IS NULL", p.ID).
 		Updates(map[string]any{
-			"name": p.Name, "description": p.Description, "config": jsonbExpr(p.Config), "updated_at": p.UpdatedAt,
+			"name": p.Name, "description": p.Description, "category": p.Category,
+			"config": jsonbExpr(p.Config), "updated_at": p.UpdatedAt,
 		}))
 }
 
