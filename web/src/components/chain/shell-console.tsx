@@ -118,9 +118,7 @@ export function ShellConsole({
         <div className="mb-2 flex items-center gap-2">
           <Badge variant={canRun ? 'success' : 'danger'}>{state}</Badge>
           {sess ? <span className="mono-label">Session {sess.id}</span> : null}
-          {sess?.reignitedFrom ? (
-            <span className="mono-label">re-ignited from {sess.reignitedFrom}</span>
-          ) : null}
+          {sess?.reignitedFrom ? <span className="mono-label">re-ignited from {sess.reignitedFrom}</span> : null}
           <div className="ml-auto flex gap-1.5">
             <Button
               size="sm"
@@ -152,9 +150,7 @@ export function ShellConsole({
                 <span className="text-[#5a8f5a]">[{line.seq}] </span>$ {line.command}
               </div>
               {line.output ? <div className="text-[#9fe89f]">{line.output}</div> : null}
-              {line.exitCode !== 0 ? (
-                <div className="text-[#ff9d9d]">exit {line.exitCode}</div>
-              ) : null}
+              {line.exitCode !== 0 ? <div className="text-[#ff9d9d]">exit {line.exitCode}</div> : null}
             </div>
           ))}
           {!history.isLoading && !history.data?.items?.length ? (
@@ -168,7 +164,9 @@ export function ShellConsole({
           <Input
             value={command}
             onChange={(event) => setCommand(event.target.value)}
-            placeholder={canRun ? 'whoami, id, uname -a, ls, cat /etc/passwd…' : 'Session is not open — re-ignite to run commands'}
+            placeholder={
+              canRun ? 'whoami, id, uname -a, ls, cat /etc/passwd…' : 'Session is not open — re-ignite to run commands'
+            }
             disabled={!canRun || run.isPending}
             className="mono border-[rgba(0,250,0,0.25)] bg-[#050b05] text-[#b8f5b8]"
             autoComplete="off"
@@ -179,7 +177,8 @@ export function ShellConsole({
           </Button>
         </form>
         <DialogFooter className="text-[11px] text-muted-foreground">
-          Last activity: {sess ? formatTime(sess.lastActive) : '—'} · Commands are simulated in SDK mode and recorded for audit.
+          Last activity: {sess ? formatTime(sess.lastActive) : '—'} · Commands are simulated in SDK mode and recorded
+          for audit.
         </DialogFooter>
       </DialogContent>
     </Dialog>

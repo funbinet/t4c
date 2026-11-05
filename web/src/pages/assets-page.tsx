@@ -186,7 +186,10 @@ export function AssetsPage() {
             ) : null}
             <FilterDropdown
               label="Filter by type"
-              options={[{ value: '', label: 'All Types' }, ...kinds.filter(Boolean).map((k) => ({ value: k, label: k }))]}
+              options={[
+                { value: '', label: 'All Types' },
+                ...kinds.filter(Boolean).map((k) => ({ value: k, label: k })),
+              ]}
               value={kind}
               onChange={(value) => setParam('kind', value)}
             />
@@ -256,7 +259,13 @@ export function AssetsPage() {
                 cell: (row) =>
                   canWrite(role) ? (
                     <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => openEdit(row)}>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-8"
+                        title="Edit"
+                        onClick={() => openEdit(row)}
+                      >
                         <Pencil />
                         <span className="sr-only">Edit</span>
                       </Button>
@@ -266,7 +275,12 @@ export function AssetsPage() {
                         confirmLabel="Move To Recycle Bin"
                         onConfirm={() => remove.mutate(row.id || '')}
                         trigger={
-                          <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="size-8 text-destructive hover:text-destructive"
+                            title="Delete"
+                          >
                             <Trash2 />
                             <span className="sr-only">Delete</span>
                           </Button>
@@ -297,7 +311,13 @@ export function AssetsPage() {
             <div className="space-y-4">
               {canWrite(role) ? (
                 <div className="flex flex-wrap justify-end gap-2">
-                  <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => openEdit(visible)}>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="size-8"
+                    title="Edit"
+                    onClick={() => openEdit(visible)}
+                  >
                     <Pencil />
                     <span className="sr-only">Edit</span>
                   </Button>
@@ -307,7 +327,12 @@ export function AssetsPage() {
                     confirmLabel="Move To Recycle Bin"
                     onConfirm={() => remove.mutate(visible.id || '')}
                     trigger={
-                      <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-8 text-destructive hover:text-destructive"
+                        title="Delete"
+                      >
                         <Trash2 />
                         <span className="sr-only">Delete</span>
                       </Button>
@@ -444,7 +469,13 @@ export function AssetsPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditorOpen(false)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setEditorOpen(false)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>

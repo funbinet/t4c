@@ -141,18 +141,10 @@ export function ExportDrawer({
         <div className="mb-4 flex items-center gap-2">
           <span className="mono-label">Format</span>
           <div className="flex gap-1.5">
-            <Button
-              size="sm"
-              variant={format === 'json' ? 'default' : 'outline'}
-              onClick={() => setFormat('json')}
-            >
+            <Button size="sm" variant={format === 'json' ? 'default' : 'outline'} onClick={() => setFormat('json')}>
               <FileJson className="mr-1 size-3.5" /> JSON
             </Button>
-            <Button
-              size="sm"
-              variant={format === 'csv' ? 'default' : 'outline'}
-              onClick={() => setFormat('csv')}
-            >
+            <Button size="sm" variant={format === 'csv' ? 'default' : 'outline'} onClick={() => setFormat('csv')}>
               <FileSpreadsheet className="mr-1 size-3.5" /> CSV
             </Button>
           </div>
@@ -191,7 +183,8 @@ export function ExportDrawer({
               <div className="min-w-0 flex-1">
                 <div className="mono truncate font-medium">{item.name}</div>
                 <div className="text-[11px] text-muted-foreground">
-                  {item.kind} · {item.type === 'artifact' ? `${formatNumber(item.size)} B` : item.detail} · {formatTime(item.time)}
+                  {item.kind} · {item.type === 'artifact' ? `${formatNumber(item.size)} B` : item.detail} ·{' '}
+                  {formatTime(item.time)}
                 </div>
               </div>
               <Badge variant={item.type === 'objective' ? 'info' : 'outline'}>{item.type}</Badge>

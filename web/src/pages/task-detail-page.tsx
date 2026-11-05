@@ -109,12 +109,7 @@ export function TaskDetailPage() {
 
   if (detail.isLoading) return <LoadingBlock label="Loading task…" />
   if (detail.error || !detail.data?.task)
-    return (
-      <ErrorState
-        error={detail.error ?? new Error('Task not found')}
-        retry={() => detail.refetch()}
-      />
-    )
+    return <ErrorState error={detail.error ?? new Error('Task not found')} retry={() => detail.refetch()} />
   const task = detail.data.task
   const steps = detail.data.steps || []
 
@@ -144,7 +139,13 @@ export function TaskDetailPage() {
               <Download />
               <span className="sr-only">Export</span>
             </Button>
-            <Button size="icon" variant="outline" className="size-8" title="Sync" onClick={() => action.mutate({ kind: 'sync' })}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Sync"
+              onClick={() => action.mutate({ kind: 'sync' })}
+            >
               <RefreshCw />
               <span className="sr-only">Sync</span>
             </Button>

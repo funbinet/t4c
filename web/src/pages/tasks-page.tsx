@@ -26,7 +26,14 @@ export function TasksPage() {
   const queryClient = useQueryClient()
   const [params, setParams] = useSearchParams()
   const [createOpen, setCreateOpen] = useState(false)
-  const [form, setForm] = useState({ name: '', kind: 'domain', target: '', policyId: '', scopeId: '', organizationId: '' })
+  const [form, setForm] = useState({
+    name: '',
+    kind: 'domain',
+    target: '',
+    policyId: '',
+    scopeId: '',
+    organizationId: '',
+  })
   const origin = params.get('origin') || 'surface'
   const status = params.get('status') || ''
   const kind = params.get('kind') || ''
@@ -86,7 +93,12 @@ export function TasksPage() {
                 <Crosshair className="size-4" />
                 <span className="sr-only">Attack Surface</span>
               </Button>
-              <Button size="sm" variant={origin === 'all' ? 'default' : 'ghost'} title="All Tasks" onClick={() => setParam('origin', 'all')}>
+              <Button
+                size="sm"
+                variant={origin === 'all' ? 'default' : 'ghost'}
+                title="All Tasks"
+                onClick={() => setParam('origin', 'all')}
+              >
                 <List className="size-4" />
                 <span className="sr-only">All Tasks</span>
               </Button>
@@ -269,7 +281,13 @@ export function TasksPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setCreateOpen(false)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setCreateOpen(false)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>

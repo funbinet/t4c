@@ -26,13 +26,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { canWrite } from '@/lib/access'
 import { formatNumber, formatTime } from '@/lib/format'
-import {
-  STAGE_TASK_KINDS,
-  TASK_STATUS_FILTERS,
-  StagePill,
-  humanize,
-  stageScreenTitle,
-} from './chain-shared'
+import { STAGE_TASK_KINDS, TASK_STATUS_FILTERS, StagePill, humanize, stageScreenTitle } from './chain-shared'
 
 /**
  * Stage-scoped Tasks screen (plan §8.3 / §8.5). Tasks are created through
@@ -152,7 +146,12 @@ export function ChainTasksPage() {
         </div>
       ),
     },
-    { key: 'kind', header: 'Kind', cell: (row) => <Badge variant="info">{humanize(row.kind)}</Badge>, hideOnTablet: true },
+    {
+      key: 'kind',
+      header: 'Kind',
+      cell: (row) => <Badge variant="info">{humanize(row.kind)}</Badge>,
+      hideOnTablet: true,
+    },
     { key: 'status', header: 'Status', cell: (row) => <StatusBadge status={row.status} /> },
     {
       key: 'progress',
@@ -167,7 +166,12 @@ export function ChainTasksPage() {
       ),
       hideOnTablet: true,
     },
-    { key: 'stage', header: 'Stage', cell: (row) => <Badge variant="outline">{row.stage || mode}</Badge>, hideOnTablet: true },
+    {
+      key: 'stage',
+      header: 'Stage',
+      cell: (row) => <Badge variant="outline">{row.stage || mode}</Badge>,
+      hideOnTablet: true,
+    },
     { key: 'created', header: 'Created', cell: (row) => formatTime(row.createdAt), hideOnTablet: true },
   ]
 
@@ -185,8 +189,18 @@ export function ChainTasksPage() {
               placeholder="Search task name or target…"
               title="Search stage tasks"
             />
-            <FilterDropdown options={kindFilters} value={kind} onChange={(value) => setParam('kind', value)} label="Filter by task kind" />
-            <FilterDropdown options={TASK_STATUS_FILTERS} value={status} onChange={(value) => setParam('status', value)} label="Filter by status" />
+            <FilterDropdown
+              options={kindFilters}
+              value={kind}
+              onChange={(value) => setParam('kind', value)}
+              label="Filter by task kind"
+            />
+            <FilterDropdown
+              options={TASK_STATUS_FILTERS}
+              value={status}
+              onChange={(value) => setParam('status', value)}
+              label="Filter by status"
+            />
           </div>
         }
         center={`${formatNumber(tasks.data?.total ?? overview.data?.counts?.tasks)} tasks recorded in this stage`}
@@ -205,10 +219,30 @@ export function ChainTasksPage() {
       {tasks.error ? <ErrorState error={tasks.error} retry={() => tasks.refetch()} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Stage Tasks" value={formatNumber(tasks.data?.total ?? overview.data?.counts?.tasks)} icon={<ListChecks className="size-4" />} hint="All time" />
-        <StatTile label="Active / Queued" value={formatNumber(distribution.running)} icon={<Loader2 className="size-4" />} hint="On this page" />
-        <StatTile label="Succeeded" value={formatNumber(distribution.succeeded)} icon={<CheckCircle2 className="size-4" />} hint="On this page" />
-        <StatTile label="Failed" value={formatNumber(distribution.failed)} icon={<CircleSlash2 className="size-4" />} hint="On this page" />
+        <StatTile
+          label="Stage Tasks"
+          value={formatNumber(tasks.data?.total ?? overview.data?.counts?.tasks)}
+          icon={<ListChecks className="size-4" />}
+          hint="All time"
+        />
+        <StatTile
+          label="Active / Queued"
+          value={formatNumber(distribution.running)}
+          icon={<Loader2 className="size-4" />}
+          hint="On this page"
+        />
+        <StatTile
+          label="Succeeded"
+          value={formatNumber(distribution.succeeded)}
+          icon={<CheckCircle2 className="size-4" />}
+          hint="On this page"
+        />
+        <StatTile
+          label="Failed"
+          value={formatNumber(distribution.failed)}
+          icon={<CircleSlash2 className="size-4" />}
+          hint="On this page"
+        />
       </div>
 
       <DataTable
@@ -220,13 +254,24 @@ export function ChainTasksPage() {
           <EmptyState
             title="No stage tasks yet"
             description={`Create a ${STAGE_META[mode].shortLabel} task to start work in this chain link.`}
-            action={writable ? <Button size="sm" onClick={() => setCreateOpen(true)}>Create task</Button> : undefined}
+            action={
+              writable ? (
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  Create task
+                </Button>
+              ) : undefined
+            }
           />
         }
         onRowClick={(row) => navigate(`${base}/tasks/${row.id}`)}
         rowLabel={(row) => `Open task ${row.name || row.id}`}
       />
-      <Pagination page={page} pageSize={20} total={tasks.data?.total || 0} onChange={(value) => setParam('page', value)} />
+      <Pagination
+        page={page}
+        pageSize={20}
+        total={tasks.data?.total || 0}
+        onChange={(value) => setParam('page', value)}
+      />
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
@@ -235,17 +280,22 @@ export function ChainTasksPage() {
               <Workflow className="size-4 text-mint" /> New {STAGE_META[mode].shortLabel} task
             </DialogTitle>
             <DialogDescription>
-              The engine stamps stage = {mode}, selects the matching SDK registry and routes the steps to the stage queue.
+              The engine stamps stage = {mode}, selects the matching SDK registry and routes the steps to the stage
+              queue.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <label className="block">
               <span className="mono-label">Task kind</span>
               <Select value={form.kind} onValueChange={(value) => setForm((prev) => ({ ...prev, kind: value }))}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select a task kind" /></SelectTrigger>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select a task kind" />
+                </SelectTrigger>
                 <SelectContent>
                   {STAGE_TASK_KINDS[mode].map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -273,26 +323,40 @@ export function ChainTasksPage() {
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
                 <span className="mono-label">Organization</span>
-                <Select value={form.organizationId} onValueChange={(value) => setForm((prev) => ({ ...prev, organizationId: value }))}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Any organization" /></SelectTrigger>
+                <Select
+                  value={form.organizationId}
+                  onValueChange={(value) => setForm((prev) => ({ ...prev, organizationId: value }))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Any organization" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NONE}>Any organization</SelectItem>
                     {(orgs.data?.items || []).map((org) => (
-                      <SelectItem key={org.id} value={org.id}>{org.canonicalName || org.id}</SelectItem>
+                      <SelectItem key={org.id} value={org.id}>
+                        {org.canonicalName || org.id}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </label>
               <label className="block">
                 <span className="mono-label">Scan policy</span>
-                <Select value={form.policyId} onValueChange={(value) => setForm((prev) => ({ ...prev, policyId: value }))}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Default policy" /></SelectTrigger>
+                <Select
+                  value={form.policyId}
+                  onValueChange={(value) => setForm((prev) => ({ ...prev, policyId: value }))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Default policy" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NONE}>Default policy</SelectItem>
                     {(policies.data?.items || [])
                       .filter((policy) => Boolean(policy.id))
                       .map((policy) => (
-                        <SelectItem key={policy.id} value={policy.id as string}>{policy.name || policy.id}</SelectItem>
+                        <SelectItem key={policy.id} value={policy.id as string}>
+                          {policy.name || policy.id}
+                        </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
@@ -300,7 +364,9 @@ export function ChainTasksPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={() => create.mutate()} disabled={create.isPending}>
               <Zap className="mr-1 size-3.5" /> {create.isPending ? 'Queueing…' : 'Queue task'}
             </Button>

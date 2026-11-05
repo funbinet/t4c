@@ -51,7 +51,9 @@ export function statusLabel(status?: string): string {
 }
 
 export function roleLabel(role?: Role): string {
-  return ({ viewer: 'Viewer', operator: 'Operator', admin: 'Admin' } as Record<string, string>)[role || ''] || role || '—'
+  return (
+    ({ viewer: 'Viewer', operator: 'Operator', admin: 'Admin' } as Record<string, string>)[role || ''] || role || '—'
+  )
 }
 
 export function policySummary(config?: Record<string, any>): string {

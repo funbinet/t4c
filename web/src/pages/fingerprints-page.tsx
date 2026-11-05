@@ -91,7 +91,13 @@ export function FingerprintsPage() {
         right={
           canWrite(role) ? (
             <>
-              <Button size="icon" variant="outline" title="Bulk Import" aria-label="Bulk Import" onClick={() => setImportOpen(true)}>
+              <Button
+                size="icon"
+                variant="outline"
+                title="Bulk Import"
+                aria-label="Bulk Import"
+                onClick={() => setImportOpen(true)}
+              >
                 <Upload />
                 <span className="sr-only">Bulk Import</span>
               </Button>
@@ -144,7 +150,12 @@ export function FingerprintsPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8 text-destructive hover:text-destructive"
+                          title="Delete"
+                        >
                           <Trash2 />
                           <span className="sr-only">Delete</span>
                         </Button>
@@ -201,7 +212,13 @@ export function FingerprintsPage() {
             aria-label="Fingerprint rules (YAML or JSON)"
           />
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setImportOpen(false)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setImportOpen(false)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>

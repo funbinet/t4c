@@ -85,7 +85,11 @@ function screen(element: ReactNode) {
 
 const router = createBrowserRouter([
   { path: '/login', ...screen(<LoginPage />) },
-  { path: '/change-password', errorElement: <RouteError />, element: <ProtectedRoute>{page(<ChangePasswordPage />)}</ProtectedRoute> },
+  {
+    path: '/change-password',
+    errorElement: <RouteError />,
+    element: <ProtectedRoute>{page(<ChangePasswordPage />)}</ProtectedRoute>,
+  },
   {
     path: '/',
     errorElement: <RouteError />,
@@ -138,9 +142,17 @@ const router = createBrowserRouter([
       { path: 'objectives/automation/policies', ...screen(<ChainPoliciesPage />) },
       { path: 'objectives/automation/groups', ...screen(<ChainGroupsPage />) },
       { path: 'admin/users', errorElement: <RouteError />, element: <AdminRoute>{page(<UsersPage />)}</AdminRoute> },
-      { path: 'admin/api-keys', errorElement: <RouteError />, element: <AdminRoute>{page(<APIKeysPage />)}</AdminRoute> },
+      {
+        path: 'admin/api-keys',
+        errorElement: <RouteError />,
+        element: <AdminRoute>{page(<APIKeysPage />)}</AdminRoute>,
+      },
       { path: 'admin/audit', errorElement: <RouteError />, element: <AdminRoute>{page(<AuditPage />)}</AdminRoute> },
-      { path: 'admin/recycle-bin', errorElement: <RouteError />, element: <AdminRoute>{page(<RecycleBinPage />)}</AdminRoute> },
+      {
+        path: 'admin/recycle-bin',
+        errorElement: <RouteError />,
+        element: <AdminRoute>{page(<RecycleBinPage />)}</AdminRoute>,
+      },
       { path: 'admin/system', errorElement: <RouteError />, element: <AdminRoute>{page(<SystemPage />)}</AdminRoute> },
       { path: '*', ...screen(<NotFoundPage />) },
     ],

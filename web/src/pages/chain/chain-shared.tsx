@@ -95,16 +95,12 @@ export const STAGE_TASK_KINDS: Record<Stage, { value: string; label: string }[]>
     { value: 'exploit_brute', label: 'Credential Brute Force' },
     { value: 'exploit_inject', label: 'Injection Exploit' },
   ],
-  objectives: [
-    { value: 'objective', label: 'Objective Probe' },
-  ],
+  objectives: [{ value: 'objective', label: 'Objective Probe' }],
 }
 
 export function humanize(value?: string): string {
   if (!value) return '—'
-  return value
-    .replace(/[_-]+/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase())
+  return value.replace(/[_-]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
 export function kindLabel(kind?: string): string {

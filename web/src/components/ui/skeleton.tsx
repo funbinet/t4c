@@ -5,20 +5,11 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 /** A few stacked text lines used inside cards, lists and detail headers. */
-export function SkeletonText({
-  lines = 3,
-  className,
-}: {
-  lines?: number
-  className?: string
-}) {
+export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
   return (
     <div className={cn('space-y-2', className)}>
       {Array.from({ length: lines }).map((_, index) => (
-        <Skeleton
-          key={index}
-          className={cn('h-3', index === lines - 1 ? 'w-2/3' : 'w-full')}
-        />
+        <Skeleton key={index} className={cn('h-3', index === lines - 1 ? 'w-2/3' : 'w-full')} />
       ))}
     </div>
   )
@@ -79,20 +70,9 @@ export function SkeletonTable({
 }
 
 /** A grid of small cards, handy for stat tiles / asset tiles. */
-export function SkeletonGrid({
-  count = 6,
-  className,
-}: {
-  count?: number
-  className?: string
-}) {
+export function SkeletonGrid({ count = 6, className }: { count?: number; className?: string }) {
   return (
-    <div
-      className={cn(
-        'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3',
-        className,
-      )}
-    >
+    <div className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3', className)}>
       {Array.from({ length: count }).map((_, index) => (
         <SkeletonCard key={index} lines={2} />
       ))}

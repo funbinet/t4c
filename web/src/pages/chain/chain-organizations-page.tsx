@@ -81,11 +81,15 @@ export function ChainOrganizationsPage() {
       header: 'Organization',
       cell: (row) => (
         <div className="min-w-0">
-          <Link className="block truncate font-medium text-primary hover:underline" to={`${base}/organizations/${row.id}`}>
+          <Link
+            className="block truncate font-medium text-primary hover:underline"
+            to={`${base}/organizations/${row.id}`}
+          >
             {row.canonicalName || row.id}
           </Link>
           <span className="block truncate text-[11px] text-muted-foreground">
-            {row.region || '—'}{row.uscc ? ` · ${row.uscc}` : ''}
+            {row.region || '—'}
+            {row.uscc ? ` · ${row.uscc}` : ''}
           </span>
         </div>
       ),
@@ -98,9 +102,7 @@ export function ChainOrganizationsPage() {
     {
       key: 'exploited',
       header: 'Breached',
-      cell: (row) => (
-        <span className="mono font-semibold text-mint">{formatNumber(row.exploited)}</span>
-      ),
+      cell: (row) => <span className="mono font-semibold text-mint">{formatNumber(row.exploited)}</span>,
     },
     {
       key: 'sessions',
@@ -178,10 +180,30 @@ export function ChainOrganizationsPage() {
       {orgs.error ? <ErrorState error={orgs.error} retry={() => orgs.refetch()} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Organizations" value={formatNumber(items.length)} icon={<Boxes className="size-4" />} hint={`${formatNumber(overview.data?.organizations)} in chain`} />
-        <StatTile label="Breached Assets" value={formatNumber(totals.exploited)} icon={<Crosshair className="size-4" />} hint="Exploited across all orgs" />
-        <StatTile label="Shell Sessions" value={formatNumber(totals.sessions)} icon={<Building2 className="size-4" />} hint={`${formatNumber(overview.data?.counts?.openSessions)} open`} />
-        <StatTile label="Objectives / Artifacts" value={`${formatNumber(totals.objectives)} / ${formatNumber(totals.artifacts)}`} icon={<FileArchive className="size-4" />} hint="Collected produce" />
+        <StatTile
+          label="Organizations"
+          value={formatNumber(items.length)}
+          icon={<Boxes className="size-4" />}
+          hint={`${formatNumber(overview.data?.organizations)} in chain`}
+        />
+        <StatTile
+          label="Breached Assets"
+          value={formatNumber(totals.exploited)}
+          icon={<Crosshair className="size-4" />}
+          hint="Exploited across all orgs"
+        />
+        <StatTile
+          label="Shell Sessions"
+          value={formatNumber(totals.sessions)}
+          icon={<Building2 className="size-4" />}
+          hint={`${formatNumber(overview.data?.counts?.openSessions)} open`}
+        />
+        <StatTile
+          label="Objectives / Artifacts"
+          value={`${formatNumber(totals.objectives)} / ${formatNumber(totals.artifacts)}`}
+          icon={<FileArchive className="size-4" />}
+          hint="Collected produce"
+        />
       </div>
 
       <DataTable

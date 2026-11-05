@@ -74,7 +74,9 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
   const advance = useMutation({
     mutationFn: () => api.advanceStage(organizationId, { fromStage: mode }),
     onSuccess: (result) => {
-      toast.success(`Advanced ${STAGE_META[result.fromStage as Stage]?.shortLabel || result.fromStage} → ${STAGE_META[result.toStage as Stage]?.shortLabel || result.toStage}`)
+      toast.success(
+        `Advanced ${STAGE_META[result.fromStage as Stage]?.shortLabel || result.fromStage} → ${STAGE_META[result.toStage as Stage]?.shortLabel || result.toStage}`,
+      )
       void queryClient.invalidateQueries({ queryKey: ['chain'] })
       const next = result.toStage as Stage
       if (STAGES.includes(next)) setMode(next)
@@ -162,7 +164,9 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
                 <span className="min-w-0">
                   <span className="mono-label block">{STAGE_META[stage].label}</span>
                   <span className="block text-[11px] text-muted-foreground">
-                    {counts[stage].assets} {stage === 'exploit' ? 'breached' : stage === 'objectives' ? 'objectives' : 'assets'} · {counts[stage].extra}
+                    {counts[stage].assets}{' '}
+                    {stage === 'exploit' ? 'breached' : stage === 'objectives' ? 'objectives' : 'assets'} ·{' '}
+                    {counts[stage].extra}
                   </span>
                 </span>
               </button>

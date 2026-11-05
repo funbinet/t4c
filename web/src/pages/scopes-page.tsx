@@ -66,9 +66,7 @@ export function ScopesPage() {
   const rows = useMemo(
     () =>
       ((scopes.data?.items || []) as Scope[]).filter(
-        (row) =>
-          !search ||
-          `${row.name} ${(row.targets || []).join(' ')}`.toLowerCase().includes(search.toLowerCase()),
+        (row) => !search || `${row.name} ${(row.targets || []).join(' ')}`.toLowerCase().includes(search.toLowerCase()),
       ),
     [scopes.data, search],
   )
@@ -136,7 +134,12 @@ export function ScopesPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8 text-destructive hover:text-destructive"
+                          title="Delete"
+                        >
                           <Trash2 />
                           <span className="sr-only">Delete</span>
                         </Button>

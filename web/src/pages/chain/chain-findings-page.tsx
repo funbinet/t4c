@@ -14,13 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { formatNumber, formatTime } from '@/lib/format'
-import {
-  FINDING_KIND_FILTERS,
-  SEVERITY_FILTERS,
-  StagePill,
-  findingKindLabel,
-  stageScreenTitle,
-} from './chain-shared'
+import { FINDING_KIND_FILTERS, SEVERITY_FILTERS, StagePill, findingKindLabel, stageScreenTitle } from './chain-shared'
 
 /**
  * Stage-scoped Risks screen. Findings are filtered on the server by stage and
@@ -121,24 +115,52 @@ export function ChainFindingsPage() {
               placeholder="Search finding title or target…"
               title="Search stage findings"
             />
-            <FilterDropdown options={FINDING_KIND_FILTERS} value={kind} onChange={(value) => setParam('kind', value)} label="Filter by finding kind" />
-            <FilterDropdown options={SEVERITY_FILTERS} value={severity} onChange={(value) => setParam('severity', value)} label="Filter by severity" />
+            <FilterDropdown
+              options={FINDING_KIND_FILTERS}
+              value={kind}
+              onChange={(value) => setParam('kind', value)}
+              label="Filter by finding kind"
+            />
+            <FilterDropdown
+              options={SEVERITY_FILTERS}
+              value={severity}
+              onChange={(value) => setParam('severity', value)}
+              label="Filter by severity"
+            />
           </div>
         }
         center="Findings emitted by stage SDKs — exploit and objective results stay in their own stage"
-        right={
-          <span className="mono-label">{formatNumber(findings.data?.total)} stage findings</span>
-        }
+        right={<span className="mono-label">{formatNumber(findings.data?.total)} stage findings</span>}
       />
 
       {findings.isLoading ? <LoadingBlock variant="grid" /> : null}
       {findings.error ? <ErrorState error={findings.error} retry={() => findings.refetch()} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Stage Findings" value={formatNumber(findings.data?.total ?? overview.data?.counts?.findings)} icon={<ShieldAlert className="size-4" />} hint="Current stage only" />
-        <StatTile label="Critical / High" value={formatNumber((severityCounts.critical || 0) + (severityCounts.high || 0))} icon={<Siren className="size-4" />} hint="On the current page" />
-        <StatTile label="Medium" value={formatNumber(severityCounts.medium)} icon={<FileSearch className="size-4" />} hint="On the current page" />
-        <StatTile label="Low / Info" value={formatNumber((severityCounts.low || 0) + (severityCounts.info || 0))} icon={<ShieldCheck className="size-4" />} hint="On the current page" />
+        <StatTile
+          label="Stage Findings"
+          value={formatNumber(findings.data?.total ?? overview.data?.counts?.findings)}
+          icon={<ShieldAlert className="size-4" />}
+          hint="Current stage only"
+        />
+        <StatTile
+          label="Critical / High"
+          value={formatNumber((severityCounts.critical || 0) + (severityCounts.high || 0))}
+          icon={<Siren className="size-4" />}
+          hint="On the current page"
+        />
+        <StatTile
+          label="Medium"
+          value={formatNumber(severityCounts.medium)}
+          icon={<FileSearch className="size-4" />}
+          hint="On the current page"
+        />
+        <StatTile
+          label="Low / Info"
+          value={formatNumber((severityCounts.low || 0) + (severityCounts.info || 0))}
+          icon={<ShieldCheck className="size-4" />}
+          hint="On the current page"
+        />
       </div>
 
       <DataTable
@@ -155,7 +177,12 @@ export function ChainFindingsPage() {
         onRowClick={(row) => setParam('focus', row.id)}
         rowLabel={(row) => `Inspect ${row.title || row.id}`}
       />
-      <Pagination page={page} pageSize={20} total={findings.data?.total || 0} onChange={(value) => setParam('page', value)} />
+      <Pagination
+        page={page}
+        pageSize={20}
+        total={findings.data?.total || 0}
+        onChange={(value) => setParam('page', value)}
+      />
 
       <Sheet open={Boolean(focus)} onOpenChange={(open) => !open && setParam('focus', '')}>
         <SheetContent>

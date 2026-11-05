@@ -1,25 +1,43 @@
 import type { ReactNode } from 'react'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  SkeletonCard,
-  SkeletonGrid,
-  SkeletonTable,
-  SkeletonText,
-} from '@/components/ui/skeleton'
+import { SkeletonCard, SkeletonGrid, SkeletonTable, SkeletonText } from '@/components/ui/skeleton'
 
-export function LoadingBlock({ label, variant = 'table' }: { label?: string; variant?: 'table' | 'grid' | 'card' | 'text' }) {
+export function LoadingBlock({
+  label,
+  variant = 'table',
+}: {
+  label?: string
+  variant?: 'table' | 'grid' | 'card' | 'text'
+}) {
+  let skeleton: ReactNode
   switch (variant) {
     case 'grid':
-      return <SkeletonGrid />
+      skeleton = <SkeletonGrid />
+      break
     case 'card':
-      return <SkeletonCard lines={3} />
+      skeleton = <SkeletonCard lines={3} />
+      break
     case 'text':
-      return <SkeletonText lines={4} />
+      skeleton = <SkeletonText lines={4} />
+      break
     case 'table':
     default:
-      return <SkeletonTable columns={4} rows={6} />
+      skeleton = <SkeletonTable columns={4} rows={6} />
   }
+  // The label is exposed to assistive technology through an sr-only status so
+  // callers keep a stable API and loading regions are announced. A fragment
+  // keeps the DOM layout identical to the bare skeleton.
+  return (
+    <>
+      {label ? (
+        <span className="sr-only" role="status">
+          {label}
+        </span>
+      ) : null}
+      {skeleton}
+    </>
+  )
 }
 
 export function EmptyState({

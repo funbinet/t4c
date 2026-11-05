@@ -28,8 +28,16 @@ import { STAGE_TASK_KINDS, StagePill, humanize } from './chain-shared'
 export type AutomationKind = 'monitors' | 'schedules' | 'policies' | 'groups'
 
 const CONFIG: Record<AutomationKind, { label: string; description: string; icon: typeof Activity }> = {
-  monitors: { label: 'Monitors', description: 'Continuous stage watchers that re-run tasks on an interval', icon: Activity },
-  schedules: { label: 'Schedules', description: 'Cron / one-shot schedules for stage task execution', icon: CalendarClock },
+  monitors: {
+    label: 'Monitors',
+    description: 'Continuous stage watchers that re-run tasks on an interval',
+    icon: Activity,
+  },
+  schedules: {
+    label: 'Schedules',
+    description: 'Cron / one-shot schedules for stage task execution',
+    icon: CalendarClock,
+  },
   policies: { label: 'Scan Policies', description: 'Module policies assigned to this chain stage', icon: Settings2 },
   groups: { label: 'Asset Groups', description: 'Scoped target groups reserved for this stage', icon: Boxes },
 }
@@ -83,7 +91,9 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
       <ScreenToolbar
         left={
           <div className="flex items-center gap-2">
-            <span className="mono-label">{STAGE_META[mode].shortLabel} · {config.label}</span>
+            <span className="mono-label">
+              {STAGE_META[mode].shortLabel} · {config.label}
+            </span>
             <StagePill stage={mode} />
           </div>
         }
@@ -170,10 +180,14 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
                 <label className="block">
                   <span className="mono-label">Task kind</span>
                   <Select value={form.kind} onValueChange={(value) => setForm((prev) => ({ ...prev, kind: value }))}>
-                    <SelectTrigger className="mt-1"><SelectValue placeholder="Select a task kind" /></SelectTrigger>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select a task kind" />
+                    </SelectTrigger>
                     <SelectContent>
                       {STAGE_TASK_KINDS[mode].map((option) => (
-                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -207,7 +221,9 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
                 <label className="block">
                   <span className="mono-label">Group type</span>
                   <Select value={form.type} onValueChange={(value) => setForm((prev) => ({ ...prev, type: value }))}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="domain">Domain</SelectItem>
                       <SelectItem value="ip">IP</SelectItem>
@@ -228,7 +244,9 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
             ) : null}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={() => create.mutate()} disabled={create.isPending}>
               {create.isPending ? 'Creating…' : 'Create'}
             </Button>
@@ -304,7 +322,10 @@ function createItem(kind: AutomationKind, mode: Stage, form: AutomationForm) {
       return api.createStageGroup(mode, {
         ...body,
         type: form.type,
-        targets: form.targets.split(',').map((value) => value.trim()).filter(Boolean),
+        targets: form.targets
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean),
       })
     case 'policies':
       return api.createStagePolicy(mode, {
@@ -338,7 +359,12 @@ function buildColumns(kind: AutomationKind): Column<ChainAutomationItem>[] {
         nameColumn,
         { key: 'kind', header: 'Task Kind', cell: (row) => <Badge variant="info">{humanize(row.kind)}</Badge> },
         { key: 'target', header: 'Target', cell: (row) => <span className="mono truncate">{row.target || '—'}</span> },
-        { key: 'interval', header: 'Interval', cell: (row) => <span className="mono">{row.intervalSec || 0}s</span>, hideOnTablet: true },
+        {
+          key: 'interval',
+          header: 'Interval',
+          cell: (row) => <span className="mono">{row.intervalSec || 0}s</span>,
+          hideOnTablet: true,
+        },
         statusColumn,
         { key: 'next', header: 'Next Run', cell: (row) => formatTime(row.nextRunAt), hideOnTablet: true },
         stageColumn,
@@ -346,9 +372,18 @@ function buildColumns(kind: AutomationKind): Column<ChainAutomationItem>[] {
     case 'schedules':
       return [
         nameColumn,
-        { key: 'taskKind', header: 'Task Kind', cell: (row) => <Badge variant="info">{humanize(row.taskKind || row.kind)}</Badge> },
+        {
+          key: 'taskKind',
+          header: 'Task Kind',
+          cell: (row) => <Badge variant="info">{humanize(row.taskKind || row.kind)}</Badge>,
+        },
         { key: 'cron', header: 'Schedule', cell: (row) => <span className="mono">{row.cron || 'one-shot'}</span> },
-        { key: 'target', header: 'Target', cell: (row) => <span className="mono truncate">{row.target || '—'}</span>, hideOnTablet: true },
+        {
+          key: 'target',
+          header: 'Target',
+          cell: (row) => <span className="mono truncate">{row.target || '—'}</span>,
+          hideOnTablet: true,
+        },
         statusColumn,
         { key: 'next', header: 'Next Run', cell: (row) => formatTime(row.nextRunAt), hideOnTablet: true },
         stageColumn,
@@ -356,8 +391,17 @@ function buildColumns(kind: AutomationKind): Column<ChainAutomationItem>[] {
     case 'policies':
       return [
         nameColumn,
-        { key: 'description', header: 'Description', cell: (row) => <span className="text-muted-foreground">{row.description || '—'}</span> },
-        { key: 'config', header: 'Modules', cell: (row) => <span className="mono">{Object.keys(row.config || {}).length || '—'}</span>, hideOnTablet: true },
+        {
+          key: 'description',
+          header: 'Description',
+          cell: (row) => <span className="text-muted-foreground">{row.description || '—'}</span>,
+        },
+        {
+          key: 'config',
+          header: 'Modules',
+          cell: (row) => <span className="mono">{Object.keys(row.config || {}).length || '—'}</span>,
+          hideOnTablet: true,
+        },
         { key: 'created', header: 'Created', cell: (row) => formatTime(row.createdAt), hideOnTablet: true },
         stageColumn,
       ]
@@ -365,8 +409,17 @@ function buildColumns(kind: AutomationKind): Column<ChainAutomationItem>[] {
       return [
         nameColumn,
         { key: 'type', header: 'Type', cell: (row) => <Badge variant="info">{humanize(row.type)}</Badge> },
-        { key: 'targets', header: 'Targets', cell: (row) => <span className="mono truncate">{row.targets?.join(', ') || '—'}</span> },
-        { key: 'count', header: 'Count', cell: (row) => <span className="mono">{formatNumber(row.targets?.length)}</span>, hideOnTablet: true },
+        {
+          key: 'targets',
+          header: 'Targets',
+          cell: (row) => <span className="mono truncate">{row.targets?.join(', ') || '—'}</span>,
+        },
+        {
+          key: 'count',
+          header: 'Count',
+          cell: (row) => <span className="mono">{formatNumber(row.targets?.length)}</span>,
+          hideOnTablet: true,
+        },
         { key: 'created', header: 'Created', cell: (row) => formatTime(row.createdAt), hideOnTablet: true },
         stageColumn,
       ]

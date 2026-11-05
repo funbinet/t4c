@@ -49,7 +49,13 @@ export function PocPage() {
         right={
           <>
             {isAdmin(role) ? (
-              <Button size="icon" title="Sync Metadata" aria-label="Sync Metadata" onClick={() => sync.mutate()} disabled={sync.isPending}>
+              <Button
+                size="icon"
+                title="Sync Metadata"
+                aria-label="Sync Metadata"
+                onClick={() => sync.mutate()}
+                disabled={sync.isPending}
+              >
                 <RefreshCw className={sync.isPending ? 'animate-spin' : undefined} />
                 <span className="sr-only">Sync Metadata</span>
               </Button>

@@ -187,7 +187,13 @@ export function GitHubPage() {
                   cell: (row: any) =>
                     canWrite(role) ? (
                       <div className="flex justify-end gap-1">
-                        <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => editMonitor(row)}>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8"
+                          title="Edit"
+                          onClick={() => editMonitor(row)}
+                        >
                           <Pencil />
                           <span className="sr-only">Edit</span>
                         </Button>
@@ -197,7 +203,12 @@ export function GitHubPage() {
                           confirmLabel="Move To Recycle Bin"
                           onConfirm={() => remove.mutate(row.id)}
                           trigger={
-                            <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="size-8 text-destructive hover:text-destructive"
+                              title="Delete"
+                            >
                               <Trash2 />
                               <span className="sr-only">Delete</span>
                             </Button>

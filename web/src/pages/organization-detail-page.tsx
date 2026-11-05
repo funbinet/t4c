@@ -1,7 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Check, Crosshair, Download, FileText, Globe, History, LayoutDashboard, Pencil, Play, Plus, Save, Search, ShieldAlert, Trash2, Workflow, X } from 'lucide-react'
+import {
+  Check,
+  Crosshair,
+  Download,
+  FileText,
+  Globe,
+  History,
+  LayoutDashboard,
+  Pencil,
+  Play,
+  Plus,
+  Save,
+  Search,
+  ShieldAlert,
+  Trash2,
+  Workflow,
+  X,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { api, type EasmAsset, type FindingItem, type OrganizationDomain, type Task } from '@/api'
 import { download } from '@/api/client'
@@ -11,7 +28,7 @@ import { Breadcrumb, Fact, Field } from '@/components/common/form'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
-import { RiskDistributionChart, RiskLegend, type RiskKey } from '@/components/visuals/risk-distribution'
+import { RiskDistributionChart, RiskLegend } from '@/components/visuals/risk-distribution'
 import { SurfaceMap } from '@/components/visuals/surface-map'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -297,15 +314,33 @@ export function OrganizationDetailPage() {
               <Search className={refreshICP.isPending ? 'animate-spin' : undefined} />
               <span className="sr-only">ICP Lookup</span>
             </Button>
-            <Button size="icon" variant="outline" className="size-9" title="Add Root Domain" onClick={() => setAddOpen(true)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-9"
+              title="Add Root Domain"
+              onClick={() => setAddOpen(true)}
+            >
               <Plus />
               <span className="sr-only">Add Root Domain</span>
             </Button>
-            <Button size="icon" variant="outline" className="size-9" title="Export Report" onClick={() => exportReport.mutate('xlsx')}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-9"
+              title="Export Report"
+              onClick={() => exportReport.mutate('xlsx')}
+            >
               <Download />
               <span className="sr-only">Export</span>
             </Button>
-            <Button size="icon" variant="outline" className="size-9" title="Edit Organization" onClick={openEditOrganization}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-9"
+              title="Edit Organization"
+              onClick={openEditOrganization}
+            >
               <Pencil />
               <span className="sr-only">Edit</span>
             </Button>
@@ -315,7 +350,12 @@ export function OrganizationDetailPage() {
               confirmLabel="Move To Recycle Bin"
               onConfirm={() => deleteOrganization.mutate()}
               trigger={
-                <Button size="icon" variant="outline" className="size-9 text-destructive hover:text-destructive" title="Delete Organization">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-9 text-destructive hover:text-destructive"
+                  title="Delete Organization"
+                >
                   <Trash2 />
                   <span className="sr-only">Delete</span>
                 </Button>
@@ -422,7 +462,10 @@ export function OrganizationDetailPage() {
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
                 {(assets.data?.items || []).slice(0, 5).map((asset) => (
-                  <div key={asset.id || asset.key} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
+                  <div
+                    key={asset.id || asset.key}
+                    className="flex items-center justify-between gap-2 border-b pb-2 last:border-0"
+                  >
                     <span className="mono truncate">{asset.key}</span>
                     <span className="flex shrink-0 items-center gap-2">
                       <span className="rounded-[3px] border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -448,7 +491,10 @@ export function OrganizationDetailPage() {
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
                 {(findings.data?.items || []).slice(0, 5).map((item) => (
-                  <div key={item.finding?.id} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
+                  <div
+                    key={item.finding?.id}
+                    className="flex items-center justify-between gap-2 border-b pb-2 last:border-0"
+                  >
                     <span className="truncate">{item.finding?.title}</span>
                     <RiskBadge risk={item.finding?.severity} />
                   </div>
@@ -504,7 +550,13 @@ export function OrganizationDetailPage() {
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Filed Root Domains</CardTitle>
               <div className="flex gap-2">
-                <Button size="icon" variant="outline" className="size-8" title="Add Root Domain" onClick={() => setAddOpen(true)}>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-8"
+                  title="Add Root Domain"
+                  onClick={() => setAddOpen(true)}
+                >
                   <Plus />
                   <span className="sr-only">Add</span>
                 </Button>
@@ -559,12 +611,24 @@ export function OrganizationDetailPage() {
                       header: 'Actions',
                       cell: (row) => (
                         <div className="flex flex-wrap justify-end gap-1">
-                          <Button size="icon" variant="outline" className="size-8" title="Evidence" onClick={() => void showEvidence(row)}>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="size-8"
+                            title="Evidence"
+                            onClick={() => void showEvidence(row)}
+                          >
                             <FileText />
                             <span className="sr-only">Evidence</span>
                           </Button>
                           {canWrite(role) ? (
-                            <Button size="icon" variant="outline" className="size-8" title="Edit Domain" onClick={() => editDomain(row)}>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="size-8"
+                              title="Edit Domain"
+                              onClick={() => editDomain(row)}
+                            >
                               <Pencil />
                               <span className="sr-only">Edit</span>
                             </Button>
@@ -576,7 +640,12 @@ export function OrganizationDetailPage() {
                               confirmLabel="Move To Recycle Bin"
                               onConfirm={() => deleteDomain.mutate(row.id || '')}
                               trigger={
-                                <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                                <Button
+                                  size="icon"
+                                  variant="outline"
+                                  className="size-8 text-destructive hover:text-destructive"
+                                  title="Delete"
+                                >
                                   <Trash2 />
                                   <span className="sr-only">Delete</span>
                                 </Button>
@@ -712,7 +781,13 @@ export function OrganizationDetailPage() {
             <Input value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} />
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setRejectTarget(null)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setRejectTarget(null)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -811,7 +886,13 @@ export function OrganizationDetailPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setDomainEditTarget(null)}>
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              title="Cancel"
+              onClick={() => setDomainEditTarget(null)}
+            >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -900,7 +981,13 @@ function FindingTab({ query, organizationId }: { query: ReturnType<typeof useQue
               key: 'actions',
               header: 'Actions',
               cell: (row: FindingItem) => (
-                <Button size="icon" variant="outline" className="size-8" title="History" onClick={() => void history(row)}>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-8"
+                  title="History"
+                  onClick={() => void history(row)}
+                >
                   <History />
                   <span className="sr-only">History</span>
                 </Button>

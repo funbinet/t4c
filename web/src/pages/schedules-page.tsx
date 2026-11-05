@@ -167,7 +167,12 @@ export function SchedulesPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8 text-destructive hover:text-destructive"
+                          title="Delete"
+                        >
                           <Trash2 />
                           <span className="sr-only">Delete</span>
                         </Button>

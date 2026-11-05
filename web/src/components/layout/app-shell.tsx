@@ -126,10 +126,7 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   )
   return (
     <nav
-      className={cn(
-        'flex min-h-0 flex-1 flex-col overflow-y-auto py-4 scrollbar-thin',
-        collapsed && 'justify-evenly',
-      )}
+      className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto py-4 scrollbar-thin', collapsed && 'justify-evenly')}
       aria-label="Main navigation"
     >
       {allGroups.map((group) => (

@@ -2,12 +2,7 @@ import { Check, Filter, Search, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 
 /**
@@ -15,15 +10,7 @@ import { Input } from '@/components/ui/input'
  * Organizations layout: expanding search on the left, a small centered
  * status note, and filter / action icon buttons on the right.
  */
-export function ScreenToolbar({
-  left,
-  center,
-  right,
-}: {
-  left?: ReactNode
-  center?: ReactNode
-  right?: ReactNode
-}) {
+export function ScreenToolbar({ left, center, right }: { left?: ReactNode; center?: ReactNode; right?: ReactNode }) {
   return (
     <div className="mb-4 grid grid-cols-[auto_1fr_auto] items-center gap-3">
       <div className="flex min-w-0 items-center gap-2">{left}</div>
@@ -57,13 +44,7 @@ export function ExpandableSearch({
   const [open, setOpen] = useState(false)
   if (!open) {
     return (
-      <Button
-        size="icon"
-        variant="outline"
-        title={title}
-        aria-label={title}
-        onClick={() => setOpen(true)}
-      >
+      <Button size="icon" variant="outline" title={title} aria-label={title} onClick={() => setOpen(true)}>
         <Search />
       </Button>
     )
@@ -129,13 +110,8 @@ export function FilterDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {options.map((option) => (
-          <DropdownMenuItem
-            key={option.value || 'all'}
-            onSelect={() => onChange(option.value)}
-          >
-            <Check
-              className={`size-3.5 ${value === option.value ? 'opacity-100' : 'opacity-0'}`}
-            />
+          <DropdownMenuItem key={option.value || 'all'} onSelect={() => onChange(option.value)}>
+            <Check className={`size-3.5 ${value === option.value ? 'opacity-100' : 'opacity-0'}`} />
             {option.label}
           </DropdownMenuItem>
         ))}

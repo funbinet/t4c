@@ -137,9 +137,7 @@ export function ChainAssetsPage() {
   const sessionFor = (asset?: ChainAsset | null) =>
     asset ? (sessions.data?.items || []).find((item) => item.assetId === asset.id) : undefined
 
-  const selectedAsset = focus
-    ? (assets.data?.items || []).find((asset) => asset.id === focus) || null
-    : null
+  const selectedAsset = focus ? (assets.data?.items || []).find((asset) => asset.id === focus) || null : null
 
   const orgFilters = [
     { value: '', label: 'All organizations' },
@@ -157,7 +155,12 @@ export function ChainAssetsPage() {
         </div>
       ),
     },
-    { key: 'kind', header: 'Classification', cell: (row) => <Badge variant="info">{kindLabel(row.kind)}</Badge>, hideOnTablet: true },
+    {
+      key: 'kind',
+      header: 'Classification',
+      cell: (row) => <Badge variant="info">{kindLabel(row.kind)}</Badge>,
+      hideOnTablet: true,
+    },
     {
       key: 'confidence',
       header: 'Confidence',
@@ -170,7 +173,9 @@ export function ChainAssetsPage() {
       cell: (row) => (
         <div className="flex items-center gap-1.5">
           <Badge variant={row.exploited ? 'success' : 'outline'}>{row.exploited ? 'Breached' : 'Discovered'}</Badge>
-          {row.exploitedAt ? <span className="text-[11px] text-muted-foreground">{relativeTime(row.exploitedAt)}</span> : null}
+          {row.exploitedAt ? (
+            <span className="text-[11px] text-muted-foreground">{relativeTime(row.exploitedAt)}</span>
+          ) : null}
         </div>
       ),
     },
@@ -215,11 +220,25 @@ export function ChainAssetsPage() {
               placeholder="Search asset key, title or display name…"
               title="Search stage assets"
             />
-            <FilterDropdown options={KIND_FILTERS} value={kind} onChange={(value) => setParam('kind', value)} label="Filter by asset kind" />
-            <FilterDropdown options={orgFilters} value={organizationId} onChange={(value) => setParam('organizationId', value)} label="Filter by organization" />
+            <FilterDropdown
+              options={KIND_FILTERS}
+              value={kind}
+              onChange={(value) => setParam('kind', value)}
+              label="Filter by asset kind"
+            />
+            <FilterDropdown
+              options={orgFilters}
+              value={organizationId}
+              onChange={(value) => setParam('organizationId', value)}
+              label="Filter by organization"
+            />
           </div>
         }
-        center={mode === 'objectives' ? 'Classified breached assets and the produce extracted from them' : 'Only successfully breached assets are exposed in this stage'}
+        center={
+          mode === 'objectives'
+            ? 'Classified breached assets and the produce extracted from them'
+            : 'Only successfully breached assets are exposed in this stage'
+        }
         right={
           <>
             {mode === 'objectives' ? (
@@ -240,8 +259,18 @@ export function ChainAssetsPage() {
       {assets.error ? <ErrorState error={assets.error} retry={() => assets.refetch()} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Breached Assets" value={formatNumber(assets.data?.total ?? counts.assets)} icon={<Crosshair className="size-4" />} hint="Exploited = true" />
-        <StatTile label="Asset Kinds" value={formatNumber(Object.keys(overview.data?.byKind || {}).length)} icon={<Layers className="size-4" />} hint="Classified by producing SDK" />
+        <StatTile
+          label="Breached Assets"
+          value={formatNumber(assets.data?.total ?? counts.assets)}
+          icon={<Crosshair className="size-4" />}
+          hint="Exploited = true"
+        />
+        <StatTile
+          label="Asset Kinds"
+          value={formatNumber(Object.keys(overview.data?.byKind || {}).length)}
+          icon={<Layers className="size-4" />}
+          hint="Classified by producing SDK"
+        />
         <StatTile
           label={mode === 'objectives' ? 'Artifacts' : 'Open Sessions'}
           value={formatNumber(mode === 'objectives' ? counts.artifacts : counts.openSessions)}
@@ -269,13 +298,24 @@ export function ChainAssetsPage() {
                 ? 'Run exploit tasks and then objective probes to collect artifacts and objectives.'
                 : 'Exploit-stage tasks flip discovered assets to exploited. Start one above.'
             }
-            action={writable ? <Button size="sm" onClick={() => openTask()}>Run a stage task</Button> : undefined}
+            action={
+              writable ? (
+                <Button size="sm" onClick={() => openTask()}>
+                  Run a stage task
+                </Button>
+              ) : undefined
+            }
           />
         }
         onRowClick={(row) => setParam('focus', row.id)}
         rowLabel={(row) => `Inspect ${row.key || row.id}`}
       />
-      <Pagination page={page} pageSize={20} total={assets.data?.total || 0} onChange={(value) => setParam('page', value)} />
+      <Pagination
+        page={page}
+        pageSize={20}
+        total={assets.data?.total || 0}
+        onChange={(value) => setParam('page', value)}
+      />
 
       {mode === 'objectives' ? (
         <ProducePanel
@@ -315,7 +355,9 @@ export function ChainAssetsPage() {
               {selectedAsset.tags?.length ? (
                 <div className="flex flex-wrap gap-1.5">
                   {selectedAsset.tags.map((tag) => (
-                    <Badge key={tag} variant="outline">{tag}</Badge>
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               ) : null}
@@ -367,10 +409,14 @@ export function ChainAssetsPage() {
             <label className="block">
               <span className="mono-label">Task kind</span>
               <Select value={taskKind} onValueChange={setTaskKind}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select a task kind" /></SelectTrigger>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select a task kind" />
+                </SelectTrigger>
                 <SelectContent>
                   {STAGE_TASK_KINDS[mode].map((option) => (
-                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -397,7 +443,9 @@ export function ChainAssetsPage() {
             </label>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setTaskOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setTaskOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={() => runTask.mutate()} disabled={runTask.isPending}>
               <Zap className="mr-1 size-3.5" /> {runTask.isPending ? 'Queueing…' : 'Queue task'}
             </Button>
@@ -406,11 +454,7 @@ export function ChainAssetsPage() {
       </Dialog>
 
       <ShellConsole sessionId={shellSessionId} open={shellOpen} onOpenChange={setShellOpen} />
-      <ExportDrawer
-        organizationId={organizationId || undefined}
-        open={exportOpen}
-        onOpenChange={setExportOpen}
-      />
+      <ExportDrawer organizationId={organizationId || undefined} open={exportOpen} onOpenChange={setExportOpen} />
     </div>
   )
 }

@@ -160,7 +160,13 @@ export function MonitorsPage() {
                       <Pencil />
                       <span className="sr-only">Edit</span>
                     </Button>
-                    <Button size="icon" variant="outline" className="size-8" title="Run" onClick={() => action.mutate({ id: row.id || '', action: 'run' })}>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="size-8"
+                      title="Run"
+                      onClick={() => action.mutate({ id: row.id || '', action: 'run' })}
+                    >
                       <Play />
                       <span className="sr-only">Run</span>
                     </Button>
@@ -182,7 +188,12 @@ export function MonitorsPage() {
                       confirmLabel="Move To Recycle Bin"
                       onConfirm={() => remove.mutate(row.id || '')}
                       trigger={
-                        <Button size="icon" variant="outline" className="size-8 text-destructive hover:text-destructive" title="Delete">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8 text-destructive hover:text-destructive"
+                          title="Delete"
+                        >
                           <Trash2 />
                           <span className="sr-only">Delete</span>
                         </Button>
