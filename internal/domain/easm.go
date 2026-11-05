@@ -82,18 +82,22 @@ func (o GraphOutboxOp) Valid() bool {
 }
 
 type Organization struct {
-	ID              string            `gorm:"primaryKey;size:24" json:"id"`
-	CanonicalName   string            `json:"canonicalName"`
-	Aliases         []string          `gorm:"type:jsonb;serializer:json" json:"aliases,omitempty"`
-	USCC            string            `json:"uscc,omitempty"`
-	Region          string            `json:"region,omitempty"`
-	ExternalIDs     map[string]string `gorm:"type:jsonb;serializer:json" json:"externalIds,omitempty"`
-	Status          OrgStatus         `json:"status"`
-	MergedInto      *string           `json:"mergedInto,omitempty"`
-	DefaultPolicyID string            `json:"defaultPolicyId,omitempty"`
-	CreatedAt       time.Time         `json:"createdAt"`
-	UpdatedAt       time.Time         `json:"updatedAt"`
-	SchemaVersion   int               `json:"schemaVersion"`
+	ID            string            `gorm:"primaryKey;size:24" json:"id"`
+	CanonicalName string            `json:"canonicalName"`
+	Aliases       []string          `gorm:"type:jsonb;serializer:json" json:"aliases,omitempty"`
+	USCC          string            `json:"uscc,omitempty"`
+	Region        string            `json:"region,omitempty"`
+	ExternalIDs   map[string]string `gorm:"type:jsonb;serializer:json" json:"externalIds,omitempty"`
+	Status        OrgStatus         `json:"status"`
+	// Stage is the organization's durable position in the recon → exploit →
+	// objectives chain. It is persisted (not derived from the active UI mode) so
+	// governance transitions remain authoritative across sessions and clients.
+	Stage           Stage     `gorm:"size:16" json:"stage"`
+	MergedInto      *string   `json:"mergedInto,omitempty"`
+	DefaultPolicyID string    `json:"defaultPolicyId,omitempty"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+	SchemaVersion   int       `json:"schemaVersion"`
 	Lifecycle       `gorm:"embedded"`
 }
 
@@ -107,10 +111,25 @@ func (o *Organization) Validate() error {
 	if !o.Status.Valid() {
 		return errors.New("invalid organization status")
 	}
+	// Normalize the stage so organizations created before stage tracking (empty
+	// column) and any legacy garbage values self-heal to the recon entry point.
+	if !o.Stage.Valid() {
+		o.Stage = StageRecon
+	}
 	if o.Status == OrgStatusMerged && o.MergedInto == nil {
 		return errors.New("merged organization requires mergedInto")
 	}
 	return nil
+}
+
+// EffectiveStage returns the organization's persisted chain stage, falling back
+// to recon when the value is empty or unrecognized. Every read path should use
+// this helper so legacy rows never leak an invalid stage into governance.
+func (o *Organization) EffectiveStage() Stage {
+	if o == nil || !o.Stage.Valid() {
+		return StageRecon
+	}
+	return o.Stage
 }
 
 type OrganizationDomain struct {

@@ -856,6 +856,15 @@
           "status": {
             "type": "string"
           },
+          "stage": {
+            "type": "string",
+            "description": "Durable chain stage of the organization: recon, exploit or objectives.",
+            "enum": [
+              "recon",
+              "exploit",
+              "objectives"
+            ]
+          },
           "mergedInto": {
             "type": "string"
           },
@@ -7721,10 +7730,49 @@
         }
       }
     },
+    "/organizations/{id}/stage": {
+      "get": {
+        "operationId": "organizationStage",
+        "summary": "Get an organization's persisted chain stage",
+        "description": "Returns the durable current stage, the allowed next stage, whether an advance is possible, and the recorded transition history. This state is persisted on the organization and is independent of the active UI mode.",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
     "/organizations/{id}/advance-stage": {
       "post": {
         "operationId": "advanceStage",
-        "summary": "Advance organization to the next chain stage",
+        "summary": "Advance an organization to the next chain stage",
+        "description": "Persists the recon → exploit → objectives transition on the organization row and records an audit event. The persisted stage is authoritative; an optional fromStage acts as an optimistic-concurrency hint and an optional toStage must equal the sequential successor.",
         "tags": [
           "Chain"
         ],
@@ -7767,7 +7815,16 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
           "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
             "$ref": "#/components/responses/Problem"
           }
         }

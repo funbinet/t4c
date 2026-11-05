@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Check, Crosshair, Flag, Layers, Radar, Target, Terminal, Zap } from 'lucide-react'
+import { ArrowRight, Check, Crosshair, Flag, History, Layers, Radar, Target, Terminal, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { STAGE_META, useMode, type Stage } from '@/app/mode'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const STAGES: Stage[] = ['recon', 'exploit', 'objectives']
@@ -70,15 +71,26 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
     queryFn: () => api.organizationAssets(organizationId, { page: 1, pageSize: 200 }),
     enabled: Boolean(organizationId),
   })
+  // The authoritative, persisted stage for this organization. The active UI
+  // mode is only a view preference and may legitimately differ from it.
+  const stageState = useQuery({
+    queryKey: ['organization-stage', organizationId],
+    queryFn: () => api.organizationStage(organizationId),
+    enabled: Boolean(organizationId),
+  })
+  const rawStage = stageState.data?.currentStage
+  const effectiveStage: Stage = rawStage && STAGES.includes(rawStage as Stage) ? (rawStage as Stage) : mode
 
   const advance = useMutation({
-    mutationFn: () => api.advanceStage(organizationId, { fromStage: mode }),
+    mutationFn: () => api.advanceStage(organizationId, { fromStage: effectiveStage }),
     onSuccess: (result) => {
       toast.success(
         `Advanced ${STAGE_META[result.fromStage as Stage]?.shortLabel || result.fromStage} → ${STAGE_META[result.toStage as Stage]?.shortLabel || result.toStage}`,
       )
       void queryClient.invalidateQueries({ queryKey: ['chain'] })
-      const next = result.toStage as Stage
+      void queryClient.invalidateQueries({ queryKey: ['organization-stage', organizationId] })
+      void queryClient.invalidateQueries({ queryKey: ['chain-organizations'] })
+      const next = (result.currentStage || result.toStage) as Stage
       if (STAGES.includes(next)) setMode(next)
     },
     onError: (error) => toast.error(error.message),
@@ -99,7 +111,10 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
     },
   }
 
-  const currentIndex = STAGES.indexOf(mode)
+  // The rail doubles as the view selector, so its highlight follows the active
+  // mode; the governance action follows the persisted stage instead.
+  const viewIndex = STAGES.indexOf(mode)
+  const currentIndex = STAGES.indexOf(effectiveStage)
   const nextStage = STAGES[currentIndex + 1]
   const kinds = kindCounts(assets.data?.items)
 
@@ -109,15 +124,21 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
         <CardTitle className="flex items-center gap-2">
           <Layers className="size-4 text-mint" />
           Chain Progress
+          <span className="mono-label rounded-[3px] border px-1.5 py-0.5 text-[10px] text-mint">
+            Current: {STAGE_META[effectiveStage].label}
+          </span>
         </CardTitle>
         <div className="flex items-center gap-2">
+          {mode !== effectiveStage ? (
+            <span className="mono-label text-[10px] text-muted-foreground">Viewing {STAGE_META[mode].shortLabel}</span>
+          ) : null}
           {nextStage ? (
             <Button
               size="sm"
               variant="outline"
-              disabled={advance.isPending}
+              disabled={advance.isPending || stageState.isLoading}
               onClick={() => advance.mutate()}
-              title={`Advance to ${STAGE_META[nextStage].label}`}
+              title={`Advance from ${STAGE_META[effectiveStage].label} to ${STAGE_META[nextStage].label}`}
             >
               <Zap className="mr-1 size-3.5" />
               Advance to {STAGE_META[nextStage].shortLabel}
@@ -136,7 +157,7 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
           {STAGES.map((stage, index) => {
             const Icon = STAGE_ICONS[stage]
             const isCurrent = stage === mode
-            const isDone = index < currentIndex
+            const isDone = index < viewIndex
             return (
               <button
                 key={stage}
@@ -169,10 +190,38 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
                     {counts[stage].extra}
                   </span>
                 </span>
+                {stage === mode && mode !== effectiveStage ? (
+                  <span className="ml-auto text-[9px] uppercase tracking-wider text-primary">view</span>
+                ) : null}
               </button>
             )
           })}
         </div>
+
+        {/* Persisted stage transitions — an auditable governance trail that
+            stays accurate regardless of which mode the operator is viewing. */}
+        {stageState.data?.history?.length ? (
+          <div>
+            <div className="mono-label mb-2 flex items-center gap-1">
+              <History className="size-3" /> Stage Transitions
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {stageState.data.history.slice(0, 4).map((item, index) => (
+                <span
+                  key={`${item.at}-${index}`}
+                  className="inline-flex items-center gap-1.5 rounded-[3px] border bg-card px-2 py-1 text-[11px]"
+                >
+                  <span className="mono font-semibold text-mint">
+                    {item.fromStage || '—'} → {item.toStage || '—'}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {item.actor || 'system'} · {formatTime(item.at)}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {/* Asset classification (AssetKind) strip — surfaces recon broadening
             and exploit-stage classification directly in the org Overview. */}

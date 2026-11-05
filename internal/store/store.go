@@ -118,6 +118,12 @@ func (s *Store) Migrate(ctx context.Context) error {
 		if err := tx.Exec(`UPDATE assets SET kind = 'certificate' WHERE kind = 'cert'`).Error; err != nil {
 			return fmt.Errorf("backfill asset kind certificate: %w", err)
 		}
+		// Organizations created before chain-stage tracking have a NULL/empty
+		// stage column. Normalize them to recon (and heal any legacy garbage)
+		// so every organization has a well-defined, sequential starting stage.
+		if err := tx.Exec(`UPDATE organizations SET stage = 'recon' WHERE stage IS NULL OR stage NOT IN ('recon', 'exploit', 'objectives')`).Error; err != nil {
+			return fmt.Errorf("backfill organization stage recon: %w", err)
+		}
 		if err := tx.Exec(`CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA public`).Error; err != nil {
 			return fmt.Errorf("enable pg_trgm: %w", err)
 		}

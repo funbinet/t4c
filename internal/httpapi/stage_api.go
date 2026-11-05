@@ -156,16 +156,22 @@ func (s *Server) handleStageOrganizations(w http.ResponseWriter, r *http.Request
 	items := make([]map[string]any, 0, len(orgs))
 	for _, org := range orgs {
 		c := counts[org.ID]
+		current := org.EffectiveStage()
 		items = append(items, map[string]any{
 			"id": org.ID, "canonicalName": org.CanonicalName, "aliases": org.Aliases,
 			"region": org.Region, "uscc": org.USCC, "status": org.Status,
 			"defaultPolicyId": org.DefaultPolicyID,
-			"stage": stage,
-			"exploited":       c["exploited"],
-			"sessions":        c["sessions"],
-			"objectives":      c["objectives"],
-			"artifacts":       c["artifacts"],
-			"tasks":           c["tasks"],
+			// "stage" is the stage of the view being browsed; "currentStage" is
+			// the organization's durable position in the chain. They can differ
+			// when an operator browses a different mode than the org's stage.
+			"stage":        stage,
+			"currentStage": current,
+			"canAdvance":   current.Next() != "",
+			"exploited":    c["exploited"],
+			"sessions":     c["sessions"],
+			"objectives":   c["objectives"],
+			"artifacts":    c["artifacts"],
+			"tasks":        c["tasks"],
 		})
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items, "total": len(items), "stage": stage})

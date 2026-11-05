@@ -57,9 +57,11 @@ deliberately absent from the table above:
 - Exploit/objectives engine steps, queues (`q.exploit.http`,
   `q.exploit.postex`, `q.objectives.probe`), shell sessions, objectives and
   artifacts.
-- Mode-scoped REST endpoints, `AdvanceStage` governance, auth-gated artifact
-  downloads, recoverable soft deletion of produce and a server-computed
-  `GET /objectives/summary` analytics endpoint.
+- Mode-scoped REST endpoints, durable `Organization.Stage` governance
+  (`GET /organizations/{id}/stage`, atomic `AdvanceStage` with conflict detection
+  and audit-derived history), auth-gated artifact downloads, recoverable soft
+  deletion of produce and a server-computed `GET /objectives/summary` analytics
+  endpoint.
 - Dedicated chain console screens, shell console, export drawer, objective
   lifecycle workflow and produce breakdown.
 

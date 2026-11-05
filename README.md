@@ -54,7 +54,7 @@ T4C 3.0 is a Go-based rewrite for authorized asset discovery and external attack
 - **recon → exploit → objectives**: a single organization is discovered once in recon, breached in exploit, and its "produce" (objectives, sessions, artifacts) collected in objectives.
 - A first-class `Stage` / `Mode` threads through tasks, findings, assets, monitors, schedules, scopes and the console; a three-icon toggle switches the active stage.
 - **13 recon / 10 exploit / 10 objective SDKs**, each with its own registry and contract tests enforcing a minimum of 8 per stage. Recon broadening (CT logs, ASN, DNS zone, cloud buckets, rDNS, endpoints) is **opt-in** and off by default.
-- New engine steps (`broaden`, `exploit`, `postex`, `probe`) on dedicated Redis Stream queues; `AdvanceStage` governance enforces sequential transitions.
+- New engine steps (`broaden`, `exploit`, `postex`, `probe`) on dedicated Redis Stream queues; `AdvanceStage` governance is durable — the organization's current stage is persisted, backfilled for legacy rows, validated with a compare-and-swap guard and readable via `GET /organizations/{id}/stage`.
 - Exploit/objectives console screens include a shell console (open/re-ignite/command), an export drawer, an objective lifecycle workflow, and produce analytics. Artifact downloads are auth-gated and never served from the SPA static path; deleted produce is recoverable from the Recycle Bin.
 - Full details: [docs/3-5-0.md](docs/3-5-0.md) · [docs/CHAIN-IMPLEMENTATION-PLAN.md](docs/CHAIN-IMPLEMENTATION-PLAN.md) · [docs/CHAIN-TASKS.md](docs/CHAIN-TASKS.md).
 
@@ -216,7 +216,7 @@ Production `postgres.dsn` should enable TLS (for example `sslmode=require` or `v
   - Scan policies: `/policies`, `/scopes`, `/fingerprints`, `/poc/plugins`
   - Automation: `/monitors`, `/schedules`, `/github/*`
   - Exports and audit: `/exports`, `/audit-events`, `/system/info`
-  - Three-stage chain (v3.5.0): `/{stage}/{overview,organizations,assets,findings,tasks,monitors,schedules,policies,groups}` (stage = `recon|exploit|objectives`), `/exploit/sessions*`, `/exploit/plugins`, `/objectives/{list,summary,artifacts/*,plugins/list}`, and `POST /organizations/{id}/advance-stage`.
+  - Three-stage chain (v3.5.0): `/{stage}/{overview,organizations,assets,findings,tasks,monitors,schedules,policies,groups}` (stage = `recon|exploit|objectives`), `/exploit/sessions*`, `/exploit/plugins`, `/objectives/{list,summary,artifacts/*,plugins/list}`, plus governance `GET /organizations/{id}/stage` and `POST /organizations/{id}/advance-stage`.
 - List endpoints uniformly support `page`, `pageSize`, `sort`, `q`, and resource-specific filters.
 - Error responses use `application/problem+json` (RFC 7807); health checks are `/healthz` and `/readyz`, and metrics are `/metrics`.
 

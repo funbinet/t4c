@@ -126,16 +126,24 @@ objectives (list, summary, status, actions, artifacts, downloads, plugins)
 routes. `parseStage` validates the path stage. `GET /objectives/summary`
 computes produce analytics with grouped SQL in `internal/store/produce.go`
 (`ProduceSummary`), honouring the soft-delete lifecycle and an optional
-`organizationId` scope. The OpenAPI document (102 paths) is enforced by
+`organizationId` scope. The OpenAPI document (103 paths) is enforced by
 contract tests so every route is documented with a unique operation ID.
 
-**Governance and security.** `POST /organizations/{id}/advance-stage`
+**Governance and security.** `Organization.Stage` is the durable chain stage,
+normalized in `Validate()` / `EffectiveStage()` and backfilled by `Migrate()`.
+`GET /organizations/{id}/stage` exposes the current stage, allowed successor and
+audit-derived transition history; `POST /organizations/{id}/advance-stage`
 (`requireWrite`) validates the sequential `recon → exploit → objectives`
-transition and is audit-logged. Artifact downloads are auth-gated, write a
-sanitized `Content-Disposition`, and are never served from the SPA static path;
-`ShellCommand` and `ObjectiveAction` writes are audited. `artifact` and
-`objective` participate in recoverable soft deletion and appear in the Recycle
-Bin. Re-ignition reuses recorded non-secret session metadata only.
+transition against the persisted stage, persists it with a compare-and-swap
+guard in `internal/store/org_stage.go`, and is audit-logged. Conflicting or
+skipped transitions map to `409` / `400` problems. `GET /{stage}/organizations`
+reports each organization's real `currentStage` alongside the browsed stage, and
+the console advances from the persisted stage rather than the active UI mode.
+Artifact downloads are auth-gated, write a sanitized `Content-Disposition`, and
+are never served from the SPA static path; `ShellCommand` and `ObjectiveAction`
+writes are audited. `artifact` and `objective` participate in recoverable soft
+deletion and appear in the Recycle Bin. Re-ignition reuses recorded non-secret
+session metadata only.
 
 ## Task lifecycle
 

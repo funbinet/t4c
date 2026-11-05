@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api, type StageOrganization } from '@/api'
-import { stageBase, useMode } from '@/app/mode'
+import { STAGE_META, stageBase, useMode, type Stage } from '@/app/mode'
 import { DataTable, type Column } from '@/components/common/data-table'
 import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
@@ -21,6 +21,12 @@ const STATUS_FILTERS = [
   { value: 'confirmed', label: 'Confirmed' },
   { value: 'paused', label: 'Paused' },
 ]
+
+const NEXT_STAGE: Record<Stage, Stage | undefined> = {
+  recon: 'exploit',
+  exploit: 'objectives',
+  objectives: undefined,
+}
 
 /**
  * Organizations are discovered once in recon and shared by every stage. This
@@ -46,12 +52,15 @@ export function ChainOrganizationsPage() {
     queryFn: () => api.stageOverview(mode),
   })
 
+  // Advance from the organization's durable stage (not the active view), so a
+  // stale or conflicting view can never skip a chain transition.
   const advance = useMutation({
-    mutationFn: (id: string) => api.advanceStage(id, { fromStage: mode }),
+    mutationFn: (row: StageOrganization) => api.advanceStage(row.id, { fromStage: row.currentStage || mode }),
     onSuccess: (result) => {
-      toast.success(`Organization advanced to ${result.toStage}`)
+      toast.success(`Organization advanced to ${result.currentStage || result.toStage}`)
       void queryClient.invalidateQueries({ queryKey: ['chain-organizations'] })
       void queryClient.invalidateQueries({ queryKey: ['chain-overview'] })
+      void queryClient.invalidateQueries({ queryKey: ['organization-stage'] })
     },
     onError: (error: Error) => toast.error(error.message),
   })
@@ -100,6 +109,12 @@ export function ChainOrganizationsPage() {
       cell: (row) => <Badge variant={statusVariant(row.status)}>{statusLabel(row.status)}</Badge>,
     },
     {
+      key: 'currentStage',
+      header: 'Chain Stage',
+      cell: (row) => <StagePill stage={(row.currentStage as Stage) || mode} />,
+      hideOnTablet: true,
+    },
+    {
       key: 'exploited',
       header: 'Breached',
       cell: (row) => <span className="mono font-semibold text-mint">{formatNumber(row.exploited)}</span>,
@@ -131,24 +146,33 @@ export function ChainOrganizationsPage() {
       key: 'actions',
       header: '',
       stopRowClick: true,
-      cell: (row) => (
-        <div className="flex justify-end gap-1.5">
-          <Button asChild size="sm" variant="ghost">
-            <Link to={`${base}/assets?organizationId=${row.id}`}>Produce</Link>
-          </Button>
-          {mode !== 'objectives' ? (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={advance.isPending}
-              onClick={() => advance.mutate(row.id)}
-              title="Advance this organization to the next chain stage"
-            >
-              <ArrowRight className="mr-1 size-3.5" /> Advance
+      cell: (row) => {
+        const stage: Stage = (row.currentStage as Stage) || mode
+        const next = NEXT_STAGE[stage]
+        const canAdvance = row.canAdvance ?? Boolean(next)
+        return (
+          <div className="flex justify-end gap-1.5">
+            <Button asChild size="sm" variant="ghost">
+              <Link to={`${base}/assets?organizationId=${row.id}`}>Produce</Link>
             </Button>
-          ) : null}
-        </div>
-      ),
+            {canAdvance && next ? (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={advance.isPending}
+                onClick={() => advance.mutate(row)}
+                title={`Advance from ${stage} to ${STAGE_META[next].shortLabel}`}
+              >
+                <ArrowRight className="mr-1 size-3.5" /> Advance to {STAGE_META[next].shortLabel}
+              </Button>
+            ) : (
+              <Badge variant="outline" className="normal-case tracking-normal text-mint">
+                Terminal stage
+              </Badge>
+            )}
+          </div>
+        )
+      },
     },
   ]
 

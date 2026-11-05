@@ -60,6 +60,30 @@ func DecodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
 	return true
 }
 
+// DecodeOptionalJSON is DecodeJSON for endpoints whose body is entirely
+// optional. An empty body is accepted and leaves dst at its zero value; a
+// non-empty body is validated with the same rules as DecodeJSON.
+func DecodeOptionalJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
+	if r.Body == nil {
+		return true
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 2<<20)
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(dst); err != nil {
+		if errors.Is(err, io.EOF) {
+			return true
+		}
+		WriteProblem(w, r, http.StatusBadRequest, "invalid_json", err.Error())
+		return false
+	}
+	if err := dec.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		WriteProblem(w, r, http.StatusBadRequest, "invalid_json", "request body must contain one JSON object")
+		return false
+	}
+	return true
+}
+
 func PageQuery(r *http.Request) store.PageQuery {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	size, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))

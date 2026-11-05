@@ -97,3 +97,13 @@ Status legend: [ ] pending · [~] in progress · [x] done · [!] blocked
 | `pnpm lint` | PASS (eslint + prettier check) |
 | `pnpm build` | PASS (embeds into `internal/webui/dist`) |
 | `pnpm test` | PASS (9 tests) |
+
+## Post-plan hardening (after T1–T11)
+
+- [x] **H1 — Durable stage governance.** `AdvanceStage` previously only wrote an
+      audit event; the organization's stage is now persisted on
+      `Organization.Stage`, backfilled by `Migrate()`, validated with a
+      compare-and-swap guard, exposed by `GET /organizations/{id}/stage`
+      (with audit-derived transition history) and surfaced in the console.
+      Pure unit tests + Postgres integration tests + OpenAPI contract added.
+      See [`docs/3-5-0.md`](3-5-0.md) §11.

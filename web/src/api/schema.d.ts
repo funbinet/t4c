@@ -1696,6 +1696,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/organizations/{id}/stage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an organization's persisted chain stage
+         * @description Returns the durable current stage, the allowed next stage, whether an advance is possible, and the recorded transition history. This state is persisted on the organization and is independent of the active UI mode.
+         */
+        get: operations["organizationStage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/organizations/{id}/advance-stage": {
         parameters: {
             query?: never;
@@ -1705,7 +1725,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Advance organization to the next chain stage */
+        /**
+         * Advance an organization to the next chain stage
+         * @description Persists the recon → exploit → objectives transition on the organization row and records an audit event. The persisted stage is authoritative; an optional fromStage acts as an optimistic-concurrency hint and an optional toStage must equal the sequential successor.
+         */
         post: operations["advanceStage"];
         delete?: never;
         options?: never;
@@ -2185,6 +2208,11 @@ export interface components {
                 [key: string]: unknown;
             };
             status?: string;
+            /**
+             * @description Durable chain stage of the organization: recon, exploit or objectives.
+             * @enum {string}
+             */
+            stage?: "recon" | "exploit" | "objectives";
             mergedInto?: string;
             /** Format: date-time */
             createdAt?: string;
@@ -5991,6 +6019,30 @@ export interface operations {
             401: components["responses"]["Problem"];
         };
     };
+    organizationStage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+        };
+    };
     advanceStage: {
         parameters: {
             query?: never;
@@ -6018,7 +6070,10 @@ export interface operations {
                     "application/json": Record<string, never>;
                 };
             };
+            400: components["responses"]["Problem"];
             401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
         };
     };
     stageOverview: {

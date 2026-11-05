@@ -233,7 +233,8 @@ func (s *Server) Router() http.Handler {
 			protected.Delete("/objectives/{id}", s.requireWrite(s.handleDeleteObjective))
 			protected.Get("/objectives/plugins/list", s.handleListObjectivePlugins)
 
-			// Governance: advance an organization to the next chain stage.
+			// Governance: read the persisted chain stage and advance it sequentially.
+			protected.Get("/organizations/{id}/stage", s.handleGetOrganizationStage)
 			protected.Post("/organizations/{id}/advance-stage", s.requireWrite(s.handleAdvanceStage))
 		})
 	})

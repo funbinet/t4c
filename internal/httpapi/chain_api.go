@@ -12,7 +12,6 @@ import (
 	"github.com/funbinet/t4c/internal/modules/objective"
 	"github.com/funbinet/t4c/internal/modules/tasking"
 	"github.com/funbinet/t4c/internal/platform/httpx"
-	"github.com/funbinet/t4c/internal/store"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -491,10 +490,42 @@ func (s *Server) handleDeleteObjective(w http.ResponseWriter, r *http.Request) {
 
 // --- AdvanceStage Governance Action ---
 
-// handleAdvanceStage advances an organization's assets and tasks from one chain
-// stage to the next. This is the governance action that transitions from recon
-// → exploit → objectives. It validates that the current stage has produced
-// sufficient results before allowing advancement.
+// handleGetOrganizationStage returns the durable, authoritative chain stage for
+// one organization together with the allowed successor and the recorded
+// transition history. Unlike the active UI mode, this state is persisted on the
+// organization row (plan §8.3 governance).
+func (s *Server) handleGetOrganizationStage(w http.ResponseWriter, r *http.Request) {
+	orgID, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	org, err := s.Store.GetOrganization(r.Context(), orgID)
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	if org == nil {
+		httpx.WriteProblem(w, r, http.StatusNotFound, "organization_not_found", "organization not found")
+		return
+	}
+	current := org.EffectiveStage()
+	next := current.Next()
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{
+		"organizationId": orgID,
+		"currentStage":   current,
+		"label":          stageLabel(current),
+		"nextStage":      next,
+		"canAdvance":     next != "",
+		"history":        s.Store.ListOrganizationStageHistory(r.Context(), orgID, 20),
+	})
+}
+
+// handleAdvanceStage advances an organization from its persisted current chain
+// stage to the sequential successor (recon → exploit → objectives). The store
+// owns the transition: it validates the current stage, rejects skipped or
+// conflicting transitions, persists the new stage and records the audit event
+// atomically. fromStage/toStage are optional hints; an empty body advances from
+// whatever stage the organization is actually in.
 func (s *Server) handleAdvanceStage(w http.ResponseWriter, r *http.Request) {
 	orgID, ok := pathID(w, r, "id")
 	if !ok {
@@ -504,48 +535,33 @@ func (s *Server) handleAdvanceStage(w http.ResponseWriter, r *http.Request) {
 		FromStage string `json:"fromStage"`
 		ToStage   string `json:"toStage"`
 	}
-	if !httpx.DecodeJSON(w, r, &req) {
+	if !httpx.DecodeOptionalJSON(w, r, &req) {
 		return
 	}
 	from := domain.Stage(strings.TrimSpace(req.FromStage))
 	to := domain.Stage(strings.TrimSpace(req.ToStage))
-	if !from.Valid() {
-		// Default: advance from the current stage (detect automatically).
-		// If there are exploited assets, advance from exploit to objectives.
-		// Otherwise advance from recon to exploit.
-		assets, _, _ := s.Store.ListExploitedAssets(r.Context(), orgID, store.PageQuery{Page: 1, PageSize: 1})
-		if len(assets) > 0 {
-			from = domain.StageExploit
-		} else {
-			from = domain.StageRecon
-		}
-	}
-	if !to.Valid() {
-		to = from.Next()
-		if to == "" {
+	p := principalFrom(r.Context())
+	previous, current, err := s.Store.AdvanceOrganizationStage(r.Context(), orgID, from, to, p.Username)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrRecordNotFound):
+			httpx.WriteProblem(w, r, http.StatusNotFound, "organization_not_found", "organization not found")
+		case errors.Is(err, domain.ErrStageConflict):
+			httpx.WriteProblem(w, r, http.StatusConflict, "stage_conflict", err.Error())
+		case errors.Is(err, domain.ErrInvalidStageTransition):
+			httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_transition", err.Error())
+		case errors.Is(err, domain.ErrTerminalStage):
 			httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_stage", "cannot advance beyond objectives stage")
-			return
+		default:
+			httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
 		}
-	}
-	if from.Next() != to {
-		httpx.WriteProblem(w, r, http.StatusBadRequest, "invalid_transition", "stage transition must be sequential (recon→exploit→objectives)")
 		return
 	}
-	p := principalFrom(r.Context())
-	// Record the stage advancement as an audit event and objective action.
-	s.Store.AddAudit(r.Context(), domain.AuditEvent{
-		Actor:    p.Username,
-		Action:   "chain.advance_stage",
-		Resource: orgID,
-		Detail: map[string]any{
-			"fromStage": from,
-			"toStage":   to,
-		},
-	})
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{
 		"organizationId": orgID,
-		"fromStage":      from,
-		"toStage":        to,
+		"fromStage":      previous,
+		"toStage":        current,
+		"currentStage":   current,
 		"advanced":       true,
 	})
 }

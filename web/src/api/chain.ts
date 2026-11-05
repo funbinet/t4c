@@ -173,7 +173,25 @@ export type AdvanceResult = {
   organizationId: string
   fromStage: string
   toStage: string
+  currentStage?: string
   advanced: boolean
+}
+
+// OrganizationStage is the durable governance state returned by
+// GET /organizations/{id}/stage. It is persisted on the organization and is
+// independent of the active UI mode, so it is the authority for transitions.
+export type OrganizationStage = {
+  organizationId: string
+  currentStage: string
+  label: string
+  nextStage: string
+  canAdvance: boolean
+  history: {
+    fromStage: string
+    toStage: string
+    actor: string
+    at: string
+  }[]
 }
 
 export type StageQuery = {
@@ -233,7 +251,11 @@ export type StageOrganization = {
   uscc?: string
   status: string
   defaultPolicyId?: string
+  // stage is the stage of the view being browsed; currentStage is the
+  // organization's durable chain position (the two can differ).
   stage: string
+  currentStage?: string
+  canAdvance?: boolean
   exploited: number
   sessions: number
   objectives: number
@@ -379,6 +401,8 @@ export const chainApi = {
   objectivePlugins: () => typed<ChainPage<ChainPlugin>>(() => client.GET('/objectives/plugins/list')),
 
   // --- Governance ---
+  organizationStage: (id: string) =>
+    typed<OrganizationStage>(() => client.GET('/organizations/{id}/stage', { params: { path: { id } } })),
   advanceStage: (id: string, body: { fromStage?: string; toStage?: string } = {}) =>
     typed<AdvanceResult>(() =>
       client.POST('/organizations/{id}/advance-stage', { params: { path: { id } }, body: body as never }),

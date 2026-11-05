@@ -70,6 +70,9 @@ func (s *Store) GetOrganization(ctx context.Context, id string) (*domain.Organiz
 	if err != nil {
 		return nil, err
 	}
+	// Heal legacy rows (empty/invalid stage) at read time so every consumer sees
+	// a valid chain stage even before the migration backfill has run.
+	org.Stage = org.EffectiveStage()
 	return &org, nil
 }
 
@@ -116,6 +119,9 @@ func (s *Store) ListOrganizations(ctx context.Context, query string, limit int) 
 	}
 	var out []domain.Organization
 	err := db.Order("canonical_name ASC, id ASC").Limit(limit).Find(&out).Error
+	for i := range out {
+		out[i].Stage = out[i].EffectiveStage()
+	}
 	return out, err
 }
 
@@ -508,7 +514,7 @@ func (s *Store) UpdateOrganization(ctx context.Context, org *domain.Organization
 	org.UpdatedAt = time.Now().UTC()
 	return activeUpdateResult(s.db.WithContext(ctx).Model(&domain.Organization{}).Where("id = ? AND deleted_at IS NULL", org.ID).Updates(map[string]any{
 		"canonical_name": org.CanonicalName, "aliases": jsonbExpr(org.Aliases), "region": org.Region,
-		"uscc": org.USCC, "status": org.Status, "merged_into": org.MergedInto,
+		"uscc": org.USCC, "status": org.Status, "stage": string(org.Stage), "merged_into": org.MergedInto,
 		"default_policy_id": org.DefaultPolicyID,
 		"updated_at":        org.UpdatedAt,
 	}))
