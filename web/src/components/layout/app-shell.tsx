@@ -29,9 +29,10 @@ import {
   Workflow,
   X,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/app/auth'
+import { STAGE_META, stageBase, useMode, type Stage } from '@/app/mode'
 import t4cLogo from '@/assets/t4c.png'
 import { Button } from '@/components/ui/button'
 import {
@@ -46,6 +47,7 @@ import { isAdmin } from '@/lib/access'
 import { roleLabel } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { CommandPalette } from './command-palette'
+import { ModeToggle } from './mode-toggle'
 import { ScrollProgress } from '@/components/common/scroll-progress'
 
 type NavItem = { to: string; label: string; icon: typeof Activity; end?: boolean }
@@ -59,35 +61,44 @@ const ranges = [
   { value: 'all', label: 'ALL' },
 ]
 
-const groups: NavGroup[] = [
-  {
-    label: 'Attack Surface',
+// Mode-scoped navigation (plan §8.1): the first group is relabeled per stage,
+// paths are prefixed with the stage base for exploit/objectives, and the
+// Intelligence group is only exposed in recon mode. Administration stays
+// always-on with unchanged paths.
+function buildGroups(mode: Stage): NavGroup[] {
+  const base = stageBase(mode)
+  const primaryGroup: NavGroup = {
+    label: mode === 'recon' ? 'Attack Surface' : STAGE_META[mode].label,
     items: [
-      { to: '/', label: 'Overview', icon: LayoutDashboard, end: true },
-      { to: '/organizations', label: 'Organizations', icon: Building2 },
-      { to: '/assets', label: 'Assets', icon: Crosshair },
-      { to: '/findings', label: 'Risks', icon: ShieldCheck },
-      { to: '/tasks', label: 'Tasks', icon: Workflow },
+      { to: base || '/', label: 'Overview', icon: LayoutDashboard, end: true },
+      { to: `${base}/organizations`, label: 'Organizations', icon: Building2 },
+      { to: `${base}/assets`, label: 'Assets', icon: Crosshair },
+      { to: `${base}/findings`, label: 'Risks', icon: ShieldCheck },
+      { to: `${base}/tasks`, label: 'Tasks', icon: Workflow },
     ],
-  },
-  {
+  }
+  const automationGroup: NavGroup = {
     label: 'Automation',
     items: [
-      { to: '/automation/monitors', label: 'Monitors', icon: Activity },
-      { to: '/automation/schedules', label: 'Schedules', icon: CalendarClock },
-      { to: '/automation/policies', label: 'Scan Policies', icon: Settings2 },
-      { to: '/automation/groups', label: 'Asset Groups', icon: Boxes },
+      { to: `${base}/automation/monitors`, label: 'Monitors', icon: Activity },
+      { to: `${base}/automation/schedules`, label: 'Schedules', icon: CalendarClock },
+      { to: `${base}/automation/policies`, label: 'Scan Policies', icon: Settings2 },
+      { to: `${base}/automation/groups`, label: 'Asset Groups', icon: Boxes },
     ],
-  },
-  {
-    label: 'Intelligence',
-    items: [
-      { to: '/intelligence/github', label: 'GitHub', icon: GitBranch },
-      { to: '/intelligence/fingerprints', label: 'Fingerprints', icon: Fingerprint },
-      { to: '/intelligence/poc', label: 'PoC Plugins', icon: Radar },
-    ],
-  },
-]
+  }
+  const groups: NavGroup[] = [primaryGroup, automationGroup]
+  if (mode === 'recon') {
+    groups.push({
+      label: 'Intelligence',
+      items: [
+        { to: '/intelligence/github', label: 'GitHub', icon: GitBranch },
+        { to: '/intelligence/fingerprints', label: 'Fingerprints', icon: Fingerprint },
+        { to: '/intelligence/poc', label: 'PoC Plugins', icon: Radar },
+      ],
+    })
+  }
+  return groups
+}
 
 const adminGroup: NavGroup = {
   label: 'Administration',
@@ -102,7 +113,17 @@ const adminGroup: NavGroup = {
 
 function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   const { role } = useAuth()
+  const { mode } = useMode()
+  const groups = buildGroups(mode)
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
+  const modeToggle = (
+    <div className={collapsed ? 'flex w-full flex-col items-center py-2' : 'w-full px-3 pb-2'}>
+      {!collapsed ? <div className="mono-label px-3 pb-1 text-left">MODE</div> : null}
+      <div className="flex w-full justify-center">
+        <ModeToggle collapsed={collapsed} />
+      </div>
+    </div>
+  )
   return (
     <nav
       className={cn(
@@ -112,50 +133,55 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
       aria-label="Main navigation"
     >
       {allGroups.map((group) => (
-        <div key={group.label} className={collapsed ? 'contents' : 'flex w-full flex-col gap-1 px-3'}>
-          {!collapsed ? <div className="mono-label px-3 pb-1 text-left">{group.label}</div> : null}
-          <div className={collapsed ? 'contents' : 'flex w-full flex-col gap-1'}>
-            {group.items.map((item) => {
-              const Icon = item.icon
-              const link = (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    cn(
-                      // Shared hitbox: 36px tall, uniform radius, no outline. The
-                      // bottom collapse button is the reference for hover/active.
-                      'flex h-9 items-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-[rgba(0,250,0,0.06)] hover:text-white',
-                      collapsed ? 'w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
-                      isActive && 'bg-[rgba(0,250,0,0.1)] text-mint hover:bg-[rgba(0,250,0,0.12)]',
-                    )
-                  }
-                >
-                  <Icon className="size-4 shrink-0" />
-                  {!collapsed ? (
-                    <span className="truncate">{item.label}</span>
-                  ) : (
-                    <span className="sr-only">{item.label}</span>
-                  )}
-                </NavLink>
-              )
-              if (!collapsed) return link
-              // Collapsed: wrap in a full-width centering row so the icon is
-              // always perfectly centered, and let the nav distribute the rows
-              // evenly across the full height.
-              return (
-                <div key={item.to} className="flex w-full justify-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>{link}</TooltipTrigger>
-                    <TooltipContent side="right">{item.label}</TooltipContent>
-                  </Tooltip>
-                </div>
-              )
-            })}
+        <Fragment key={group.label}>
+          {/* The stage toggle sits above Administration (and thus last among
+              the stage groups) for every user, admin or not. */}
+          {group.label === 'Administration' || !isAdmin(role) ? modeToggle : null}
+          <div className={collapsed ? 'contents' : 'flex w-full flex-col gap-1 px-3'}>
+            {!collapsed ? <div className="mono-label px-3 pb-1 text-left">{group.label}</div> : null}
+            <div className={collapsed ? 'contents' : 'flex w-full flex-col gap-1'}>
+              {group.items.map((item) => {
+                const Icon = item.icon
+                const link = (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={onNavigate}
+                    className={({ isActive }) =>
+                      cn(
+                        // Shared hitbox: 36px tall, uniform radius, no outline. The
+                        // bottom collapse button is the reference for hover/active.
+                        'flex h-9 items-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-[rgba(0,250,0,0.06)] hover:text-white',
+                        collapsed ? 'w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
+                        isActive && 'bg-[rgba(0,250,0,0.1)] text-mint hover:bg-[rgba(0,250,0,0.12)]',
+                      )
+                    }
+                  >
+                    <Icon className="size-4 shrink-0" />
+                    {!collapsed ? (
+                      <span className="truncate">{item.label}</span>
+                    ) : (
+                      <span className="sr-only">{item.label}</span>
+                    )}
+                  </NavLink>
+                )
+                if (!collapsed) return link
+                // Collapsed: wrap in a full-width centering row so the icon is
+                // always perfectly centered, and let the nav distribute the rows
+                // evenly across the full height.
+                return (
+                  <div key={item.to} className="flex w-full justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>{link}</TooltipTrigger>
+                      <TooltipContent side="right">{item.label}</TooltipContent>
+                    </Tooltip>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        </Fragment>
       ))}
     </nav>
   )
@@ -163,6 +189,7 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
 
 export function AppShell() {
   const { user, logout } = useAuth()
+  const { mode } = useMode()
   const location = useLocation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -201,13 +228,13 @@ export function AppShell() {
   useEffect(() => setMobileOpen(false), [location.pathname])
 
   const title = useMemo(() => {
-    const all = [...groups.flatMap((group) => group.items), ...adminGroup.items]
+    const all = [...buildGroups(mode).flatMap((group) => group.items), ...adminGroup.items]
     const exact = all.find((item) => item.to === location.pathname)
     if (exact) return exact.label
-    if (location.pathname.startsWith('/organizations/')) return 'Organization Details'
-    if (location.pathname.startsWith('/tasks/')) return 'Task Details'
+    if (/^\/(exploit|objectives)?\/?organizations\//.test(location.pathname)) return 'Organization Details'
+    if (/^\/(exploit|objectives)?\/?tasks\//.test(location.pathname)) return 'Task Details'
     return 'T4C Console'
-  }, [location.pathname])
+  }, [location.pathname, mode])
 
   async function signOut() {
     await logout()

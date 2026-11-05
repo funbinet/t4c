@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AdminRoute, ProtectedRoute } from './auth'
+import { ModeProvider } from './mode'
 import { AppShell } from '@/components/layout/app-shell'
 import { AppBackground } from '@/components/layout/app-background'
 import { RouteError } from '@/components/common/route-error'
@@ -59,7 +60,9 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     element: (
       <ProtectedRoute>
-        <AppShell />
+        <ModeProvider>
+          <AppShell />
+        </ModeProvider>
       </ProtectedRoute>
     ),
     children: [
@@ -77,6 +80,33 @@ const router = createBrowserRouter([
       { path: 'intelligence/github', ...screen(<GitHubPage />) },
       { path: 'intelligence/fingerprints', ...screen(<FingerprintsPage />) },
       { path: 'intelligence/poc', ...screen(<PocPage />) },
+      // Exploit stage mirrors the recon screens (plan §2.3) — same lazy pages,
+      // mode-prefixed URLs. The pages read the stage from ModeContext.
+      { path: 'exploit', ...screen(<OverviewPage />) },
+      { path: 'exploit/organizations', ...screen(<OrganizationsPage />) },
+      { path: 'exploit/organizations/:id', ...screen(<OrganizationDetailPage />) },
+      { path: 'exploit/assets', ...screen(<AssetsPage />) },
+      { path: 'exploit/findings', ...screen(<FindingsPage />) },
+      { path: 'exploit/tasks', ...screen(<TasksPage />) },
+      { path: 'exploit/tasks/:id', ...screen(<TaskDetailPage />) },
+      { path: 'exploit/automation/monitors', ...screen(<MonitorsPage />) },
+      { path: 'exploit/automation/schedules', ...screen(<SchedulesPage />) },
+      { path: 'exploit/automation/policies', ...screen(<PoliciesPage />) },
+      { path: 'exploit/automation/groups', ...screen(<ScopesPage />) },
+      // Objectives stage mirrors the recon screens (plan §2.3). The Risks and
+      // Automation mirrors are included so the sidebar keeps its five plus
+      // four entries in every stage.
+      { path: 'objectives', ...screen(<OverviewPage />) },
+      { path: 'objectives/organizations', ...screen(<OrganizationsPage />) },
+      { path: 'objectives/organizations/:id', ...screen(<OrganizationDetailPage />) },
+      { path: 'objectives/assets', ...screen(<AssetsPage />) },
+      { path: 'objectives/findings', ...screen(<FindingsPage />) },
+      { path: 'objectives/tasks', ...screen(<TasksPage />) },
+      { path: 'objectives/tasks/:id', ...screen(<TaskDetailPage />) },
+      { path: 'objectives/automation/monitors', ...screen(<MonitorsPage />) },
+      { path: 'objectives/automation/schedules', ...screen(<SchedulesPage />) },
+      { path: 'objectives/automation/policies', ...screen(<PoliciesPage />) },
+      { path: 'objectives/automation/groups', ...screen(<ScopesPage />) },
       { path: 'admin/users', errorElement: <RouteError />, element: <AdminRoute>{page(<UsersPage />)}</AdminRoute> },
       { path: 'admin/api-keys', errorElement: <RouteError />, element: <AdminRoute>{page(<APIKeysPage />)}</AdminRoute> },
       { path: 'admin/audit', errorElement: <RouteError />, element: <AdminRoute>{page(<AuditPage />)}</AdminRoute> },
