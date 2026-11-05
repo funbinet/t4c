@@ -22,6 +22,8 @@ integrations, not part of the default Compose stack.
 | `internal/modules/reporting`  | CSV/XLSX reports                                                                                                |
 | `internal/store`              | PostgreSQL/GORM repositories, AutoMigrate and indexes                                                                                |
 | `internal/platform`           | Config, logging, Redis Streams, auth primitives, network safety, notifications and ProjectDiscovery SDK helpers |
+| `internal/modules/exploit`    | Exploit SDK plugin registry (10 built-in plugins) and HTTP helpers                                                                  |
+| `internal/modules/objective`  | Objective SDK plugin registry (10 built-in plugins) and shell executor                                                                |
 
 Modules share the domain model but do not reach into another module's private
 helpers. Repository access is centralized in `internal/store`.
@@ -38,6 +40,18 @@ Shareable list filters and map/graph selection live in the URL; server state is
 cached by TanStack Query. The console is organization-centric and exposes
 overview, organizations, assets, findings and tasks as the primary path while
 automation, intelligence and administration remain secondary navigation groups.
+
+Since v3.5.0 the console is also **stage-aware**. `web/src/app/mode.tsx` provides
+`Stage`, `STAGES`, `STAGE_META`, `stageBase()`, `ModeProvider` and `useMode()`; the
+active stage (`recon | exploit | objectives`) is resolved from the URL path and
+persisted in local storage. A three-icon toggle switches stages, navigation is
+stage-prefixed (`/exploit/*`, `/objectives/*`), and dedicated chain pages live in
+`web/src/pages/chain/` with shared vocabulary in `chain-shared.tsx`. The typed
+chain client (`web/src/api/chain.ts`) wraps `openapi-fetch` and defines explicit
+domain types for records whose generated OpenAPI schemas predate the `Stage` and
+`Exploited` columns. Chain-specific components (stage banner, shell console,
+export drawer, objective workflow, produce breakdown) live in
+`web/src/components/chain/` and `web/src/pages/chain/`.
 
 ## Scanner pipeline
 
@@ -60,6 +74,68 @@ All scanner engines run in-process. The worker passes the task context through
 the SDK adapters; no scanner executable is launched. `pdtools` maps the T4C
 network policy onto ProjectDiscovery's network policy and redirects SDK logs
 to the application's structured logger.
+
+## Three-stage chain (v3.5.0)
+
+```text
+recon              exploit                objectives
+(discover)   -->   (breach/validate)  -->  (collect produce)
+   |                    |                       |
+13 recon SDKs     10 exploit SDKs        10 objective SDKs
+broaden (opt-in)  exploit / postex       probe
+```
+
+Organizations are **discovered once in recon** and shared across all stages;
+there is no per-stage duplication of assets. A first-class `Stage`
+(`internal/domain/stage.go`) is threaded through `Task`, `Finding`, `Asset`,
+`Monitor`, `Schedule`, `Scope` and `SubmitInput`. `StageForTaskKind()` derives the
+owning stage when a request omits it, and `stagePredicate()` treats legacy rows
+with an empty `stage` column as recon-owned so historical data is retained.
+
+**Domain and classification.** `AssetKind` now covers `bucket`,
+`api_endpoint`, `credential`, `password`, `session`, `certificate`, `file`,
+`site`, `url`, `cidr` and the derived `exploited` state; `Asset.Confidence`,
+`Asset.Exploited` and `Asset.ExploitedAt` were added. Exploit/objectives asset
+views filter `exploited = true`. `internal/domain/exploit.go` and
+`objective.go` add `ShellSession`, `ShellCommand`, `Artifact`, `Objective` and
+`ObjectiveAction` (plus `ObjectiveKind`: `shell`, `download`, `probe`, `loot`,
+`flag`).
+
+**SDK registries.** `internal/modules/exploit` and `internal/modules/objective`
+each expose `Register`, `Registry`, `Find`, `PluginsByType` and `Counts`, with
+10 built-in plugins apiece. Recon exposes 13 SDKs from a static registry in
+`internal/httpapi/stage_api.go` (seven original adapters plus six opt-in
+broadeners: `ct`, `asn`, `dnszone`, `cloud`, `rdns`, `endpoints`). Contract tests
+enforce ≥8 SDKs per stage, metadata completeness, idempotent registration and
+registry isolation. Broadening is **off by default** and gated by
+`TaskOptions.Broaden` / `PolicyConfig.Broaden`.
+
+**Engine and queues.** `StepPlan` gained `broaden`, `exploit`, `postex` and
+`probe` steps and new task kinds (`exploit`, `exploit_brute`, `exploit_inject`,
+`objective`). `queueForStep` routes them to `q.discovery.broaden`,
+`q.exploit.http`, `q.exploit.postex` and `q.objectives.probe`. Exploit steps flip
+`Asset.Exploited`, open shell sessions, create objectives and write artifacts;
+objective steps run the objective SDK plugins. Existing per-step timeouts and
+the zombie reaper apply unchanged.
+
+**REST surface.** `internal/httpapi/chain_api.go` and `stage_api.go` implement
+generic stage-scoped endpoints (`/{stage}/tasks`, `/overview`, `/organizations`,
+`/assets`, `/findings`, `/monitors`, `/schedules`, `/policies`, `/groups`) plus
+dedicated exploit (sessions, commands, reignite, exploited assets, plugins) and
+objectives (list, summary, status, actions, artifacts, downloads, plugins)
+routes. `parseStage` validates the path stage. `GET /objectives/summary`
+computes produce analytics with grouped SQL in `internal/store/produce.go`
+(`ProduceSummary`), honouring the soft-delete lifecycle and an optional
+`organizationId` scope. The OpenAPI document (102 paths) is enforced by
+contract tests so every route is documented with a unique operation ID.
+
+**Governance and security.** `POST /organizations/{id}/advance-stage`
+(`requireWrite`) validates the sequential `recon → exploit → objectives`
+transition and is audit-logged. Artifact downloads are auth-gated, write a
+sanitized `Content-Disposition`, and are never served from the SPA static path;
+`ShellCommand` and `ObjectiveAction` writes are audited. `artifact` and
+`objective` participate in recoverable soft deletion and appear in the Recycle
+Bin. Re-ignition reuses recorded non-secret session metadata only.
 
 ## Task lifecycle
 
@@ -93,9 +169,13 @@ task result set and record the producing `engine`/`engineVersion`.
 ## Lifecycle and CRUD
 
 Organizations, organization domains, assets, scopes, policies, monitors,
-schedules, fingerprints, GitHub monitors and users use recoverable soft deletion.
-Normal reads, authentication, schedulers and EASM/graph projections ignore rows
-with `deletedAt`; administrators restore records from `/api/v1/recycle-bin`.
+schedules, fingerprints, GitHub monitors, users, artifacts and objectives use
+recoverable soft deletion. Normal reads, authentication, schedulers and
+EASM/graph projections ignore rows with `deletedAt`; administrators restore
+records from `/api/v1/recycle-bin`. Chain-stage artifacts and objectives were
+added to `lifecycleResourceOrder`, so deleted produce stays recoverable and
+delete operations record `chain.artifact_delete` / `chain.objective_delete`
+audit events.
 
 All delete and restore operations are audited. Policy deletion is blocked while
 active monitors or unfinished schedules reference it, scope deletion is blocked
@@ -134,11 +214,15 @@ credentials come from environment variables or read-only files and are never per
 | Queue                 | Work                                                      |
 | --------------------- | --------------------------------------------------------- |
 | `q.discovery.dns`     | DNS and Fofa discovery                                    |
+| `q.discovery.broaden` | Opt-in recon broadening (CT, ASN, DNS zone, cloud, rDNS, endpoints) |
 | `q.discovery.network` | Port/TLS scanning                                         |
 | `q.web.fetch`         | HTTP probing                                              |
 | `q.web.scan`          | Fingerprints, WIH, spider, file leak, screenshots, nuclei |
 | `q.poc.http`          | HTTP/brute checks                                         |
 | `q.poc.service`       | Protocol sniffing                                         |
+| `q.exploit.http`      | Exploit validation (`exploit` step)                       |
+| `q.exploit.postex`    | Post-exploitation / session handling (`postex` step)      |
+| `q.objectives.probe`  | Objective SDK probes (`probe` step)                       |
 | `q.monitor`           | Monitoring work                                           |
 | `q.github`            | GitHub jobs                                               |
 | `q.icp`               | ICP organization refresh                                  |

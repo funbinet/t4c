@@ -49,6 +49,15 @@ T4C 3.0 is a Go-based rewrite for authorized asset discovery and external attack
 - Three-tier RBAC (`viewer` / `operator` / `admin`), API keys, CSRF, audit logs, and structured logging.
 - A single Go binary (scan assets kept external) with native systemd deployment; Docker is only used for PostgreSQL and Redis. All background components run inside the same T4C process.
 
+### Three-Stage Chain (v3.5.0)
+
+- **recon → exploit → objectives**: a single organization is discovered once in recon, breached in exploit, and its "produce" (objectives, sessions, artifacts) collected in objectives.
+- A first-class `Stage` / `Mode` threads through tasks, findings, assets, monitors, schedules, scopes and the console; a three-icon toggle switches the active stage.
+- **13 recon / 10 exploit / 10 objective SDKs**, each with its own registry and contract tests enforcing a minimum of 8 per stage. Recon broadening (CT logs, ASN, DNS zone, cloud buckets, rDNS, endpoints) is **opt-in** and off by default.
+- New engine steps (`broaden`, `exploit`, `postex`, `probe`) on dedicated Redis Stream queues; `AdvanceStage` governance enforces sequential transitions.
+- Exploit/objectives console screens include a shell console (open/re-ignite/command), an export drawer, an objective lifecycle workflow, and produce analytics. Artifact downloads are auth-gated and never served from the SPA static path; deleted produce is recoverable from the Recycle Bin.
+- Full details: [docs/3-5-0.md](docs/3-5-0.md) · [docs/CHAIN-IMPLEMENTATION-PLAN.md](docs/CHAIN-IMPLEMENTATION-PLAN.md) · [docs/CHAIN-TASKS.md](docs/CHAIN-TASKS.md).
+
 ## Architecture
 
 ```text
@@ -207,6 +216,7 @@ Production `postgres.dsn` should enable TLS (for example `sslmode=require` or `v
   - Scan policies: `/policies`, `/scopes`, `/fingerprints`, `/poc/plugins`
   - Automation: `/monitors`, `/schedules`, `/github/*`
   - Exports and audit: `/exports`, `/audit-events`, `/system/info`
+  - Three-stage chain (v3.5.0): `/{stage}/{overview,organizations,assets,findings,tasks,monitors,schedules,policies,groups}` (stage = `recon|exploit|objectives`), `/exploit/sessions*`, `/exploit/plugins`, `/objectives/{list,summary,artifacts/*,plugins/list}`, and `POST /organizations/{id}/advance-stage`.
 - List endpoints uniformly support `page`, `pageSize`, `sort`, `q`, and resource-specific filters.
 - Error responses use `application/problem+json` (RFC 7807); health checks are `/healthz` and `/readyz`, and metrics are `/metrics`.
 
@@ -249,10 +259,12 @@ internal/app           dependency wiring
 internal/httpapi       REST / SSE / OpenAPI / auth
 internal/store         PostgreSQL/GORM repositories, indexes, and migrations
 internal/modules       discovery, webintel, poc, tasking, monitoring,
-                       github, reporting, identity, easm, system
+                       github, reporting, identity, easm, system,
+                       exploit, objective (chain SDK registries)
 internal/platform      config, logging, queues, netsafe, notifications, ProjectDiscovery adapters
-internal/webui         embedded console build artifacts
+internal/webui         embedded console build artifacts (generated into dist/ at build time)
 web/                   React + TypeScript + Vite source, Vitest, Playwright
+                       (src/pages/chain, src/components/chain, src/api/chain.ts)
 assets/                dictionaries, fingerprints, WIH rules, and nuclei templates
 deploy/                infrastructure Compose, systemd units, environment templates, and install scripts
 docs/                  architecture, feature parity, scanner differences, EASM operations
@@ -274,7 +286,10 @@ scripts/               Redis preflight, EASM online smoke
 
 | Document | Contents |
 | --- | --- |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Runtime roles, module boundaries, task lifecycle, data model |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Runtime roles, module boundaries, task lifecycle, three-stage chain, data model |
+| [docs/3-5-0.md](docs/3-5-0.md) | v3.5.0 three-stage chain achievement report and verification matrix |
+| [docs/CHAIN-IMPLEMENTATION-PLAN.md](docs/CHAIN-IMPLEMENTATION-PLAN.md) | Authoritative v3.5.0 chain implementation blueprint |
+| [docs/CHAIN-TASKS.md](docs/CHAIN-TASKS.md) | T1–T11 chain task tracker and final verification status |
 | [docs/PARITY.md](docs/PARITY.md) | Mapping from legacy Flask features to the new implementation |
 | [docs/SCANNER-DIFFERENCES.md](docs/SCANNER-DIFFERENCES.md) | Differences between the ProjectDiscovery SDK and legacy scanners |
 | [docs/PROJECTDISCOVERY-SDK.md](docs/PROJECTDISCOVERY-SDK.md) | SDK integration and `pdtools` mapping |

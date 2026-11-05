@@ -43,3 +43,24 @@ The registry contains the legacy counts: 40 POC, 28 sniffer and 28 brute plugins
 - Screenshots require a browser runtime.
 - Scanner result timing and fingerprints differ from nmap/massdns; ProjectDiscovery SDKs are pinned in `go.mod`.
 - Nuclei runs only the HTTP templates under `assets/nuclei`; interactsh, code, file and headless templates are disabled by default.
+
+## v3.5.0 additions (no legacy counterpart)
+
+The three-stage chain is a new capability, not a legacy parity item, so it is
+deliberately absent from the table above:
+
+- **recon → exploit → objectives** with a shared organization model and a
+  first-class `Stage`/`Mode` across the domain, API and console.
+- Independent SDK registries (13 recon / 10 exploit / 10 objective), each
+  enforced at ≥8 by contract tests; recon broadening is opt-in and off by
+  default.
+- Exploit/objectives engine steps, queues (`q.exploit.http`,
+  `q.exploit.postex`, `q.objectives.probe`), shell sessions, objectives and
+  artifacts.
+- Mode-scoped REST endpoints, `AdvanceStage` governance, auth-gated artifact
+  downloads, recoverable soft deletion of produce and a server-computed
+  `GET /objectives/summary` analytics endpoint.
+- Dedicated chain console screens, shell console, export drawer, objective
+  lifecycle workflow and produce breakdown.
+
+See [docs/3-5-0.md](3-5-0.md) for the full achievement report.
