@@ -340,6 +340,28 @@ export const chainApi = {
     ),
   artifact: (id: string) =>
     typed<Artifact>(() => client.GET('/objectives/artifacts/{id}', { params: { path: { id } } })),
+  // Auth-gated download: the backend writes Content-Disposition and an audit
+  // event; the response is read as a Blob so the browser saves the envelope.
+  artifactDownload: async (id: string): Promise<Blob> => {
+    const response = await fetch(`/api/v1/objectives/artifacts/${encodeURIComponent(id)}/download`, {
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      const problem = (await response.json().catch(() => ({}))) as { detail?: string }
+      throw new Error(problem.detail || 'Artifact download failed')
+    }
+    return response.blob()
+  },
+  // Soft deletes route through the shared lifecycle, so removed produce stays
+  // recoverable from the Administration → Recycle Bin screen.
+  deleteArtifact: (id: string) =>
+    typed<{ id: string; deleted: boolean }>(() =>
+      client.DELETE('/objectives/artifacts/{id}', { params: { path: { id } } }),
+    ),
+  deleteObjective: (id: string) =>
+    typed<{ id: string; deleted: boolean }>(() =>
+      client.DELETE('/objectives/{id}', { params: { path: { id } } }),
+    ),
   objectivePlugins: () =>
     typed<ChainPage<ChainPlugin>>(() => client.GET('/objectives/plugins/list')),
 

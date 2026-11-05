@@ -1,6 +1,9 @@
 package httpapi
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -386,6 +389,92 @@ func (s *Server) handleGetArtifact(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, artifact)
 }
 
+// handleDownloadArtifact streams an auth-gated artifact envelope. Artifacts are
+// SDK-produced records; the download carries the checksum and storage path so
+// an operator can reconcile an export without exposing the SPA's static files.
+// The filename is sanitised so a crafted artifact name cannot inject headers.
+func (s *Server) handleDownloadArtifact(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	artifact, err := s.Store.GetArtifact(r.Context(), id)
+	if err != nil {
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	if artifact == nil {
+		httpx.WriteProblem(w, r, http.StatusNotFound, "artifact_not_found", "artifact not found")
+		return
+	}
+	filename := safeDownloadName(artifact.Name, id) + ".json"
+	s.Store.AddAudit(r.Context(), domain.AuditEvent{
+		Actor: principalFrom(r.Context()).Username, Action: "chain.artifact_download",
+		Resource: id, Detail: map[string]any{"stage": "objectives"},
+	})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"id": artifact.ID, "name": artifact.Name, "kind": artifact.Kind,
+		"sizeBytes": artifact.SizeBytes, "storagePath": artifact.StoragePath,
+		"checksum": artifact.Checksum, "exportedAt": artifact.ExportedAt,
+		"organizationId": artifact.OrganizationID, "objectiveId": artifact.ObjectiveID,
+		"assetId": artifact.AssetID, "stage": "objectives",
+	})
+}
+
+func safeDownloadName(name, fallback string) string {
+	clean := strings.TrimSpace(name)
+	if clean == "" {
+		return "artifact-" + fallback
+	}
+	var b strings.Builder
+	for _, r := range clean {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' || r == '.' {
+			b.WriteRune(r)
+		} else {
+			b.WriteByte('_')
+		}
+	}
+	if b.Len() > 96 {
+		return b.String()[:96]
+	}
+	return b.String()
+}
+
+// softDeleteChainRecord removes a chain record through the shared lifecycle so
+// it stays recoverable from the recycle bin, then records an audit event.
+func (s *Server) softDeleteChainRecord(w http.ResponseWriter, r *http.Request, resourceType, action, notFoundCode string) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	actor := principalFrom(r.Context()).Username
+	if err := s.Store.SoftDeleteRecord(r.Context(), resourceType, id, actor); err != nil {
+		if errors.Is(err, domain.ErrRecordNotFound) {
+			httpx.WriteProblem(w, r, http.StatusNotFound, notFoundCode, resourceType+" not found")
+			return
+		}
+		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
+		return
+	}
+	s.Store.AddAudit(r.Context(), domain.AuditEvent{
+		Actor: actor, Action: action, Resource: id,
+		Detail: map[string]any{"stage": "objectives", "resource": resourceType},
+	})
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"id": id, "deleted": true, "resource": resourceType})
+}
+
+func (s *Server) handleDeleteArtifact(w http.ResponseWriter, r *http.Request) {
+	s.softDeleteChainRecord(w, r, "artifact", "chain.artifact_delete", "artifact_not_found")
+}
+
+func (s *Server) handleDeleteObjective(w http.ResponseWriter, r *http.Request) {
+	s.softDeleteChainRecord(w, r, "objective", "chain.objective_delete", "objective_not_found")
+}
+
 // --- AdvanceStage Governance Action ---
 
 // handleAdvanceStage advances an organization's assets and tasks from one chain
@@ -431,8 +520,8 @@ func (s *Server) handleAdvanceStage(w http.ResponseWriter, r *http.Request) {
 	p := principalFrom(r.Context())
 	// Record the stage advancement as an audit event and objective action.
 	s.Store.AddAudit(r.Context(), domain.AuditEvent{
-		Actor:   p.Username,
-		Action:  "chain.advance_stage",
+		Actor:    p.Username,
+		Action:   "chain.advance_stage",
 		Resource: orgID,
 		Detail: map[string]any{
 			"fromStage": from,

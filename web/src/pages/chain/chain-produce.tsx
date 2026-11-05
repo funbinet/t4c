@@ -1,14 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Download, Eye, FileArchive, Flag, RefreshCw } from 'lucide-react'
+import { Check, Download, Eye, FileArchive, Flag, RefreshCw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Artifact, type Objective, type ObjectiveAction } from '@/api'
+import { useAuth } from '@/app/auth'
+import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { DataTable, type Column } from '@/components/common/data-table'
 import { EmptyState } from '@/components/common/states'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { canWrite } from '@/lib/access'
 import { formatNumber, formatTime, relativeTime } from '@/lib/format'
 import { humanize, severityVariant, statusVariant } from './chain-shared'
 
@@ -25,6 +28,8 @@ export function ProducePanel({
   onRunTask: (assetId: string) => void
 }) {
   const queryClient = useQueryClient()
+  const { role } = useAuth()
+  const writable = canWrite(role)
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null)
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null)
 
@@ -54,18 +59,43 @@ export function ProducePanel({
     onError: (error: Error) => toast.error(error.message),
   })
 
-  const downloadArtifact = (artifact: Artifact) => {
-    // Artifacts are SDK-produced records; the console downloads their metadata
-    // envelope (checksum + storage path) so operators can reconcile exports.
-    const payload = JSON.stringify({ ...artifact, stage: 'objectives', downloadedAt: new Date().toISOString() }, null, 2)
-    const href = URL.createObjectURL(new Blob([payload], { type: 'application/json' }))
-    const anchor = document.createElement('a')
-    anchor.href = href
-    anchor.download = `${artifact.name || artifact.id}.json`
-    anchor.click()
-    URL.revokeObjectURL(href)
-    toast.success(`Downloaded metadata for ${artifact.name}`)
-  }
+  const downloadArtifact = useMutation({
+    mutationFn: async (artifact: Artifact) => {
+      // The backend writes Content-Disposition and records an audit event; the
+      // console simply saves the returned envelope as a file.
+      const blob = await api.artifactDownload(artifact.id)
+      const href = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = href
+      anchor.download = `${artifact.name || artifact.id}.json`
+      anchor.click()
+      URL.revokeObjectURL(href)
+    },
+    onSuccess: () => toast.success('Artifact envelope downloaded'),
+    onError: (error: Error) => toast.error(error.message),
+  })
+
+  const deleteArtifact = useMutation({
+    mutationFn: (id: string) => api.deleteArtifact(id),
+    onSuccess: () => {
+      toast.success('Artifact removed (recoverable from Recycle Bin)')
+      setSelectedArtifact(null)
+      void queryClient.invalidateQueries({ queryKey: ['produce-artifacts'] })
+      void queryClient.invalidateQueries({ queryKey: ['chain-overview'] })
+    },
+    onError: (error: Error) => toast.error(error.message),
+  })
+
+  const deleteObjective = useMutation({
+    mutationFn: (id: string) => api.deleteObjective(id),
+    onSuccess: () => {
+      toast.success('Objective removed (recoverable from Recycle Bin)')
+      setSelectedObjective(null)
+      void queryClient.invalidateQueries({ queryKey: ['produce-objectives'] })
+      void queryClient.invalidateQueries({ queryKey: ['chain-overview'] })
+    },
+    onError: (error: Error) => toast.error(error.message),
+  })
 
   const objectiveColumns: Column<Objective>[] = [
     {
@@ -108,6 +138,19 @@ export function ProducePanel({
           >
             <Check className="mr-1 size-3.5" /> Exported
           </Button>
+          {writable ? (
+            <ConfirmDialog
+              trigger={
+                <Button size="icon" variant="ghost" title="Delete objective" aria-label="Delete objective">
+                  <Trash2 className="size-3.5" />
+                </Button>
+              }
+              title="Delete objective?"
+              description={`${row.title || row.id} will be soft-deleted and can be restored from the Recycle Bin.`}
+              confirmLabel="Delete"
+              onConfirm={() => deleteObjective.mutate(row.id)}
+            />
+          ) : null}
         </div>
       ),
     },
@@ -127,12 +170,32 @@ export function ProducePanel({
           <Button size="sm" variant="ghost" onClick={() => setSelectedArtifact(row)}>
             <Eye className="mr-1 size-3.5" /> View
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => downloadArtifact(row)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={downloadArtifact.isPending}
+            onClick={() => downloadArtifact.mutate(row)}
+          >
             <Download className="mr-1 size-3.5" /> Download
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onRunTask(row.assetId)} title="Re-run an objective probe">
-            <RefreshCw className="mr-1 size-3.5" /> Re-run
-          </Button>
+          {writable ? (
+            <Button size="sm" variant="outline" onClick={() => onRunTask(row.assetId)} title="Re-run an objective probe">
+              <RefreshCw className="mr-1 size-3.5" /> Re-run
+            </Button>
+          ) : null}
+          {writable ? (
+            <ConfirmDialog
+              trigger={
+                <Button size="icon" variant="ghost" title="Delete artifact" aria-label="Delete artifact">
+                  <Trash2 className="size-3.5" />
+                </Button>
+              }
+              title="Delete artifact?"
+              description={`${row.name || row.id} will be soft-deleted and can be restored from the Recycle Bin.`}
+              confirmLabel="Delete"
+              onConfirm={() => deleteArtifact.mutate(row.id)}
+            />
+          ) : null}
         </div>
       ),
     },
@@ -237,8 +300,12 @@ export function ProducePanel({
                 <Fact label="Objective" value={selectedArtifact.objectiveId || '—'} />
                 <Fact label="Asset" value={selectedArtifact.assetId || '—'} />
               </dl>
-              <Button size="sm" onClick={() => downloadArtifact(selectedArtifact)}>
-                <Download className="mr-1 size-3.5" /> Download metadata
+              <Button
+                size="sm"
+                disabled={downloadArtifact.isPending}
+                onClick={() => downloadArtifact.mutate(selectedArtifact)}
+              >
+                <Download className="mr-1 size-3.5" /> Download envelope
               </Button>
             </div>
           ) : null}

@@ -7347,6 +7347,41 @@
             "$ref": "#/components/responses/Problem"
           }
         }
+      },
+      "delete": {
+        "operationId": "deleteObjective",
+        "summary": "Soft-delete an objective",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
       }
     },
     "/objectives/{id}/status": {
@@ -7588,6 +7623,41 @@
             }
           },
           "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteObjectiveArtifact",
+        "summary": "Soft-delete an objective artifact",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
             "$ref": "#/components/responses/Problem"
           }
         }
@@ -8421,6 +8491,43 @@
             "$ref": "#/components/responses/Problem"
           },
           "403": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/artifacts/{id}/download": {
+      "get": {
+        "operationId": "downloadObjectiveArtifact",
+        "summary": "Download an objective artifact envelope",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
             "$ref": "#/components/responses/Problem"
           }
         }

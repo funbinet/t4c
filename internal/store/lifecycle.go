@@ -42,6 +42,8 @@ var lifecycleResourceOrder = []string{
 	"fingerprint",
 	"github_monitor",
 	"user",
+	"artifact",
+	"objective",
 }
 
 var lifecycleResources = map[string]lifecycleResource{
@@ -55,6 +57,11 @@ var lifecycleResources = map[string]lifecycleResource{
 	"fingerprint":         {Table: "fingerprints", Label: "name"},
 	"github_monitor":      {Table: "github_monitors", Label: "name"},
 	"user":                {Table: "users", Label: "username"},
+	// Chain-stage produce (plan §5 / §8.5): artifacts and objectives are
+	// soft-deletable so accidental deletions are recoverable from the recycle
+	// bin instead of being permanently lost.
+	"artifact":  {Table: "artifacts", Label: "name"},
+	"objective": {Table: "objectives", Label: "title"},
 }
 
 func ValidLifecycleResource(resourceType string) bool {

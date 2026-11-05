@@ -1585,7 +1585,8 @@ export interface paths {
         get: operations["getObjective"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Soft-delete an objective */
+        delete: operations["deleteObjective"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1654,7 +1655,8 @@ export interface paths {
         get: operations["getArtifact"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Soft-delete an objective artifact */
+        delete: operations["deleteObjectiveArtifact"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1828,6 +1830,23 @@ export interface paths {
         put?: never;
         /** Create an asset group in a chain stage */
         post: operations["createStageGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/objectives/artifacts/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download an objective artifact envelope */
+        get: operations["downloadObjectiveArtifact"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -5728,6 +5747,30 @@ export interface operations {
             401: components["responses"]["Problem"];
         };
     };
+    deleteObjective: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+        };
+    };
     updateObjectiveStatus: {
         parameters: {
             query?: never;
@@ -5861,6 +5904,30 @@ export interface operations {
                 };
             };
             401: components["responses"]["Problem"];
+        };
+    };
+    deleteObjectiveArtifact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
         };
     };
     listObjectivePlugins: {
@@ -6266,6 +6333,30 @@ export interface operations {
             400: components["responses"]["Problem"];
             401: components["responses"]["Problem"];
             403: components["responses"]["Problem"];
+        };
+    };
+    downloadObjectiveArtifact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
         };
     };
 }

@@ -227,6 +227,9 @@ func (s *Server) Router() http.Handler {
 			protected.Post("/objectives/{id}/actions", s.requireWrite(s.handleAddObjectiveAction))
 			protected.Get("/objectives/artifacts/list", s.handleListArtifacts)
 			protected.Get("/objectives/artifacts/{id}", s.handleGetArtifact)
+			protected.Get("/objectives/artifacts/{id}/download", s.handleDownloadArtifact)
+			protected.Delete("/objectives/artifacts/{id}", s.requireWrite(s.handleDeleteArtifact))
+			protected.Delete("/objectives/{id}", s.requireWrite(s.handleDeleteObjective))
 			protected.Get("/objectives/plugins/list", s.handleListObjectivePlugins)
 
 			// Governance: advance an organization to the next chain stage.
