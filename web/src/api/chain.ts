@@ -1,13 +1,10 @@
-import type { components } from './schema'
 import { client, execute } from './client'
 import type { Stage } from '@/app/mode'
 
-// Chain-stage domain types. The backend serialises these with camelCase JSON
-// tags; the shapes are kept here so the exploit/objectives screens are fully
-// typed without depending on generated response schemas for the new endpoints.
-type Task = components['schemas']['Task']
-type Asset = components['schemas']['Asset']
-
+// Chain-stage domain types. The generated OpenAPI schemas predate the Stage,
+// Exploited and Confidence columns, so the chain endpoints resolve to these
+// explicit shapes instead of the generic generated objects. CSRF handling,
+// 401 refresh and error mapping still flow through the shared client.
 export type ShellSession = {
   id: string
   organizationId: string
@@ -89,17 +86,88 @@ export type ChainPlugin = {
 export type ChainPage<T> = {
   items: T[]
   total: number
-  page: number
-  pageSize: number
+  page?: number
+  pageSize?: number
+  stage?: string
 }
 
-export type StageTaskResult = {
-  items: Task[]
-  total: number
-  page: number
-  pageSize: number
-  stage: string
+// A classified recon asset as exposed by the stage-scoped asset endpoints.
+// Exploit/objectives views only return assets with exploited = true.
+export type ChainAsset = {
+  id: string
+  kind: string
+  key: string
+  stage?: string
+  displayName?: string
+  displayUrl?: string
+  origin?: string
+  notes?: string
+  tags?: string[]
+  data?: Record<string, unknown>
+  firstSeen?: string
+  lastSeen?: string
+  confidence?: number
+  exploited?: boolean
+  exploitedAt?: string | null
+  lastTaskId?: string
 }
+
+export type ChainFinding = {
+  id: string
+  taskId?: string
+  kind?: string
+  stage?: string
+  dedupeKey?: string
+  title?: string
+  severity?: string
+  target?: string
+  pluginName?: string
+  data?: Record<string, unknown>
+  createdAt?: string
+}
+
+export type ChainTask = {
+  id: string
+  name?: string
+  kind?: string
+  stage?: string
+  target?: string
+  status?: string
+  progress?: number
+  policyId?: string
+  scopeId?: string
+  organizationId?: string
+  createdBy?: string
+  createdAt?: string
+  startedAt?: string
+  finishedAt?: string
+  error?: string
+  statistics?: Record<string, unknown>
+}
+
+// Automation parity records (monitors / schedules / policies / groups).
+export type ChainAutomationItem = {
+  id?: string
+  name?: string
+  description?: string
+  kind?: string
+  taskKind?: string
+  status?: string
+  stage?: string
+  target?: string
+  scopeId?: string
+  policyId?: string
+  cron?: string
+  intervalSec?: number
+  nextRunAt?: string
+  lastRunAt?: string
+  createdAt?: string
+  config?: Record<string, unknown>
+  type?: string
+  targets?: string[]
+}
+
+export type StageTaskResult = ChainPage<ChainTask>
 
 export type AdvanceResult = {
   organizationId: string
@@ -117,12 +185,49 @@ export type StageQuery = {
   page?: number
   pageSize?: number
   q?: string
+  query?: string
+  sort?: string
 }
 
-// typedCall wraps execute() so the new chain endpoints (whose OpenAPI response
+// StageOverview is the payload of GET /{stage}/overview: stage-scoped counters,
+// the AssetKind distribution, the owning SDK registry and recent chain activity.
+export type StageOverview = {
+  stage: string
+  label: string
+  description: string
+  nextStage?: string
+  updatedAt: string
+  counts: Record<string, number>
+  byKind: Record<string, number>
+  plugins: ChainPlugin[]
+  sdkCount: number
+  organizations: number
+  recentSessions: ShellSession[]
+  recentObjectives: Objective[]
+  recentArtifacts: Artifact[]
+}
+
+// StageOrganization is a recon-discovered organization annotated with its
+// per-stage chain counters (organizations are shared across all stages).
+export type StageOrganization = {
+  id: string
+  canonicalName: string
+  aliases?: string[]
+  region?: string
+  uscc?: string
+  status: string
+  defaultPolicyId?: string
+  stage: string
+  exploited: number
+  sessions: number
+  objectives: number
+  artifacts: number
+  tasks: number
+}
+
+// typedCall wraps execute() so the chain endpoints (whose OpenAPI response
 // schemas are intentionally generic objects) resolve to concrete page/item
-// shapes at the call site. CSRF handling, 401 refresh, and error mapping all
-// still flow through the shared client.
+// shapes at the call site.
 function typed<T>(operation: () => Promise<unknown>): Promise<T> {
   return execute(() => operation() as never) as unknown as Promise<T>
 }
@@ -136,6 +241,54 @@ export const chainApi = {
   createStageTask: (stage: Stage, body: Record<string, unknown>) =>
     typed<StageTaskResult>(() =>
       client.POST('/{stage}/tasks', { params: { path: { stage } }, body: body as never }),
+    ),
+
+  // --- Mode-scoped catalog (plan §7 / §9) ---
+  stageOverview: (stage: Stage) =>
+    typed<StageOverview>(() => client.GET('/{stage}/overview', { params: { path: { stage } } })),
+  stageOrganizations: (stage: Stage, query: StageQuery = {}) =>
+    typed<ChainPage<StageOrganization>>(() =>
+      client.GET('/{stage}/organizations', { params: { path: { stage }, query: { query: query.query || query.q } as never } }),
+    ),
+  stageAssets: (stage: Stage, query: StageQuery = {}) =>
+    typed<ChainPage<ChainAsset>>(() =>
+      client.GET('/{stage}/assets', { params: { path: { stage }, query: query as never } }),
+    ),
+  stageFindings: (stage: Stage, query: StageQuery = {}) =>
+    typed<ChainPage<ChainFinding>>(() =>
+      client.GET('/{stage}/findings', { params: { path: { stage }, query: query as never } }),
+    ),
+  stageMonitors: (stage: Stage, query: StageQuery = {}) =>
+    typed<ChainPage<ChainAutomationItem>>(() =>
+      client.GET('/{stage}/monitors', { params: { path: { stage }, query: query as never } }),
+    ),
+  createStageMonitor: (stage: Stage, body: Record<string, unknown>) =>
+    typed<ChainAutomationItem>(() =>
+      client.POST('/{stage}/monitors', { params: { path: { stage } }, body: body as never }),
+    ),
+  stageSchedules: (stage: Stage, query: StageQuery = {}) =>
+    typed<ChainPage<ChainAutomationItem>>(() =>
+      client.GET('/{stage}/schedules', { params: { path: { stage }, query: query as never } }),
+    ),
+  createStageSchedule: (stage: Stage, body: Record<string, unknown>) =>
+    typed<ChainAutomationItem>(() =>
+      client.POST('/{stage}/schedules', { params: { path: { stage } }, body: body as never }),
+    ),
+  stagePolicies: (stage: Stage) =>
+    typed<{ items: ChainAutomationItem[]; stage: string }>(() =>
+      client.GET('/{stage}/policies', { params: { path: { stage } } }),
+    ),
+  createStagePolicy: (stage: Stage, body: Record<string, unknown>) =>
+    typed<ChainAutomationItem>(() =>
+      client.POST('/{stage}/policies', { params: { path: { stage } }, body: body as never }),
+    ),
+  stageGroups: (stage: Stage, query: StageQuery = {}) =>
+    typed<ChainPage<ChainAutomationItem>>(() =>
+      client.GET('/{stage}/groups', { params: { path: { stage }, query: query as never } }),
+    ),
+  createStageGroup: (stage: Stage, body: Record<string, unknown>) =>
+    typed<ChainAutomationItem>(() =>
+      client.POST('/{stage}/groups', { params: { path: { stage } }, body: body as never }),
     ),
 
   // --- Exploit stage ---
@@ -160,7 +313,7 @@ export const chainApi = {
       client.POST('/exploit/sessions/{id}/commands', { params: { path: { id } }, body: { command } }),
     ),
   exploitedAssets: (query: StageQuery = {}) =>
-    typed<ChainPage<Asset>>(() => client.GET('/exploit/assets', { params: { query: query as never } })),
+    typed<ChainPage<ChainAsset>>(() => client.GET('/exploit/assets', { params: { query: query as never } })),
   exploitPlugins: () =>
     typed<ChainPage<ChainPlugin>>(() => client.GET('/exploit/plugins')),
 

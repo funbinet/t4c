@@ -191,9 +191,23 @@ func (s *Server) Router() http.Handler {
 			protected.Get("/screenshots/{taskId}/{name}", s.handleScreenshot)
 
 			// --- Three-stage chain: mode-scoped endpoints ---
-			// Generic stage-scoped task endpoints (/api/v1/{stage}/tasks).
+			// Generic stage-scoped endpoints (/api/v1/{stage}/*). The URL stage is
+			// validated by parseStage; static /exploit/* and /objectives/* routes
+			// below take precedence for their dedicated resources.
 			protected.Get("/{stage}/tasks", s.handleListStageTasks)
 			protected.Post("/{stage}/tasks", s.requireWrite(s.handleCreateStageTask))
+			protected.Get("/{stage}/overview", s.handleStageOverview)
+			protected.Get("/{stage}/organizations", s.handleStageOrganizations)
+			protected.Get("/{stage}/assets", s.handleStageAssets)
+			protected.Get("/{stage}/findings", s.handleStageFindings)
+			protected.Get("/{stage}/monitors", s.handleStageMonitors)
+			protected.Post("/{stage}/monitors", s.requireWrite(s.handleCreateStageMonitor))
+			protected.Get("/{stage}/schedules", s.handleStageSchedules)
+			protected.Post("/{stage}/schedules", s.requireWrite(s.handleCreateStageSchedule))
+			protected.Get("/{stage}/policies", s.handleStagePolicies)
+			protected.Post("/{stage}/policies", s.requireWrite(s.handleCreateStagePolicy))
+			protected.Get("/{stage}/groups", s.handleStageGroups)
+			protected.Post("/{stage}/groups", s.requireWrite(s.handleCreateStageGroup))
 
 			// Exploit stage: shell sessions, exploited assets, exploit SDK registry.
 			protected.Get("/exploit/sessions", s.handleListSessions)

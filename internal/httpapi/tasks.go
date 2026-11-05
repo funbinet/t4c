@@ -17,6 +17,7 @@ import (
 type createTaskRequest struct {
 	Name           string             `json:"name"`
 	Kind           domain.TaskKind    `json:"kind"`
+	Stage          domain.Stage       `json:"stage"`
 	Target         string             `json:"target"`
 	PolicyID       string             `json:"policyId"`
 	ScopeID        string             `json:"scopeId"`
@@ -43,7 +44,7 @@ func (s *Server) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	p := principalFrom(r.Context())
 	tasks, err := s.Engine.Submit(r.Context(), tasking.SubmitInput{
-		Name: req.Name, Kind: req.Kind, Target: req.Target, Options: req.Options,
+		Name: req.Name, Kind: req.Kind, Stage: req.Stage, Target: req.Target, Options: req.Options,
 		PolicyID: req.PolicyID, ScopeID: req.ScopeID, ResultSetID: req.ResultSetID,
 		OrganizationID: strings.TrimSpace(req.OrganizationID), CreatedBy: p.Username,
 	})

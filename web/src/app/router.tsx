@@ -42,6 +42,37 @@ const RecycleBinPage = lazy(() =>
 const SystemPage = lazy(() => import('@/pages/system-page').then((module) => ({ default: module.SystemPage })))
 const NotFoundPage = lazy(() => import('@/pages/not-found-page').then((module) => ({ default: module.NotFoundPage })))
 
+// Dedicated three-stage chain screens. Exploit and objectives use these
+// instead of the recon pages: all data is pulled from /{stage}/* endpoints and
+// the screens expose stage-only capabilities (shell console, produce, export).
+const ChainOverviewPage = lazy(() =>
+  import('@/pages/chain/chain-overview-page').then((module) => ({ default: module.ChainOverviewPage })),
+)
+const ChainOrganizationsPage = lazy(() =>
+  import('@/pages/chain/chain-organizations-page').then((module) => ({ default: module.ChainOrganizationsPage })),
+)
+const ChainAssetsPage = lazy(() =>
+  import('@/pages/chain/chain-assets-page').then((module) => ({ default: module.ChainAssetsPage })),
+)
+const ChainFindingsPage = lazy(() =>
+  import('@/pages/chain/chain-findings-page').then((module) => ({ default: module.ChainFindingsPage })),
+)
+const ChainTasksPage = lazy(() =>
+  import('@/pages/chain/chain-tasks-page').then((module) => ({ default: module.ChainTasksPage })),
+)
+const ChainMonitorsPage = lazy(() =>
+  import('@/pages/chain/chain-automation-page').then((module) => ({ default: module.ChainMonitorsPage })),
+)
+const ChainSchedulesPage = lazy(() =>
+  import('@/pages/chain/chain-automation-page').then((module) => ({ default: module.ChainSchedulesPage })),
+)
+const ChainPoliciesPage = lazy(() =>
+  import('@/pages/chain/chain-automation-page').then((module) => ({ default: module.ChainPoliciesPage })),
+)
+const ChainGroupsPage = lazy(() =>
+  import('@/pages/chain/chain-automation-page').then((module) => ({ default: module.ChainGroupsPage })),
+)
+
 function page(element: ReactNode) {
   return <Suspense fallback={<LoadingBlock />}>{element}</Suspense>
 }
@@ -80,33 +111,32 @@ const router = createBrowserRouter([
       { path: 'intelligence/github', ...screen(<GitHubPage />) },
       { path: 'intelligence/fingerprints', ...screen(<FingerprintsPage />) },
       { path: 'intelligence/poc', ...screen(<PocPage />) },
-      // Exploit stage mirrors the recon screens (plan §2.3) — same lazy pages,
-      // mode-prefixed URLs. The pages read the stage from ModeContext.
-      { path: 'exploit', ...screen(<OverviewPage />) },
-      { path: 'exploit/organizations', ...screen(<OrganizationsPage />) },
+      // Exploit stage: dedicated chain screens backed by /exploit/* and
+      // /{stage}/* APIs. Org and task detail reuse the stage-aware recon pages.
+      { path: 'exploit', ...screen(<ChainOverviewPage />) },
+      { path: 'exploit/organizations', ...screen(<ChainOrganizationsPage />) },
       { path: 'exploit/organizations/:id', ...screen(<OrganizationDetailPage />) },
-      { path: 'exploit/assets', ...screen(<AssetsPage />) },
-      { path: 'exploit/findings', ...screen(<FindingsPage />) },
-      { path: 'exploit/tasks', ...screen(<TasksPage />) },
+      { path: 'exploit/assets', ...screen(<ChainAssetsPage />) },
+      { path: 'exploit/findings', ...screen(<ChainFindingsPage />) },
+      { path: 'exploit/tasks', ...screen(<ChainTasksPage />) },
       { path: 'exploit/tasks/:id', ...screen(<TaskDetailPage />) },
-      { path: 'exploit/automation/monitors', ...screen(<MonitorsPage />) },
-      { path: 'exploit/automation/schedules', ...screen(<SchedulesPage />) },
-      { path: 'exploit/automation/policies', ...screen(<PoliciesPage />) },
-      { path: 'exploit/automation/groups', ...screen(<ScopesPage />) },
-      // Objectives stage mirrors the recon screens (plan §2.3). The Risks and
-      // Automation mirrors are included so the sidebar keeps its five plus
-      // four entries in every stage.
-      { path: 'objectives', ...screen(<OverviewPage />) },
-      { path: 'objectives/organizations', ...screen(<OrganizationsPage />) },
+      { path: 'exploit/automation/monitors', ...screen(<ChainMonitorsPage />) },
+      { path: 'exploit/automation/schedules', ...screen(<ChainSchedulesPage />) },
+      { path: 'exploit/automation/policies', ...screen(<ChainPoliciesPage />) },
+      { path: 'exploit/automation/groups', ...screen(<ChainGroupsPage />) },
+      // Objectives stage: the "Produce" surface. The Assets screen becomes the
+      // produce view with objectives, artifacts, shell console and export drawer.
+      { path: 'objectives', ...screen(<ChainOverviewPage />) },
+      { path: 'objectives/organizations', ...screen(<ChainOrganizationsPage />) },
       { path: 'objectives/organizations/:id', ...screen(<OrganizationDetailPage />) },
-      { path: 'objectives/assets', ...screen(<AssetsPage />) },
-      { path: 'objectives/findings', ...screen(<FindingsPage />) },
-      { path: 'objectives/tasks', ...screen(<TasksPage />) },
+      { path: 'objectives/assets', ...screen(<ChainAssetsPage />) },
+      { path: 'objectives/findings', ...screen(<ChainFindingsPage />) },
+      { path: 'objectives/tasks', ...screen(<ChainTasksPage />) },
       { path: 'objectives/tasks/:id', ...screen(<TaskDetailPage />) },
-      { path: 'objectives/automation/monitors', ...screen(<MonitorsPage />) },
-      { path: 'objectives/automation/schedules', ...screen(<SchedulesPage />) },
-      { path: 'objectives/automation/policies', ...screen(<PoliciesPage />) },
-      { path: 'objectives/automation/groups', ...screen(<ScopesPage />) },
+      { path: 'objectives/automation/monitors', ...screen(<ChainMonitorsPage />) },
+      { path: 'objectives/automation/schedules', ...screen(<ChainSchedulesPage />) },
+      { path: 'objectives/automation/policies', ...screen(<ChainPoliciesPage />) },
+      { path: 'objectives/automation/groups', ...screen(<ChainGroupsPage />) },
       { path: 'admin/users', errorElement: <RouteError />, element: <AdminRoute>{page(<UsersPage />)}</AdminRoute> },
       { path: 'admin/api-keys', errorElement: <RouteError />, element: <AdminRoute>{page(<APIKeysPage />)}</AdminRoute> },
       { path: 'admin/audit', errorElement: <RouteError />, element: <AdminRoute>{page(<AuditPage />)}</AdminRoute> },
