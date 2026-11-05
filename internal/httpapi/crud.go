@@ -189,7 +189,10 @@ func (s *Server) handleDeleteAsset(w http.ResponseWriter, r *http.Request) {
 
 func validAssetKind(kind domain.AssetKind) bool {
 	switch kind {
-	case domain.AssetDomain, domain.AssetIP, domain.AssetSite, domain.AssetURL, domain.AssetCert, domain.AssetService, domain.AssetCIDR:
+	case domain.AssetDomain, domain.AssetIP, domain.AssetService, domain.AssetWeb,
+		domain.AssetAPIEndpoint, domain.AssetCredential, domain.AssetPassword,
+		domain.AssetSession, domain.AssetCertificate, domain.AssetBucket,
+		domain.AssetFile, domain.AssetSite, domain.AssetURL, domain.AssetCIDR:
 		return true
 	default:
 		return false

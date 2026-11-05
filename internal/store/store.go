@@ -111,6 +111,11 @@ func (s *Store) Migrate(ctx context.Context) error {
 		); err != nil {
 			return fmt.Errorf("automigrate postgres: %w", err)
 		}
+		// Asset kind "cert" was renamed to "certificate" (AssetCertificate);
+		// backfill existing rows so classification stays consistent.
+		if err := tx.Exec(`UPDATE assets SET kind = 'certificate' WHERE kind = 'cert'`).Error; err != nil {
+			return fmt.Errorf("backfill asset kind certificate: %w", err)
+		}
 		if err := tx.Exec(`CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA public`).Error; err != nil {
 			return fmt.Errorf("enable pg_trgm: %w", err)
 		}
@@ -205,6 +210,13 @@ var postgresIndexes = []string{
 	`CREATE INDEX IF NOT EXISTS idx_findings_target_trgm ON findings USING gin (target __TRGM__)`,
 	`CREATE INDEX IF NOT EXISTS idx_organizations_name_trgm ON organizations USING gin (canonical_name __TRGM__)`,
 	`CREATE INDEX IF NOT EXISTS idx_organizations_aliases ON organizations USING gin (aliases)`,
+	// Stage / chain indexes
+	`CREATE INDEX IF NOT EXISTS idx_tasks_stage ON tasks (stage)`,
+	`CREATE INDEX IF NOT EXISTS idx_findings_stage ON findings (stage)`,
+	`CREATE INDEX IF NOT EXISTS idx_assets_exploited ON assets (exploited) WHERE exploited = true`,
+	`CREATE INDEX IF NOT EXISTS idx_monitors_stage ON monitors (stage)`,
+	`CREATE INDEX IF NOT EXISTS idx_schedules_stage ON schedules (stage)`,
+	`CREATE INDEX IF NOT EXISTS idx_scopes_stage ON scopes (stage)`,
 }
 
 type PageQuery struct {

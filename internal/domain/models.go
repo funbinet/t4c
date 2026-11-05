@@ -92,13 +92,20 @@ const (
 type AssetKind string
 
 const (
-	AssetDomain  AssetKind = "domain"
-	AssetIP      AssetKind = "ip"
-	AssetSite    AssetKind = "site"
-	AssetURL     AssetKind = "url"
-	AssetCert    AssetKind = "cert"
-	AssetService AssetKind = "service"
-	AssetCIDR    AssetKind = "cidr"
+	AssetDomain      AssetKind = "domain"
+	AssetIP          AssetKind = "ip"
+	AssetService     AssetKind = "service"
+	AssetWeb         AssetKind = "web"
+	AssetAPIEndpoint AssetKind = "api_endpoint"
+	AssetCredential  AssetKind = "credential"
+	AssetPassword    AssetKind = "password"
+	AssetSession     AssetKind = "session"
+	AssetCertificate AssetKind = "certificate"
+	AssetBucket      AssetKind = "bucket"
+	AssetFile        AssetKind = "file"
+	AssetSite        AssetKind = "site"
+	AssetURL         AssetKind = "url"
+	AssetCIDR        AssetKind = "cidr"
 )
 
 type AssetOrigin string
@@ -214,6 +221,7 @@ type PolicyConfig struct {
 	Brute          []PluginToggle `json:"brute"`
 	ServiceDetect  bool           `json:"serviceDetect"`
 	RelatedScopeID string         `json:"relatedScopeId,omitempty"`
+	Broaden        bool           `json:"broaden"`
 }
 
 type Policy struct {
@@ -249,10 +257,10 @@ var PolicyCategories = []string{
 
 // PolicyCategoriesByLabel maps a category to a human-friendly label for the UI.
 var PolicyCategoriesByLabel = map[string]string{
-	PolicyCategoryAttackSurface: "Attack Surface",
+	PolicyCategoryAttackSurface:  "Attack Surface",
 	PolicyCategoryVulnAssessment: "Vulnerability Assessment",
-	PolicyCategoryProbing:       "Probing",
-	PolicyCategoryExploitation:  "Exploitation",
+	PolicyCategoryProbing:        "Probing",
+	PolicyCategoryExploitation:   "Exploitation",
 }
 
 // NormalizePolicyCategory returns a valid category, defaulting to attack-surface.
@@ -269,6 +277,7 @@ type Scope struct {
 	ID            string    `gorm:"primaryKey;size:24" json:"id"`
 	Name          string    `json:"name"`
 	Type          string    `json:"type"`
+	Stage         Stage     `json:"stage,omitempty"`
 	Targets       []string  `gorm:"type:jsonb;serializer:json" json:"targets"`
 	BlackScope    []string  `gorm:"type:jsonb;serializer:json" json:"blackScope"`
 	CreatedAt     time.Time `json:"createdAt"`
@@ -309,6 +318,7 @@ type TaskOptions struct {
 	MaxHTTPRequests int      `json:"maxHttpRequests,omitempty"`
 	MaxRuntime      string   `json:"maxRuntime,omitempty"`
 	MaxFindings     int      `json:"maxFindings,omitempty"`
+	Broaden         bool     `json:"broaden"`
 }
 
 type TaskStatistics struct {
@@ -329,6 +339,7 @@ type Task struct {
 	ID             string         `gorm:"primaryKey;size:24" json:"id"`
 	Name           string         `json:"name"`
 	Kind           TaskKind       `json:"kind"`
+	Stage          Stage          `json:"stage,omitempty"`
 	Target         string         `json:"target"`
 	Targets        []string       `gorm:"type:jsonb;serializer:json" json:"targets"`
 	Status         TaskStatus     `json:"status"`
@@ -408,6 +419,7 @@ type WorkItem struct {
 type Asset struct {
 	ID            string         `gorm:"primaryKey;size:24" json:"id"`
 	Kind          AssetKind      `json:"kind"`
+	Stage         Stage          `json:"stage,omitempty"`
 	Key           string         `json:"key"`
 	Data          map[string]any `gorm:"type:jsonb;serializer:json" json:"data"`
 	ScopeIDs      []string       `gorm:"type:jsonb;serializer:json" json:"scopeIds,omitempty"`
@@ -420,6 +432,9 @@ type Asset struct {
 	LastSeen      time.Time      `json:"lastSeen"`
 	LastTaskID    string         `json:"lastTaskId,omitempty"`
 	SchemaVersion int            `json:"schemaVersion"`
+	Confidence    float64        `json:"confidence"`
+	Exploited     bool           `json:"exploited"`
+	ExploitedAt   *time.Time     `json:"exploitedAt,omitempty"`
 	Lifecycle     `gorm:"embedded"`
 }
 
@@ -451,6 +466,7 @@ type Finding struct {
 	TaskID        string         `json:"taskId"`
 	ScopeID       string         `json:"scopeId,omitempty"`
 	Kind          FindingKind    `json:"kind"`
+	Stage         Stage          `json:"stage,omitempty"`
 	DedupeKey     string         `json:"dedupeKey"`
 	Title         string         `json:"title"`
 	Severity      string         `json:"severity"`
@@ -465,6 +481,7 @@ type Monitor struct {
 	ID            string      `gorm:"primaryKey;size:24" json:"id"`
 	Name          string      `json:"name"`
 	Kind          string      `json:"kind"` // domain, ip, site_update, wih_update
+	Stage         Stage       `json:"stage,omitempty"`
 	ScopeID       string      `json:"scopeId"`
 	Target        string      `json:"target"`
 	IntervalSec   int         `json:"intervalSec"`
@@ -485,6 +502,7 @@ type Schedule struct {
 	Name          string     `json:"name"`
 	Kind          string     `json:"kind"` // recurrent_scan, future_scan
 	TaskKind      TaskKind   `json:"taskKind"`
+	Stage         Stage      `json:"stage,omitempty"`
 	Target        string     `json:"target"`
 	PolicyID      string     `json:"policyId"`
 	ResultSetID   string     `json:"resultSetId,omitempty"`
@@ -604,6 +622,9 @@ func NewModel[T any](v T) T {
 		return any(x).(T)
 	case Task:
 		x.CreatedAt, x.SchemaVersion = now, SchemaVersion
+		if x.Stage == "" {
+			x.Stage = StageRecon
+		}
 		return any(x).(T)
 	case TaskStep:
 		x.CreatedAt, x.UpdatedAt, x.SchemaVersion = now, now, SchemaVersion

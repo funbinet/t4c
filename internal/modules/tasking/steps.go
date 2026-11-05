@@ -310,7 +310,7 @@ func (e *Engine) stepPort(ctx context.Context, task *domain.Task, step *domain.T
 					cd["engine"] = "projectdiscovery/tlsx"
 					cd["engineVersion"] = pdtools.TLSXVersion
 					ck := fmt.Sprintf("%s:%d", cert.IP, cert.Port)
-					ca, err := e.Store.UpsertAsset(ctx, domain.AssetCert, ck, cd, task.ID, task.ScopeID)
+					ca, err := e.Store.UpsertAsset(ctx, domain.AssetCertificate, ck, cd, task.ID, task.ScopeID)
 					if err == nil {
 						_ = e.Store.ObserveAsset(ctx, task.ID, ca, "tls_cert", cd)
 						e.linkScope(ctx, task, ca)

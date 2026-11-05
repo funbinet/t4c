@@ -29,7 +29,7 @@ import { canWrite } from '@/lib/access'
 import { useAuth } from '@/app/auth'
 
 const surfaceKinds = ['', 'domain', 'ip', 'service']
-const inventoryKinds = ['', 'domain', 'ip', 'site', 'url', 'cert', 'service', 'cidr']
+const inventoryKinds = ['', 'domain', 'ip', 'site', 'url', 'certificate', 'service', 'cidr']
 
 export function AssetsPage() {
   const { role } = useAuth()

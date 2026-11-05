@@ -284,7 +284,7 @@ func (s *Store) TaskStatistics(ctx context.Context, taskID string) (domain.TaskS
 			st.Sites = int(row.Count)
 		case domain.AssetURL:
 			st.URLs = int(row.Count)
-		case domain.AssetCert:
+		case domain.AssetCertificate:
 			st.Certs = int(row.Count)
 		case domain.AssetService:
 			st.Services = int(row.Count)
