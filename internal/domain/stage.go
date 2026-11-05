@@ -37,3 +37,17 @@ func StageForCategory(c string) Stage {
 	}
 	return StageRecon // vuln-assessment / probing are recon-class; objectives are derived.
 }
+
+// StageForTaskKind returns the chain stage for a given task kind. Exploit and
+// exploit-variant kinds map to StageExploit; objective kinds map to
+// StageObjectives; everything else is recon.
+func StageForTaskKind(k TaskKind) Stage {
+	switch k {
+	case TaskExploit, TaskExploitBrute, TaskExploitInject:
+		return StageExploit
+	case TaskObjective:
+		return StageObjectives
+	default:
+		return StageRecon
+	}
+}

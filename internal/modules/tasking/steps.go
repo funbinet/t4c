@@ -32,6 +32,12 @@ func (e *Engine) executeStep(ctx context.Context, task *domain.Task, step *domai
 		return e.stepWIH(ctx, task, step)
 	case "poc":
 		return e.stepPOC(ctx, task, step)
+	case "exploit":
+		return e.stepExploit(ctx, task, step)
+	case "postex":
+		return e.stepPostEx(ctx, task, step)
+	case "probe":
+		return e.stepProbe(ctx, task, step)
 	case "fofa":
 		return e.stepFofa(ctx, task, step)
 	case "github":

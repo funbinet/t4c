@@ -14,6 +14,8 @@ import (
 
 	"github.com/funbinet/t4c/internal/domain"
 	"github.com/funbinet/t4c/internal/modules/discovery"
+	"github.com/funbinet/t4c/internal/modules/exploit"
+	"github.com/funbinet/t4c/internal/modules/objective"
 	"github.com/funbinet/t4c/internal/modules/poc"
 	"github.com/funbinet/t4c/internal/modules/webintel"
 	"github.com/funbinet/t4c/internal/platform/config"
@@ -25,6 +27,7 @@ import (
 type SubmitInput struct {
 	Name           string             `json:"name"`
 	Kind           domain.TaskKind    `json:"kind"`
+	Stage          domain.Stage       `json:"stage,omitempty"`
 	Target         string             `json:"target"`
 	Options        domain.TaskOptions `json:"options"`
 	OrganizationID string             `json:"organizationId,omitempty"`
@@ -62,10 +65,20 @@ type Engine struct {
 	// rDNS, endpoints). When TaskOptions.Broaden is set the broaden step runs
 	// them after the core chain; nil adapters degrade to warnings.
 	Broaden     *Broadeners
+	// ExploitPlugins holds the exploit-stage SDK plugins. When an exploit-stage
+	// task runs, stepExploit dispatches the selected plugins against exploitable
+	// assets discovered during recon. Nil plugins degrade to a warning.
+	ExploitPlugins []exploit.Plugin
+	// ObjectivePlugins holds the objective-stage SDK plugins. When an
+	// objective-stage task runs, stepProbe dispatches the selected plugins
+	// against exploited assets to extract loot, maintain shells, etc.
+	ObjectivePlugins []objective.Plugin
 	OnFinalize  func(ctx context.Context)
 	pluginsOnce sync.Once
 	plugins     []poc.Plugin
 	pluginByID  map[string]poc.Plugin
+	exploitOnce sync.Once
+	objectiveOnce sync.Once
 }
 
 type Notifier interface {
@@ -164,6 +177,14 @@ func (e *Engine) Submit(ctx context.Context, in SubmitInput) ([]domain.Task, err
 			Status: domain.TaskQueued, Options: options, PolicyID: in.PolicyID,
 			ScopeID: in.ScopeID, OrganizationID: in.OrganizationID, RootDomain: in.RootDomain,
 			Origin: in.Origin, CreatedBy: in.CreatedBy,
+		}
+		// Resolve the chain stage: an explicit stage on the input wins, otherwise
+		// derive it from the task kind. This threads Stage through the entire
+		// task lifecycle (Task, Steps, Findings, Assets) for mode-scoped queries.
+		if in.Stage != "" && in.Stage.Valid() {
+			t.Stage = in.Stage
+		} else {
+			t.Stage = domain.StageForTaskKind(in.Kind)
 		}
 		if err := e.Store.CreateTask(ctx, t); err != nil {
 			return created, err
@@ -291,6 +312,16 @@ func StepPlan(t *domain.Task) []domain.TaskStep {
 		steps = add(steps, "webintel", true)
 	case domain.TaskGitHub:
 		steps = add(steps, "github", false)
+	case domain.TaskExploit, domain.TaskExploitBrute, domain.TaskExploitInject:
+		// Exploit stage: load exploitable assets from recon findings, run the
+		// selected exploit SDKs against them, then flip exploited assets and
+		// open shell sessions where applicable.
+		steps = add(steps, "exploit", false)
+		steps = add(steps, "postex", true)
+	case domain.TaskObjective:
+		// Objective stage: operate on exploited assets — extract loot, maintain
+		// shells, probe internal surfaces, collect artifacts.
+		steps = add(steps, "probe", false)
 	default:
 		steps = add(steps, "http", false)
 	}
@@ -375,6 +406,12 @@ func queueForStep(kind string) string {
 		return "q.poc.http"
 	case "github":
 		return "q.github"
+	case "exploit":
+		return "q.exploit.http"
+	case "postex":
+		return "q.exploit.postex"
+	case "probe":
+		return "q.objectives.probe"
 	case "stats":
 		return "q.maintenance"
 	default:

@@ -87,6 +87,14 @@ const (
 	TaskWIHUpdate     TaskKind = "asset_wih_update"
 	TaskFofa          TaskKind = "fofa"
 	TaskGitHub        TaskKind = "github"
+	// Exploit-stage task kinds — operate on assets discovered during recon and
+	// attempt controlled breach / validation.
+	TaskExploit       TaskKind = "exploit"
+	TaskExploitBrute  TaskKind = "exploit_brute"
+	TaskExploitInject TaskKind = "exploit_inject"
+	// Objective-stage task kinds — operate on exploited assets to extract
+	// loot, maintain shells, and map internal surfaces.
+	TaskObjective TaskKind = "objective"
 )
 
 type AssetKind string
@@ -106,6 +114,9 @@ const (
 	AssetSite        AssetKind = "site"
 	AssetURL         AssetKind = "url"
 	AssetCIDR        AssetKind = "cidr"
+	// AssetExploited marks an asset that has been successfully breached during
+	// the exploit stage — it carries the shell session / exploit result metadata.
+	AssetExploited AssetKind = "exploited"
 )
 
 type AssetOrigin string
@@ -123,6 +134,12 @@ const (
 	FindingWIH      FindingKind = "wih"
 	FindingFileLeak FindingKind = "file_leak"
 	FindingProtocol FindingKind = "protocol"
+	// FindingExploit records a confirmed exploit / breach result from the
+	// exploit stage — the asset was successfully compromised.
+	FindingExploit FindingKind = "exploit"
+	// FindingObjective records an objective-stage result — loot extracted,
+	// shell maintained, lateral movement, etc.
+	FindingObjective FindingKind = "objective"
 )
 
 type User struct {
@@ -640,6 +657,18 @@ func NewModel[T any](v T) T {
 		return any(x).(T)
 	case Finding:
 		x.CreatedAt, x.SchemaVersion = now, SchemaVersion
+		return any(x).(T)
+	case Objective:
+		x.DiscoveredAt, x.SchemaVersion = now, SchemaVersion
+		if x.Status == "" {
+			x.Status = "open"
+		}
+		return any(x).(T)
+	case ObjectiveAction:
+		x.CreatedAt = now
+		return any(x).(T)
+	case ShellCommand:
+		x.RunAt = now
 		return any(x).(T)
 	default:
 		return v
