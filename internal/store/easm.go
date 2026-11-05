@@ -510,7 +510,7 @@ func (s *Store) UpdateOrganization(ctx context.Context, org *domain.Organization
 		"canonical_name": org.CanonicalName, "aliases": jsonbExpr(org.Aliases), "region": org.Region,
 		"uscc": org.USCC, "status": org.Status, "merged_into": org.MergedInto,
 		"default_policy_id": org.DefaultPolicyID,
-		"updated_at": org.UpdatedAt,
+		"updated_at":        org.UpdatedAt,
 	}))
 }
 

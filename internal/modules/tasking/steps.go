@@ -20,6 +20,8 @@ func (e *Engine) executeStep(ctx context.Context, task *domain.Task, step *domai
 	switch step.Kind {
 	case "dns":
 		return e.stepDNS(ctx, task, step)
+	case "broaden":
+		return e.stepBroaden(ctx, task, step)
 	case "port":
 		return e.stepPort(ctx, task, step)
 	case "http":

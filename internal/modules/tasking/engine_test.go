@@ -44,6 +44,62 @@ func TestStepPlan(t *testing.T) {
 	}
 }
 
+func TestStepPlanBroadenIsOptIn(t *testing.T) {
+	// Without Broaden the default chain is unchanged (regression guard for the
+	// previously-shipped step plan).
+	base := &domain.Task{Kind: domain.TaskDomain, Options: domain.TaskOptions{PortScan: true}}
+	baseKinds := stepKinds(StepPlan(base))
+	if want := []string{"dns", "port", "http", "webintel", "stats"}; !equalStrings(baseKinds, want) {
+		t.Fatalf("default chain = %v, want %v", baseKinds, want)
+	}
+	// With Broaden the broaden step is inserted after dns and stays optional.
+	wide := &domain.Task{Kind: domain.TaskDomain, Options: domain.TaskOptions{PortScan: true, Broaden: true}}
+	steps := StepPlan(wide)
+	kinds := stepKinds(steps)
+	if want := []string{"dns", "broaden", "port", "http", "webintel", "stats"}; !equalStrings(kinds, want) {
+		t.Fatalf("broadened chain = %v, want %v", kinds, want)
+	}
+	for _, s := range steps {
+		if s.Kind == "broaden" && !s.Optional {
+			t.Fatalf("broaden step must be optional")
+		}
+	}
+	if queue := queueForStep("broaden"); queue != "q.discovery.broaden" {
+		t.Fatalf("broaden queue = %q", queue)
+	}
+}
+
+func stepKinds(steps []domain.TaskStep) []string {
+	kinds := make([]string, 0, len(steps))
+	for _, s := range steps {
+		kinds = append(kinds, s.Kind)
+	}
+	return kinds
+}
+
+func equalStrings(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func TestMergePolicyMergesBroaden(t *testing.T) {
+	opts := MergePolicy(domain.TaskOptions{}, domain.PolicyConfig{Broaden: true})
+	if !opts.Broaden {
+		t.Fatalf("policy broaden flag was not merged")
+	}
+	opts = MergePolicy(domain.TaskOptions{Broaden: true}, domain.PolicyConfig{})
+	if !opts.Broaden {
+		t.Fatalf("task broaden flag was lost")
+	}
+}
+
 func TestDeriveTaskOptionsSetsSubfinderOnlyForRootDomains(t *testing.T) {
 	base := domain.TaskOptions{DomainBrute: true, DomainBruteType: "big", DNSQueryPlugin: true}
 

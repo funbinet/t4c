@@ -161,6 +161,16 @@ func New(ctx context.Context, cfg config.Config, log *slog.Logger, version strin
 		Nuclei:        nucleiScanner,
 		POCClient:     pocClient, AssetsDir: cfg.Storage.AssetsDir,
 	}
+	// Opt-in recon broadening SDKs. All of them respect the netsafe policy and
+	// degrade gracefully when their upstream source is unreachable.
+	engine.Broaden = &tasking.Broadeners{
+		CT:        discovery.NewCTEnumerator(pdtools.NewSafeHTTPClient(policy, cfg.Scan.ProxyURL, 30)),
+		ASN:       discovery.NewASNResolver(pdtools.NewSafeHTTPClient(policy, cfg.Scan.ProxyURL, 15)),
+		DNSZone:   discovery.NewDNSZoneResolver(),
+		Cloud:     discovery.NewCloudEnumerator(pdtools.NewSafeHTTPClient(policy, cfg.Scan.ProxyURL, 30)),
+		RDNS:      discovery.NewRDNSResolver(),
+		Endpoints: discovery.NewEndpointEnumerator(pdtools.NewSafeHTTPClient(policy, cfg.Scan.ProxyURL, 30)),
+	}
 	engine.InitPlugins()
 	ident := identity.New(st, cfg, log)
 	gh := &github.Service{Store: st, Token: cfg.GitHub.Token, Client: &http.Client{Timeout: 30 * time.Second}, Log: log}

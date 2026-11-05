@@ -490,6 +490,8 @@ func (c Config) StepTimeout(kind string) time.Duration {
 		return 30 * time.Minute
 	case "poc":
 		return 45 * time.Minute
+	case "broaden":
+		return 20 * time.Minute
 	case "fofa":
 		return 20 * time.Minute
 	case "github":

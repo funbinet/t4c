@@ -58,13 +58,14 @@ type Engine struct {
 	POCClient     *poc.HTTPClient
 	AssetsDir     string
 	Notifier      Notifier
-	// OnFinalize is invoked (in a goroutine) after a task reaches a terminal
-	// state. The EASM layer uses it to invalidate its cached organization
-	// closures so freshly discovered assets and findings show up immediately.
-	OnFinalize   func(ctx context.Context)
-	pluginsOnce  sync.Once
-	plugins      []poc.Plugin
-	pluginByID   map[string]poc.Plugin
+	// Broaden holds the opt-in recon broadening SDKs (CT, ASN, DNS zone, cloud,
+	// rDNS, endpoints). When TaskOptions.Broaden is set the broaden step runs
+	// them after the core chain; nil adapters degrade to warnings.
+	Broaden     *Broadeners
+	OnFinalize  func(ctx context.Context)
+	pluginsOnce sync.Once
+	plugins     []poc.Plugin
+	pluginByID  map[string]poc.Plugin
 }
 
 type Notifier interface {
@@ -253,6 +254,9 @@ func StepPlan(t *domain.Task) []domain.TaskStep {
 	switch t.Kind {
 	case domain.TaskDomain:
 		steps = add(steps, "dns", false)
+		if t.Options.Broaden {
+			steps = add(steps, "broaden", true)
+		}
 		if t.Options.PortScan {
 			steps = add(steps, "port", false)
 		}
@@ -335,6 +339,7 @@ func MergePolicy(opts domain.TaskOptions, p domain.PolicyConfig) domain.TaskOpti
 		}
 	}
 	opts.RelatedScopeID = p.RelatedScopeID
+	opts.Broaden = opts.Broaden || p.Broaden
 	return opts
 }
 
@@ -358,6 +363,8 @@ func queueForStep(kind string) string {
 	switch kind {
 	case "dns", "fofa":
 		return "q.discovery.dns"
+	case "broaden":
+		return "q.discovery.broaden"
 	case "port":
 		return "q.discovery.network"
 	case "http":
