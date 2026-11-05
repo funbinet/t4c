@@ -7241,6 +7241,40 @@
         }
       }
     },
+    "/objectives/summary": {
+      "get": {
+        "operationId": "produceSummary",
+        "summary": "Objectives-mode produce analytics",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
     "/objectives/list": {
       "get": {
         "operationId": "listObjectives",

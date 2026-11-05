@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, Download, Eye, FileArchive, Flag, RefreshCw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { api, type Artifact, type Objective, type ObjectiveAction } from '@/api'
+import { api, type Artifact, type Objective } from '@/api'
 import { useAuth } from '@/app/auth'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { DataTable, type Column } from '@/components/common/data-table'
@@ -14,6 +14,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { canWrite } from '@/lib/access'
 import { formatNumber, formatTime, relativeTime } from '@/lib/format'
 import { humanize, severityVariant, statusVariant } from './chain-shared'
+import { ProduceBreakdown } from './chain-produce-breakdown'
+import { ObjectiveWorkflow } from './chain-objective-workflow'
 
 /**
  * ProducePanel is the objectives-mode payload surface: the objectives that
@@ -42,11 +44,6 @@ export function ProducePanel({
     queryKey: ['produce-artifacts', organizationId],
     queryFn: () => api.artifacts({ organizationId, pageSize: 100 }),
     refetchInterval: 15_000,
-  })
-  const objectiveActions = useQuery({
-    queryKey: ['produce-objective-actions', selectedObjective?.id],
-    queryFn: () => api.objectiveActions(selectedObjective?.id || '', { pageSize: 100 }),
-    enabled: Boolean(selectedObjective),
   })
 
   const markExported = useMutation({
@@ -179,7 +176,12 @@ export function ProducePanel({
             <Download className="mr-1 size-3.5" /> Download
           </Button>
           {writable ? (
-            <Button size="sm" variant="outline" onClick={() => onRunTask(row.assetId)} title="Re-run an objective probe">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onRunTask(row.assetId)}
+              title="Re-run an objective probe"
+            >
               <RefreshCw className="mr-1 size-3.5" /> Re-run
             </Button>
           ) : null}
@@ -203,6 +205,13 @@ export function ProducePanel({
 
   return (
     <div className="grid gap-4 xl:grid-cols-2">
+      <div className="xl:col-span-2">
+        <ProduceBreakdown
+          objectives={objectives.data?.items || []}
+          artifacts={artifacts.data?.items || []}
+          loading={objectives.isLoading || artifacts.isLoading}
+        />
+      </div>
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
           <CardTitle className="flex items-center gap-2">
@@ -241,13 +250,15 @@ export function ProducePanel({
         <SheetContent>
           <SheetHeader>
             <SheetTitle>{selectedObjective?.title || 'Objective'}</SheetTitle>
-            <SheetDescription>Objective detail and its recorded action timeline.</SheetDescription>
+            <SheetDescription>Objective detail, lifecycle status and its recorded action timeline.</SheetDescription>
           </SheetHeader>
           {selectedObjective ? (
-            <div className="space-y-3 text-xs">
+            <div className="space-y-4 text-xs">
               <div className="flex flex-wrap gap-1.5">
                 <Badge variant="info">{humanize(selectedObjective.kind)}</Badge>
-                <Badge variant={severityVariant(selectedObjective.severity)}>{humanize(selectedObjective.severity)}</Badge>
+                <Badge variant={severityVariant(selectedObjective.severity)}>
+                  {humanize(selectedObjective.severity)}
+                </Badge>
                 <Badge variant={statusVariant(selectedObjective.status)}>{humanize(selectedObjective.status)}</Badge>
               </div>
               <p className="leading-5 text-muted-foreground">{selectedObjective.detail || 'No detail recorded.'}</p>
@@ -259,24 +270,7 @@ export function ProducePanel({
                 <Fact label="Organization" value={selectedObjective.organizationId || '—'} />
                 <Fact label="Created By" value={selectedObjective.createdBy || '—'} />
               </dl>
-              <div>
-                <div className="mono-label mb-2">Action Timeline</div>
-                <div className="space-y-1.5">
-                  {(objectiveActions.data?.items || []).map((action: ObjectiveAction) => (
-                    <div key={action.id} className="rounded-[3px] border bg-card px-2.5 py-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <Badge variant="outline">{humanize(action.kind)}</Badge>
-                        <span className="text-[11px] text-muted-foreground">{formatTime(action.createdAt)}</span>
-                      </div>
-                      <div className="mt-1 break-words text-muted-foreground">{action.payload || '—'}</div>
-                      {action.result ? <div className="mt-0.5 text-mint">→ {action.result}</div> : null}
-                    </div>
-                  ))}
-                  {!objectiveActions.data?.items?.length ? (
-                    <div className="py-4 text-center uppercase tracking-[0.04em] text-muted-foreground">No actions recorded</div>
-                  ) : null}
-                </div>
-              </div>
+              <ObjectiveWorkflow objective={selectedObjective} writable={writable} />
             </div>
           ) : null}
         </SheetContent>

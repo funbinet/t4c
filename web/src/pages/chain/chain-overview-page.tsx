@@ -8,6 +8,7 @@ import {
   Flag,
   Layers,
   ListChecks,
+  PieChart,
   Radar,
   ShieldAlert,
   Target,
@@ -28,6 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { formatNumber, formatTime, relativeTime } from '@/lib/format'
 import { KIND_LABELS } from './chain-shared'
+import { Distribution, formatBytes, severityTone, toDistribution } from './chain-produce-breakdown'
 
 const STAGE_ICONS = { recon: Radar, exploit: Crosshair, objectives: Target } as const
 
@@ -65,8 +67,17 @@ export function ChainOverviewPage() {
     queryFn: () => api.artifacts({ pageSize: 6 }),
     enabled: mode === 'objectives',
   })
+  // Server-computed produce analytics (grouped in SQL). Authoritative across
+  // all objectives/artifacts, not just the recently loaded page above.
+  const produceSummary = useQuery({
+    queryKey: ['chain-overview-produce-summary'],
+    queryFn: () => api.produceSummary(),
+    enabled: mode === 'objectives',
+    refetchInterval: 30_000,
+  })
 
   const counts = overview.data?.counts || {}
+  const summary = produceSummary.data?.summary
   const byKind = overview.data?.byKind || {}
   const plugins = overview.data?.plugins || []
   const next = overview.data?.nextStage as Stage | undefined
@@ -101,7 +112,12 @@ export function ChainOverviewPage() {
       {overview.error ? <ErrorState error={overview.error} retry={() => overview.refetch()} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Organizations" value={formatNumber(counts.organizations)} icon={<Boxes className="size-4" />} hint="Discovered once in recon" />
+        <StatTile
+          label="Organizations"
+          value={formatNumber(counts.organizations)}
+          icon={<Boxes className="size-4" />}
+          hint="Discovered once in recon"
+        />
         <StatTile
           label={mode === 'objectives' ? 'Objectives' : 'Breached Assets'}
           value={formatNumber(counts.assets)}
@@ -114,7 +130,12 @@ export function ChainOverviewPage() {
           icon={mode === 'objectives' ? <FileArchive className="size-4" /> : <Terminal className="size-4" />}
           hint={`${formatNumber(counts.openSessions)} open sessions`}
         />
-        <StatTile label="Stage Tasks" value={formatNumber(counts.tasks)} icon={<ListChecks className="size-4" />} hint={`${formatNumber(counts.findings)} stage findings`} />
+        <StatTile
+          label="Stage Tasks"
+          value={formatNumber(counts.tasks)}
+          icon={<ListChecks className="size-4" />}
+          hint={`${formatNumber(counts.findings)} stage findings`}
+        />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
@@ -131,7 +152,11 @@ export function ChainOverviewPage() {
               Object.entries(byKind)
                 .sort((a, b) => b[1] - a[1])
                 .map(([kind, count]) => (
-                  <span key={kind} className="inline-flex items-center gap-1 rounded-[3px] border bg-card px-2 py-1 text-[11px]" title={kind}>
+                  <span
+                    key={kind}
+                    className="inline-flex items-center gap-1 rounded-[3px] border bg-card px-2 py-1 text-[11px]"
+                    title={kind}
+                  >
                     <span className="text-muted-foreground">{KIND_LABELS[kind] || kind}</span>
                     <span className="mono font-semibold text-mint">{formatNumber(count)}</span>
                   </span>
@@ -156,7 +181,9 @@ export function ChainOverviewPage() {
           <DataTable
             rows={plugins}
             rowKey={(row) => row.name || ''}
-            empty={<EmptyState title="No SDKs registered" description="Built-in plugins are registered on first request." />}
+            empty={
+              <EmptyState title="No SDKs registered" description="Built-in plugins are registered on first request." />
+            }
             columns={pluginColumns}
           />
         </CardContent>
@@ -206,7 +233,12 @@ export function ChainOverviewPage() {
               <DataTable
                 rows={sessions.data?.items || []}
                 rowKey={(row) => row.id || ''}
-                empty={<EmptyState title="No shell sessions" description="Successful exploits with shell capability open a session." />}
+                empty={
+                  <EmptyState
+                    title="No shell sessions"
+                    description="Successful exploits with shell capability open a session."
+                  />
+                }
                 columns={sessionColumns}
               />
             </CardContent>
@@ -225,7 +257,9 @@ export function ChainOverviewPage() {
               <DataTable
                 rows={objectives.data?.items || []}
                 rowKey={(row) => row.id || ''}
-                empty={<EmptyState title="No objectives yet" description="Run objective-stage tasks to collect produce." />}
+                empty={
+                  <EmptyState title="No objectives yet" description="Run objective-stage tasks to collect produce." />
+                }
                 columns={objectiveColumns}
               />
             </CardContent>
@@ -251,6 +285,34 @@ export function ChainOverviewPage() {
           </CardContent>
         </Card>
       ) : null}
+
+      {mode === 'objectives' ? (
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
+            <CardTitle className="flex items-center gap-2">
+              <PieChart className="size-4 text-mint" /> Produce Analytics
+            </CardTitle>
+            <span className="mono-label">
+              {formatNumber(summary?.objectives)} objectives · {formatNumber(summary?.exported)} exported ·{' '}
+              {formatBytes(summary?.totalBytes || 0)} extracted
+            </span>
+          </CardHeader>
+          <CardContent className="grid gap-5 pt-4 sm:grid-cols-3">
+            <Distribution title="Objectives by Status" data={toDistribution(summary?.byStatus)} />
+            <Distribution
+              title="Objectives by Severity"
+              data={toDistribution(summary?.bySeverity)}
+              toneByKey={severityTone}
+            />
+            <Distribution title="Artifacts by Kind" data={toDistribution(summary?.artifactsByKind)} />
+          </CardContent>
+          {produceSummary.isLoading ? (
+            <div className="px-4 pb-4 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+              Computing server-side produce breakdown…
+            </div>
+          ) : null}
+        </Card>
+      ) : null}
     </div>
   )
 }
@@ -269,7 +331,10 @@ function ChainProgressCard({ mode, counts, next }: { mode: Stage; counts: Record
           <Activity className="size-4 text-mint" /> Chain Progress
         </CardTitle>
         {next ? (
-          <Link to={`${stageBase(next)}`} className="inline-flex items-center gap-1 text-[11px] text-mint hover:underline">
+          <Link
+            to={`${stageBase(next)}`}
+            className="inline-flex items-center gap-1 text-[11px] text-mint hover:underline"
+          >
             Next: {STAGE_META[next].shortLabel} <ArrowRight className="size-3" />
           </Link>
         ) : (
@@ -297,7 +362,11 @@ function ChainProgressCard({ mode, counts, next }: { mode: Stage; counts: Record
               <span
                 className={cn(
                   'grid size-7 shrink-0 place-items-center rounded-full border',
-                  isDone ? 'border-mint bg-mint/15 text-mint' : isCurrent ? 'border-mint text-mint' : 'border-border text-muted-foreground',
+                  isDone
+                    ? 'border-mint bg-mint/15 text-mint'
+                    : isCurrent
+                      ? 'border-mint text-mint'
+                      : 'border-border text-muted-foreground',
                 )}
               >
                 <Icon className="size-3.5" />
@@ -322,28 +391,57 @@ const pluginColumns: Column<ChainPlugin>[] = [
   {
     key: 'severity',
     header: 'Severity',
-    cell: (row) => <Badge variant={row.severity === 'critical' ? 'danger' : row.severity === 'high' ? 'warning' : 'outline'}>{row.severity || 'info'}</Badge>,
+    cell: (row) => (
+      <Badge variant={row.severity === 'critical' ? 'danger' : row.severity === 'high' ? 'warning' : 'outline'}>
+        {row.severity || 'info'}
+      </Badge>
+    ),
   },
-  { key: 'description', header: 'Capability', cell: (row) => <span className="text-muted-foreground">{row.description || '—'}</span>, hideOnTablet: true },
+  {
+    key: 'description',
+    header: 'Capability',
+    cell: (row) => <span className="text-muted-foreground">{row.description || '—'}</span>,
+    hideOnTablet: true,
+  },
   {
     key: 'session',
     header: 'Session',
-    cell: (row) => <Badge variant={row.canOpenSession || row.requiresSession ? 'success' : 'outline'}>{row.canOpenSession ? 'opens' : row.requiresSession ? 'requires' : '—'}</Badge>,
+    cell: (row) => (
+      <Badge variant={row.canOpenSession || row.requiresSession ? 'success' : 'outline'}>
+        {row.canOpenSession ? 'opens' : row.requiresSession ? 'requires' : '—'}
+      </Badge>
+    ),
     hideOnTablet: true,
   },
 ]
 
 const sessionColumns: Column<ShellSession>[] = [
-  { key: 'host', header: 'Host', cell: (row) => <span className="mono">{row.host}:{row.port}</span> },
+  {
+    key: 'host',
+    header: 'Host',
+    cell: (row) => (
+      <span className="mono">
+        {row.host}:{row.port}
+      </span>
+    ),
+  },
   { key: 'protocol', header: 'Protocol', cell: (row) => <Badge variant="outline">{row.protocol}</Badge> },
-  { key: 'state', header: 'State', cell: (row) => <Badge variant={row.state === 'open' ? 'success' : 'outline'}>{row.state}</Badge> },
+  {
+    key: 'state',
+    header: 'State',
+    cell: (row) => <Badge variant={row.state === 'open' ? 'success' : 'outline'}>{row.state}</Badge>,
+  },
   { key: 'opened', header: 'Opened', cell: (row) => relativeTime(row.openedAt), hideOnTablet: true },
 ]
 
 const objectiveColumns: Column<Objective>[] = [
   { key: 'title', header: 'Objective', cell: (row) => <span className="font-medium">{row.title}</span> },
   { key: 'kind', header: 'Kind', cell: (row) => <Badge variant="info">{row.kind}</Badge> },
-  { key: 'status', header: 'Status', cell: (row) => <Badge variant={row.status === 'exported' ? 'success' : 'outline'}>{row.status}</Badge> },
+  {
+    key: 'status',
+    header: 'Status',
+    cell: (row) => <Badge variant={row.status === 'exported' ? 'success' : 'outline'}>{row.status}</Badge>,
+  },
   { key: 'time', header: 'Discovered', cell: (row) => relativeTime(row.discoveredAt), hideOnTablet: true },
 ]
 

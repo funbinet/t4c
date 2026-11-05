@@ -1557,6 +1557,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/objectives/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Objectives-mode produce analytics */
+        get: operations["produceSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/objectives/list": {
         parameters: {
             query?: never;
@@ -5678,6 +5695,29 @@ export interface operations {
     listExploitPlugins: {
         parameters: {
             query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["Problem"];
+        };
+    };
+    produceSummary: {
+        parameters: {
+            query?: {
+                organizationId?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

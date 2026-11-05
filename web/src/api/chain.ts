@@ -207,6 +207,22 @@ export type StageOverview = {
   recentArtifacts: Artifact[]
 }
 
+// ProduceSummary is the server-computed objectives-mode analytics returned by
+// GET /objectives/summary. Distributions are grouped in SQL, so the totals are
+// authoritative across all produce (not just the loaded page) and soft-deleted
+// records are excluded through the shared lifecycle.
+export type ProduceSummary = {
+  objectives: number
+  exported: number
+  byStatus: Record<string, number>
+  byKind: Record<string, number>
+  bySeverity: Record<string, number>
+  artifacts: number
+  totalBytes: number
+  checksummed: number
+  artifactsByKind: Record<string, number>
+}
+
 // StageOrganization is a recon-discovered organization annotated with its
 // per-stage chain counters (organizations are shared across all stages).
 export type StageOrganization = {
@@ -235,20 +251,18 @@ function typed<T>(operation: () => Promise<unknown>): Promise<T> {
 export const chainApi = {
   // --- Stage-scoped tasks (recon | exploit | objectives) ---
   stageTasks: (stage: Stage, query: StageQuery = {}) =>
-    typed<StageTaskResult>(() =>
-      client.GET('/{stage}/tasks', { params: { path: { stage }, query: query as never } }),
-    ),
+    typed<StageTaskResult>(() => client.GET('/{stage}/tasks', { params: { path: { stage }, query: query as never } })),
   createStageTask: (stage: Stage, body: Record<string, unknown>) =>
-    typed<StageTaskResult>(() =>
-      client.POST('/{stage}/tasks', { params: { path: { stage } }, body: body as never }),
-    ),
+    typed<StageTaskResult>(() => client.POST('/{stage}/tasks', { params: { path: { stage } }, body: body as never })),
 
   // --- Mode-scoped catalog (plan §7 / §9) ---
   stageOverview: (stage: Stage) =>
     typed<StageOverview>(() => client.GET('/{stage}/overview', { params: { path: { stage } } })),
   stageOrganizations: (stage: Stage, query: StageQuery = {}) =>
     typed<ChainPage<StageOrganization>>(() =>
-      client.GET('/{stage}/organizations', { params: { path: { stage }, query: { query: query.query || query.q } as never } }),
+      client.GET('/{stage}/organizations', {
+        params: { path: { stage }, query: { query: query.query || query.q } as never },
+      }),
     ),
   stageAssets: (stage: Stage, query: StageQuery = {}) =>
     typed<ChainPage<ChainAsset>>(() =>
@@ -314,14 +328,18 @@ export const chainApi = {
     ),
   exploitedAssets: (query: StageQuery = {}) =>
     typed<ChainPage<ChainAsset>>(() => client.GET('/exploit/assets', { params: { query: query as never } })),
-  exploitPlugins: () =>
-    typed<ChainPage<ChainPlugin>>(() => client.GET('/exploit/plugins')),
+  exploitPlugins: () => typed<ChainPage<ChainPlugin>>(() => client.GET('/exploit/plugins')),
 
   // --- Objectives stage ---
+  produceSummary: (organizationId?: string) =>
+    typed<{ stage: string; organizationId: string; summary: ProduceSummary }>(() =>
+      client.GET('/objectives/summary', {
+        params: { query: organizationId ? { organizationId } : {} } as never,
+      }),
+    ),
   objectives: (query: StageQuery = {}) =>
     typed<ChainPage<Objective>>(() => client.GET('/objectives/list', { params: { query: query as never } })),
-  objective: (id: string) =>
-    typed<Objective>(() => client.GET('/objectives/{id}', { params: { path: { id } } })),
+  objective: (id: string) => typed<Objective>(() => client.GET('/objectives/{id}', { params: { path: { id } } })),
   updateObjectiveStatus: (id: string, status: string) =>
     typed<{ id: string; status: string }>(() =>
       client.PATCH('/objectives/{id}/status', { params: { path: { id } }, body: { status } }),
@@ -335,9 +353,7 @@ export const chainApi = {
       client.POST('/objectives/{id}/actions', { params: { path: { id } }, body: body as never }),
     ),
   artifacts: (query: StageQuery = {}) =>
-    typed<ChainPage<Artifact>>(() =>
-      client.GET('/objectives/artifacts/list', { params: { query: query as never } }),
-    ),
+    typed<ChainPage<Artifact>>(() => client.GET('/objectives/artifacts/list', { params: { query: query as never } })),
   artifact: (id: string) =>
     typed<Artifact>(() => client.GET('/objectives/artifacts/{id}', { params: { path: { id } } })),
   // Auth-gated download: the backend writes Content-Disposition and an audit
@@ -359,11 +375,8 @@ export const chainApi = {
       client.DELETE('/objectives/artifacts/{id}', { params: { path: { id } } }),
     ),
   deleteObjective: (id: string) =>
-    typed<{ id: string; deleted: boolean }>(() =>
-      client.DELETE('/objectives/{id}', { params: { path: { id } } }),
-    ),
-  objectivePlugins: () =>
-    typed<ChainPage<ChainPlugin>>(() => client.GET('/objectives/plugins/list')),
+    typed<{ id: string; deleted: boolean }>(() => client.DELETE('/objectives/{id}', { params: { path: { id } } })),
+  objectivePlugins: () => typed<ChainPage<ChainPlugin>>(() => client.GET('/objectives/plugins/list')),
 
   // --- Governance ---
   advanceStage: (id: string, body: { fromStage?: string; toStage?: string } = {}) =>

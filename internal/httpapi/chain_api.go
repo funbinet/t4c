@@ -372,6 +372,20 @@ func (s *Server) handleListArtifacts(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": artifacts, "total": total, "page": q.Page, "pageSize": q.PageSize})
 }
 
+// handleProduceSummary returns server-computed objectives-mode analytics used
+// by the objectives Overview / Produce screens (plan §8.5). An optional
+// organizationId scopes the aggregation to one organization. The breakdown is
+// grouped in SQL, so it stays cheap no matter how much produce was collected.
+func (s *Server) handleProduceSummary(w http.ResponseWriter, r *http.Request) {
+	orgID := strings.TrimSpace(r.URL.Query().Get("organizationId"))
+	summary := s.Store.ProduceSummary(r.Context(), orgID)
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{
+		"stage":          string(domain.StageObjectives),
+		"organizationId": orgID,
+		"summary":        summary,
+	})
+}
+
 func (s *Server) handleGetArtifact(w http.ResponseWriter, r *http.Request) {
 	id, ok := pathID(w, r, "id")
 	if !ok {

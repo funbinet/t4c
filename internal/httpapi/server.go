@@ -221,6 +221,7 @@ func (s *Server) Router() http.Handler {
 
 			// Objectives stage: objectives, actions, artifacts, SDK registry.
 			protected.Get("/objectives/list", s.handleListObjectives)
+			protected.Get("/objectives/summary", s.handleProduceSummary)
 			protected.Get("/objectives/{id}", s.handleGetObjective)
 			protected.Patch("/objectives/{id}/status", s.requireWrite(s.handleUpdateObjectiveStatus))
 			protected.Get("/objectives/{id}/actions", s.handleObjectiveActions)
