@@ -12,6 +12,7 @@ import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states
 import { StatTile } from '@/components/common/stat-tile'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { RiskDistributionChart, RiskLegend, type RiskKey } from '@/components/visuals/risk-distribution'
+import { SurfaceMap } from '@/components/visuals/surface-map'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -29,6 +30,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { canWrite } from '@/lib/access'
 import { useAuth } from '@/app/auth'
+import { STAGE_META, stageBase, useMode } from '@/app/mode'
+import { StageBanner } from '@/components/chain/stage-banner'
 import { formatNumber, formatTime, relativeTime } from '@/lib/format'
 
 const tabs = ['overview', 'domains', 'assets', 'findings', 'tasks'] as const
@@ -36,6 +39,7 @@ const tabs = ['overview', 'domains', 'assets', 'findings', 'tasks'] as const
 export function OrganizationDetailPage() {
   const { id = '' } = useParams()
   const { role } = useAuth()
+  const { mode } = useMode()
   const queryClient = useQueryClient()
   const [params, setParams] = useSearchParams()
   const tab = tabs.includes((params.get('tab') as (typeof tabs)[number]) || 'overview')
@@ -80,8 +84,15 @@ export function OrganizationDetailPage() {
     enabled: Boolean(id),
   })
   const tasks = useQuery({
-    queryKey: ['organization-tasks', id],
-    queryFn: () => api.organizationTasks(id, { page: 1, pageSize: 100 }),
+    queryKey: ['organization-tasks', id, mode],
+    queryFn: () => api.organizationTasks(id, { page: 1, pageSize: 100, stage: mode === 'recon' ? '' : mode }),
+    enabled: Boolean(id),
+  })
+  // The organization's own map (plan §8.4): risk-colored pins scoped to this
+  // organization, rendered below the stat cards on the default Overview tab.
+  const orgMap = useQuery({
+    queryKey: ['organization-map', id],
+    queryFn: () => api.map(id),
     enabled: Boolean(id),
   })
 
@@ -357,10 +368,11 @@ export function OrganizationDetailPage() {
           ))}
         </TabsList>
         <TabsContent value="overview">
+          <StageBanner organizationId={id} />
           <div className="grid gap-4 xl:grid-cols-2">
             <Card>
               <CardHeader className="border-b py-3">
-                <CardTitle>Surface Summary</CardTitle>
+                <CardTitle>{mode === 'recon' ? 'Surface Summary' : `${STAGE_META[mode].shortLabel} Summary`}</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-2 text-xs">
                 <Fact label="Confirmed Root Domains" value={summary.data?.confirmedDomains || 0} />
@@ -413,7 +425,9 @@ export function OrganizationDetailPage() {
                   <div key={asset.id || asset.key} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
                     <span className="mono truncate">{asset.key}</span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <span className="text-muted-foreground">{asset.kind}</span>
+                      <span className="rounded-[3px] border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {asset.kind || 'asset'}
+                      </span>
                       <RiskBadge risk={asset.risk} />
                     </span>
                   </div>
@@ -456,7 +470,7 @@ export function OrganizationDetailPage() {
               <CardContent className="space-y-2 text-xs">
                 {(tasks.data?.items || []).slice(0, 5).map((task) => (
                   <div key={task.id} className="flex items-center justify-between gap-2 border-b pb-2 last:border-0">
-                    <Link className="truncate text-primary hover:underline" to={`/tasks/${task.id}`}>
+                    <Link className="truncate text-primary hover:underline" to={`${stageBase(mode)}/tasks/${task.id}`}>
                       {task.name || task.id}
                     </Link>
                     <span className="flex shrink-0 items-center gap-2">
@@ -470,6 +484,17 @@ export function OrganizationDetailPage() {
                     No scans yet — press Play to run a full recon.
                   </div>
                 ) : null}
+              </CardContent>
+            </Card>
+            <Card className="xl:col-span-2">
+              <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
+                <CardTitle>Organization Surface Map</CardTitle>
+                <span className="mono-label">
+                  {STAGE_META[mode].shortLabel} · {orgMap.data?.points?.length || 0} located pins
+                </span>
+              </CardHeader>
+              <CardContent className="p-0">
+                <SurfaceMap snapshot={orgMap.data} />
               </CardContent>
             </Card>
           </div>
@@ -583,13 +608,13 @@ export function OrganizationDetailPage() {
           </Card>
         </TabsContent>
         <TabsContent value="assets">
-          <AssetTab query={assets} />
+          <AssetTab query={assets} base={stageBase(mode)} />
         </TabsContent>
         <TabsContent value="findings">
           <FindingTab query={findings} organizationId={id} />
         </TabsContent>
         <TabsContent value="tasks">
-          <TaskTab query={tasks} />
+          <TaskTab query={tasks} base={stageBase(mode)} />
         </TabsContent>
       </Tabs>
 
@@ -811,7 +836,7 @@ export function OrganizationDetailPage() {
   )
 }
 
-function AssetTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
+function AssetTab({ query, base }: { query: ReturnType<typeof useQuery<any>>; base: string }) {
   const navigate = useNavigate()
   if (query.isLoading) return <LoadingBlock />
   const items = query.data?.items || []
@@ -821,7 +846,7 @@ function AssetTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
         <DataTable
           rows={items}
           rowKey={(row: EasmAsset) => row.id || row.key || ''}
-          onRowClick={(row: EasmAsset) => row.id && navigate(`/assets?focus=${row.id}`)}
+          onRowClick={(row: EasmAsset) => row.id && navigate(`${base}/assets?focus=${row.id}`)}
           rowLabel={(row: EasmAsset) => `Open asset ${row.key}`}
           empty={<EmptyState title="No assets" />}
           columns={[
@@ -887,7 +912,7 @@ function FindingTab({ query, organizationId }: { query: ReturnType<typeof useQue
     </Card>
   )
 }
-function TaskTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
+function TaskTab({ query, base }: { query: ReturnType<typeof useQuery<any>>; base: string }) {
   const navigate = useNavigate()
   if (query.isLoading) return <LoadingBlock />
   const items = query.data?.items || []
@@ -897,7 +922,7 @@ function TaskTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
         <DataTable
           rows={items}
           rowKey={(row: Task) => row.id || ''}
-          onRowClick={(row: Task) => row.id && navigate(`/tasks/${row.id}`)}
+          onRowClick={(row: Task) => row.id && navigate(`${base}/tasks/${row.id}`)}
           rowLabel={(row: Task) => `Open task ${row.name}`}
           empty={<EmptyState title="No tasks" />}
           columns={[
@@ -906,7 +931,7 @@ function TaskTab({ query }: { query: ReturnType<typeof useQuery<any>> }) {
               header: 'Task',
               stopRowClick: true,
               cell: (row: Task) => (
-                <Link className="font-medium text-primary hover:underline" to={`/tasks/${row.id}`}>
+                <Link className="font-medium text-primary hover:underline" to={`${base}/tasks/${row.id}`}>
                   {row.name}
                 </Link>
               ),

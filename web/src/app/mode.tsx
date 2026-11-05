@@ -11,14 +11,28 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 export type Stage = 'recon' | 'exploit' | 'objectives'
 
-const STAGES: readonly Stage[] = ['recon', 'exploit', 'objectives'] as const
+export const STAGES: readonly Stage[] = ['recon', 'exploit', 'objectives'] as const
 
 const STORAGE_KEY = 't4c.mode'
 
-export const STAGE_META: Record<Stage, { label: string; shortLabel: string }> = {
-  recon: { label: 'Reconnaissance', shortLabel: 'Recon' },
-  exploit: { label: 'Exploitation', shortLabel: 'Exploit' },
-  objectives: { label: 'Objectives', shortLabel: 'Objectives' },
+// Icon + accent metadata used by the mode toggle, stage banners and chain
+// screens so every stage renders with a consistent identity.
+export const STAGE_META: Record<Stage, { label: string; shortLabel: string; description: string }> = {
+  recon: {
+    label: 'Reconnaissance',
+    shortLabel: 'Recon',
+    description: 'Discover and map the external attack surface.',
+  },
+  exploit: {
+    label: 'Exploitation',
+    shortLabel: 'Exploit',
+    description: 'Validate findings and breach classified assets.',
+  },
+  objectives: {
+    label: 'Objectives',
+    shortLabel: 'Objectives',
+    description: 'Extract, inspect and export the produce of a breach.',
+  },
 }
 
 // Base path prefix for a stage: recon keeps the existing top-level routes,
@@ -49,6 +63,14 @@ function readStoredStage(): Stage {
   }
 }
 
+// A mode-prefixed URL is authoritative (deep links, refresh, back/forward).
+// Plain recon URLs fall back to the persisted choice so the console resumes
+// the operator's last stage instead of flashing the wrong mode on mount.
+function resolveStage(pathname: string): Stage {
+  const fromPath = stageFromPath(pathname)
+  return fromPath !== 'recon' ? fromPath : readStoredStage()
+}
+
 type ModeContextValue = { mode: Stage; setMode: (stage: Stage) => void }
 
 const ModeContext = createContext<ModeContextValue | null>(null)
@@ -56,12 +78,12 @@ const ModeContext = createContext<ModeContextValue | null>(null)
 export function ModeProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [mode, setModeState] = useState<Stage>(() => readStoredStage())
+  const [mode, setModeState] = useState<Stage>(() => resolveStage(location.pathname))
 
-  // The URL wins over localStorage so deep links into /exploit or /objectives
-  // select the right stage even if a different one was persisted.
+  // Resolve synchronously on every navigation so the stage never lags behind
+  // the URL (the initial state above already uses the same resolution rule).
   useEffect(() => {
-    setModeState(stageFromPath(location.pathname))
+    setModeState(resolveStage(location.pathname))
   }, [location.pathname])
 
   const setMode = useCallback(

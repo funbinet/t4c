@@ -1,5 +1,8 @@
 import type { components } from './schema'
 import { client, execute } from './client'
+import { chainApi } from './chain'
+
+export * from './chain'
 
 export type User = components['schemas']['User']
 export type Organization = components['schemas']['Organization']
@@ -238,6 +241,7 @@ export const api = {
     execute(() => client.POST('/recycle-bin/{type}/{id}/restore', { params: { path: { type, id } } as never })),
   systemInfo: () => execute(() => client.GET('/system/info')),
   ready: () => fetch('/readyz').then((response) => response.ok),
+  ...chainApi,
 }
 
 function csrfFromCookie(): string {
