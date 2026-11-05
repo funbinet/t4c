@@ -142,6 +142,30 @@ func (s *Store) ListTasks(ctx context.Context, q PageQuery, status, kind string)
 	return out, total, err
 }
 
+// ListTasksByStage returns tasks filtered by chain stage (recon, exploit,
+// objectives), with optional organization and status filters.
+func (s *Store) ListTasksByStage(ctx context.Context, stage domain.Stage, orgID, status string, q PageQuery) ([]domain.Task, int64, error) {
+	q = q.Normalized()
+	db := s.db.WithContext(ctx).Model(&domain.Task{}).Where("stage = ?", stage)
+	if orgID != "" {
+		db = db.Where("organization_id = ?", orgID)
+	}
+	if status != "" {
+		db = db.Where("status = ?", status)
+	}
+	if q.Search != "" {
+		pattern := ilike(q.Search)
+		db = db.Where(`(name ILIKE ? ESCAPE '\' OR target ILIKE ? ESCAPE '\')`, pattern, pattern)
+	}
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var out []domain.Task
+	err := db.Order(OrderClause(q.Sort)).Offset((q.Page - 1) * q.PageSize).Limit(q.PageSize).Find(&out).Error
+	return out, total, err
+}
+
 func (s *Store) UpdateTask(ctx context.Context, t *domain.Task) error {
 	return s.db.WithContext(ctx).Save(t).Error
 }

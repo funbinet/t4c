@@ -189,6 +189,34 @@ func (s *Server) Router() http.Handler {
 			protected.Post("/exports", s.requireWrite(s.handleCreateExport))
 			protected.Get("/exports/{name}", s.handleExportDownload)
 			protected.Get("/screenshots/{taskId}/{name}", s.handleScreenshot)
+
+			// --- Three-stage chain: mode-scoped endpoints ---
+			// Generic stage-scoped task endpoints (/api/v1/{stage}/tasks).
+			protected.Get("/{stage}/tasks", s.handleListStageTasks)
+			protected.Post("/{stage}/tasks", s.requireWrite(s.handleCreateStageTask))
+
+			// Exploit stage: shell sessions, exploited assets, exploit SDK registry.
+			protected.Get("/exploit/sessions", s.handleListSessions)
+			protected.Get("/exploit/sessions/{id}", s.handleGetSession)
+			protected.Post("/exploit/sessions/{id}/close", s.requireWrite(s.handleCloseSession))
+			protected.Post("/exploit/sessions/{id}/reignite", s.requireWrite(s.handleReigniteSession))
+			protected.Get("/exploit/sessions/{id}/commands", s.handleSessionCommands)
+			protected.Post("/exploit/sessions/{id}/commands", s.requireWrite(s.handleRunSessionCommand))
+			protected.Get("/exploit/assets", s.handleListExploitedAssets)
+			protected.Get("/exploit/plugins", s.handleListExploitPlugins)
+
+			// Objectives stage: objectives, actions, artifacts, SDK registry.
+			protected.Get("/objectives/list", s.handleListObjectives)
+			protected.Get("/objectives/{id}", s.handleGetObjective)
+			protected.Patch("/objectives/{id}/status", s.requireWrite(s.handleUpdateObjectiveStatus))
+			protected.Get("/objectives/{id}/actions", s.handleObjectiveActions)
+			protected.Post("/objectives/{id}/actions", s.requireWrite(s.handleAddObjectiveAction))
+			protected.Get("/objectives/artifacts/list", s.handleListArtifacts)
+			protected.Get("/objectives/artifacts/{id}", s.handleGetArtifact)
+			protected.Get("/objectives/plugins/list", s.handleListObjectivePlugins)
+
+			// Governance: advance an organization to the next chain stage.
+			protected.Post("/organizations/{id}/advance-stage", s.requireWrite(s.handleAdvanceStage))
 		})
 	})
 

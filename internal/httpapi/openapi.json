@@ -48,6 +48,10 @@
     },
     {
       "name": "Data"
+    },
+    {
+      "name": "Chain",
+      "description": "Three-stage chain: recon, exploit, objectives"
     }
   ],
   "components": {
@@ -122,20 +126,20 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         }
       },
@@ -609,20 +613,20 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -658,20 +662,20 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -688,11 +692,11 @@
           "kind": {
             "type": "string"
           },
-        "options": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": true
-        },
+          "options": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          },
           "scopeId": {
             "type": "string"
           },
@@ -715,31 +719,31 @@
           "lastRunAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "lastRunId": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "lastRunId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -756,18 +760,18 @@
           "kind": {
             "type": "string"
           },
-        "taskKind": {
-          "type": "string"
-        },
-        "target": {
-          "type": "string"
-        },
-        "policyId": {
-          "type": "string"
-        },
-        "resultSetId": {
-          "type": "string"
-        },
+          "taskKind": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "policyId": {
+            "type": "string"
+          },
+          "resultSetId": {
+            "type": "string"
+          },
           "cron": {
             "type": "string"
           },
@@ -786,39 +790,39 @@
           "nextRunAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "startAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "runCount": {
-          "type": "integer"
-        },
-        "lastRunAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "runCount": {
+            "type": "integer"
+          },
+          "lastRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -862,20 +866,20 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -933,20 +937,20 @@
           "lastSeen": {
             "type": "string",
             "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -1318,28 +1322,28 @@
           "title": {
             "type": "string"
           },
-        "origin": {
-          "type": "string",
-          "enum": [
-            "scan",
-            "manual"
-          ]
-        },
-        "displayName": {
-          "type": "string"
-        },
-        "displayUrl": {
-          "type": "string"
-        },
-        "notes": {
-          "type": "string"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
+          "origin": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "manual"
+            ]
+          },
+          "displayName": {
             "type": "string"
-          }
-        },
+          },
+          "displayUrl": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "risk": {
             "type": "string"
           },
@@ -1351,13 +1355,13 @@
             "type": "string",
             "format": "date-time"
           },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
-        },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
+          },
           "organizationIds": {
             "type": "array",
             "items": {
@@ -1563,20 +1567,20 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedBy": {
-          "type": "string"
-        },
-        "restoredAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "restoreReason": {
-          "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "restoredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "restoreReason": {
+            "type": "string"
           }
         },
         "additionalProperties": true
@@ -6742,6 +6746,922 @@
           },
           "400": {
             "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/{stage}/tasks": {
+      "get": {
+        "operationId": "listStageTasks",
+        "summary": "List tasks by chain stage",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "stage",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "recon",
+                "exploit",
+                "objectives"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createStageTask",
+        "summary": "Create a task in a chain stage",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "stage",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "recon",
+                "exploit",
+                "objectives"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "target": {
+                    "type": "string"
+                  },
+                  "policyId": {
+                    "type": "string"
+                  },
+                  "scopeId": {
+                    "type": "string"
+                  },
+                  "resultSetId": {
+                    "type": "string"
+                  },
+                  "organizationId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/sessions": {
+      "get": {
+        "operationId": "listSessions",
+        "summary": "List shell sessions",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "assetId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/sessions/{id}": {
+      "get": {
+        "operationId": "getSession",
+        "summary": "Get a shell session",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/sessions/{id}/close": {
+      "post": {
+        "operationId": "closeSession",
+        "summary": "Close a shell session",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/sessions/{id}/reignite": {
+      "post": {
+        "operationId": "reigniteSession",
+        "summary": "Re-ignite a closed shell session",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/sessions/{id}/commands": {
+      "get": {
+        "operationId": "listSessionCommands",
+        "summary": "List shell session command history",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "post": {
+        "operationId": "runSessionCommand",
+        "summary": "Run a command in a shell session",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "command": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/assets": {
+      "get": {
+        "operationId": "listExploitedAssets",
+        "summary": "List exploited assets",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/exploit/plugins": {
+      "get": {
+        "operationId": "listExploitPlugins",
+        "summary": "List exploit SDK plugins",
+        "tags": [
+          "Chain"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/list": {
+      "get": {
+        "operationId": "listObjectives",
+        "summary": "List objectives",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/{id}": {
+      "get": {
+        "operationId": "getObjective",
+        "summary": "Get an objective",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/{id}/status": {
+      "patch": {
+        "operationId": "updateObjectiveStatus",
+        "summary": "Update objective status",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/{id}/actions": {
+      "get": {
+        "operationId": "listObjectiveActions",
+        "summary": "List objective actions",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "post": {
+        "operationId": "addObjectiveAction",
+        "summary": "Add an objective action",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "payload": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/artifacts/list": {
+      "get": {
+        "operationId": "listArtifacts",
+        "summary": "List artifacts",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "objectiveId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/artifacts/{id}": {
+      "get": {
+        "operationId": "getArtifact",
+        "summary": "Get an artifact",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/objectives/plugins/list": {
+      "get": {
+        "operationId": "listObjectivePlugins",
+        "summary": "List objective SDK plugins",
+        "tags": [
+          "Chain"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/organizations/{id}/advance-stage": {
+      "post": {
+        "operationId": "advanceStage",
+        "summary": "Advance organization to the next chain stage",
+        "tags": [
+          "Chain"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fromStage": {
+                    "type": "string"
+                  },
+                  "toStage": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Problem"

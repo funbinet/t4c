@@ -2,6 +2,9 @@ package domain
 
 type Stage string
 
+// String returns the stage as a plain string value.
+func (s Stage) String() string { return string(s) }
+
 const (
 	StageRecon      Stage = "recon"      // external attack surface discovery & mapping
 	StageExploit    Stage = "exploit"    // controlled exploitation / validation of findings
