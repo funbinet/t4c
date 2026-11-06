@@ -8,16 +8,16 @@ export const SheetClose = DialogPrimitive.Close
 export function SheetContent({ className, children, ...props }: DialogPrimitive.DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-[2px]" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/80" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-full max-w-xl overflow-auto border-l border-border bg-card p-6 shadow-[0_0_40px_rgba(0,250,0,0.08)] outline-none sm:w-[520px]',
+          'fixed inset-y-0 right-0 z-50 w-full max-w-xl overflow-auto border-l bg-popover p-6 outline-none sm:w-[520px]',
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-[3px] p-1 text-muted-foreground hover:bg-secondary hover:text-mint">
+        <DialogPrimitive.Close className="absolute right-4 top-4 p-1 text-foreground hover:bg-accent">
           <X className="size-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

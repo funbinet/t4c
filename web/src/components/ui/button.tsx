@@ -3,34 +3,27 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
+// Every button is an outlined square. Nothing is filled at rest; hover or
+// active fills the surface, and that is the only state change.
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[4px] text-xs font-medium uppercase tracking-[0.06em] transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap border bg-transparent text-xs font-medium uppercase tracking-[0.06em] text-foreground disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        default:
-          'text-black shadow-[0_0_8px_rgba(0,200,83,0.16)] [background:var(--grad-button)] hover:[background:var(--accent-600)]',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-[#1a1a1a]',
-        outline:
-          'border border-border bg-card text-foreground hover:border-[rgba(0,250,0,0.45)] hover:bg-secondary hover:text-mint hover:shadow-[0_0_12px_rgba(0,250,0,0.18)]',
-        ghost: 'hover:bg-secondary hover:text-mint hover:shadow-[0_0_10px_rgba(0,250,0,0.12)]',
-        destructive: 'bg-destructive text-black hover:bg-[#ff8585] hover:shadow-[0_0_12px_rgba(255,107,107,0.3)]',
-        link: 'text-mint hover:text-primary',
+        default: 'border-ring hover:bg-accent active:bg-accent',
+        secondary: 'border-border hover:bg-accent active:bg-accent',
+        outline: 'border-border hover:bg-accent active:bg-accent',
+        ghost: 'border-transparent hover:bg-accent active:bg-accent',
+        destructive: 'border-ring hover:bg-accent active:bg-accent',
+        link: 'border-transparent hover:bg-accent active:bg-accent',
       },
       size: {
         default: 'h-9 px-3.5 py-2',
-        sm: 'h-8 rounded-[4px] px-3 text-xs',
-        lg: 'h-10 rounded-[4px] px-5',
+        sm: 'h-8 px-3 text-xs',
+        lg: 'h-10 px-5',
         icon: 'size-9',
       },
     },
-    compoundVariants: [
-      {
-        variant: ['outline', 'ghost', 'secondary'],
-        size: 'icon',
-        class: 'text-mint hover:text-white',
-      },
-    ],
     defaultVariants: { variant: 'default', size: 'default' },
   },
 )

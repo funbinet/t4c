@@ -120,7 +120,7 @@ export function SurfaceMap({
   return (
     <div
       data-testid="surface-map"
-      className="data-grid relative h-full min-h-[260px] w-full cursor-grab overflow-hidden rounded-[4px] border bg-black active:cursor-grabbing"
+      className="relative h-full min-h-[260px] w-full cursor-grab overflow-hidden border bg-background active:cursor-grabbing"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -139,7 +139,7 @@ export function SurfaceMap({
           },
         }}
       />
-      <div className="glass pointer-events-none absolute bottom-3 left-3 rounded-[4px] px-2.5 py-1.5 text-[10px] text-muted-foreground shadow-sm">
+      <div className="pointer-events-none absolute bottom-3 left-3 border bg-popover px-2.5 py-1.5 text-[10px] text-muted-foreground">
         Coordinates come from asset IPs · unlocated assets are not plotted
       </div>
     </div>

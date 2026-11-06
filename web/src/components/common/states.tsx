@@ -50,7 +50,7 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="grid min-h-48 place-items-center rounded-[4px] border border-dashed bg-card px-6 text-center">
+    <div className="grid min-h-48 place-items-center border border-dashed bg-card px-6 text-center">
       <div>
         <div className="text-xs font-semibold uppercase tracking-[0.06em]">{title}</div>
         {description ? <p className="mt-1 max-w-md text-xs leading-5 text-muted-foreground">{description}</p> : null}
@@ -63,17 +63,17 @@ export function EmptyState({
 export function ErrorState({ error, retry }: { error: unknown; retry?: () => void }) {
   const message = error instanceof Error ? error.message : 'Request failed. Please try again.'
   return (
-    <div className="rounded-[4px] border border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.06)] p-4">
+    <div className="border border-ring bg-popover p-4">
       <div className="flex items-start gap-3">
-        <AlertTriangle className="mt-0.5 size-4 text-destructive" />
+        <AlertTriangle className="mt-0.5 size-4 text-foreground" />
         <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-destructive">Unable to load</div>
-          <p className="mt-1 break-words text-xs leading-5 text-[#ff9d9d]">{message}</p>
+          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-foreground">Unable to load</div>
+          <p className="mt-1 break-words text-xs leading-5 text-foreground">{message}</p>
         </div>
         {retry ? (
-          <Button size="sm" variant="outline" onClick={retry}>
+          <Button size="icon" variant="outline" onClick={retry} title="Retry" aria-label="Retry">
             <RotateCcw />
-            Retry
+            <span className="sr-only">Retry</span>
           </Button>
         ) : null}
       </div>

@@ -18,7 +18,7 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 export function Fact({ label, value, className }: { label: string; value: ReactNode; className?: string }) {
   return (
-    <div className={cn('rounded-[4px] border bg-card p-3', className)}>
+    <div className={cn('border bg-card p-3', className)}>
       <div className="mono-label">{label}</div>
       <div className="mt-1.5 text-xs font-medium">{value}</div>
     </div>
@@ -50,7 +50,7 @@ export function KeyValues({
     : []
   if (!entries.length) return <div className="text-xs text-muted-foreground">No structured fields</div>
   return (
-    <dl className="divide-y rounded-[4px] border text-xs">
+    <dl className="divide-y border text-xs">
       {entries.map(([key, value]) => (
         <div key={key} className="grid grid-cols-[120px_1fr] gap-2 px-3 py-2">
           <dt className="truncate text-muted-foreground">{key}</dt>
@@ -69,7 +69,7 @@ export function Breadcrumb({ items }: { items: Array<{ label: string; to?: strin
         <span key={index} className="flex min-w-0 items-center gap-2">
           {index > 0 ? <span className="text-dim">/</span> : null}
           {item.to ? (
-            <Link to={item.to} className="shrink-0 hover:text-mint">
+            <Link to={item.to} className="shrink-0 underline-offset-2 hover:underline">
               {item.label}
             </Link>
           ) : (

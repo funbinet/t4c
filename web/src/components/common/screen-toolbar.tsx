@@ -57,7 +57,7 @@ export function ExpandableSearch({
         onSubmit?.()
       }}
     >
-      <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-mint" />
+      <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-foreground" />
       <Input
         autoFocus
         value={value}
@@ -69,7 +69,7 @@ export function ExpandableSearch({
         type="button"
         title="Close search"
         aria-label="Close search"
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[3px] p-0.5 text-mint transition-colors hover:text-white"
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-foreground hover:bg-accent"
         onClick={() => {
           setOpen(false)
           onChange('')

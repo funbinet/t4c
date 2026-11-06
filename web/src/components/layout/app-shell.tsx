@@ -48,7 +48,6 @@ import { roleLabel } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { CommandPalette } from './command-palette'
 import { ModeToggle } from './mode-toggle'
-import { ScrollProgress } from '@/components/common/scroll-progress'
 
 type NavItem = { to: string; label: string; icon: typeof Activity; end?: boolean }
 type NavGroup = { label: string; items: NavItem[] }
@@ -149,9 +148,9 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                       cn(
                         // Shared hitbox: 36px tall, uniform radius, no outline. The
                         // bottom collapse button is the reference for hover/active.
-                        'flex h-9 items-center rounded-[4px] text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-[rgba(0,250,0,0.06)] hover:text-white',
+                        'flex h-9 items-center text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground',
                         collapsed ? 'w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
-                        isActive && 'bg-[rgba(0,250,0,0.1)] text-mint hover:bg-[rgba(0,250,0,0.12)]',
+                        isActive && 'bg-accent text-foreground',
                       )
                     }
                   >
@@ -242,7 +241,7 @@ export function AppShell() {
     <div className="min-h-screen xl:h-dvh xl:min-h-0 xl:overflow-hidden">
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-black/65 text-ink backdrop-blur-md transition-[width] lg:flex',
+          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-border bg-background lg:flex',
           collapsed ? 'w-[68px]' : 'w-[236px]',
         )}
       >
@@ -250,7 +249,7 @@ export function AppShell() {
           to="/"
           aria-label="T4C home"
           className={cn(
-            'flex h-16 shrink-0 items-center border-b border-border transition-opacity hover:opacity-80',
+            'flex h-16 shrink-0 items-center border-b border-border',
             collapsed ? 'justify-center' : 'justify-center gap-3 px-4',
           )}
         >
@@ -267,7 +266,7 @@ export function AppShell() {
             variant="ghost"
             size="icon"
             title={collapsed ? 'Expand navigation' : 'Collapse navigation'}
-            className="mx-auto flex text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
+            className="mx-auto flex text-muted-foreground hover:bg-accent hover:text-foreground"
             onClick={() => setCollapsed((value) => !value)}
           >
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
@@ -283,13 +282,13 @@ export function AppShell() {
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col border-r border-border bg-black/85 text-ink shadow-2xl backdrop-blur-md">
+          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col border-r border-border bg-popover text-ink">
             <div className="flex h-16 items-center justify-between border-b border-border px-4">
               <Link
                 to="/"
                 aria-label="T4C home"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                className="flex items-center gap-3"
               >
                 <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain" />
                 <div>
@@ -299,7 +298,7 @@ export function AppShell() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
+                className="text-muted-foreground hover:bg-accent hover:text-foreground"
                 onClick={() => setMobileOpen(false)}
               >
                 <X />
@@ -313,11 +312,11 @@ export function AppShell() {
 
       <div
         className={cn(
-          'min-h-screen transition-[padding] xl:flex xl:h-dvh xl:min-h-0 xl:flex-col xl:overflow-hidden',
+          'min-h-screen xl:flex xl:h-dvh xl:min-h-0 xl:flex-col xl:overflow-hidden',
           collapsed ? 'lg:pl-[68px]' : 'lg:pl-[236px]',
         )}
       >
-        <header className="glass sticky top-0 z-20 grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-border px-4 sm:px-6">
+        <header className="sticky top-0 z-20 grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-border px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-2">
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <Menu />
@@ -331,17 +330,17 @@ export function AppShell() {
               size="icon"
               title="Refresh"
               aria-label="Refresh"
-              className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
+              className="text-muted-foreground hover:bg-accent hover:text-foreground"
               onClick={refresh}
             >
-              <RotateCw className={cn('size-4', refreshing && 'refresh-spin')} />
+              <RotateCw className="size-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               title="Search (Ctrl/⌘ K)"
               aria-label="Search"
-              className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
+              className="text-muted-foreground hover:bg-accent hover:text-foreground"
               onClick={() => setSearchOpen(true)}
             >
               <Search className="size-4" />
@@ -354,7 +353,7 @@ export function AppShell() {
                     size="icon"
                     title="Time range"
                     aria-label="Time range"
-                    className="text-muted-foreground hover:bg-[rgba(0,250,0,0.06)] hover:text-white"
+                    className="text-muted-foreground hover:bg-accent hover:text-foreground"
                   >
                     <Filter className="size-4" />
                   </Button>
@@ -372,7 +371,7 @@ export function AppShell() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="group max-w-44" title="Account">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full border border-[rgba(0,250,0,0.28)] bg-[rgba(0,250,0,0.06)] text-mint transition-colors group-hover:text-white">
+                  <span className="grid size-6 shrink-0 place-items-center border border-border text-foreground">
                     <UserRound className="size-3.5" />
                   </span>
                   <span className="hidden truncate normal-case sm:inline">{user?.username || 'Account'}</span>
@@ -401,7 +400,6 @@ export function AppShell() {
         </main>
       </div>
       <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
-      <ScrollProgress />
     </div>
   )
 }

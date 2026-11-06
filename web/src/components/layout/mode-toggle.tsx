@@ -16,7 +16,7 @@ export function ModeToggle({ collapsed = false }: { collapsed?: boolean }) {
     <div
       role="group"
       aria-label="Active stage"
-      className={cn('flex items-center gap-1 rounded-[4px] border border-border p-1', collapsed && 'flex-col')}
+      className={cn('flex items-center gap-1 border border-border p-1', collapsed && 'flex-col')}
     >
       {STAGES.map(({ stage, label, icon: Icon }) => {
         const active = mode === stage
@@ -29,8 +29,8 @@ export function ModeToggle({ collapsed = false }: { collapsed?: boolean }) {
             aria-pressed={active}
             onClick={() => setMode(stage)}
             className={cn(
-              'flex h-9 w-9 items-center justify-center rounded-[4px] text-muted-foreground transition-all duration-200 hover:bg-[rgba(0,250,0,0.06)] hover:text-white',
-              active && 'bg-[rgba(0,250,0,0.1)] text-mint hover:bg-[rgba(0,250,0,0.12)]',
+              'flex h-9 w-9 items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground',
+              active && 'bg-accent text-foreground',
             )}
           >
             <Icon className="size-4" />

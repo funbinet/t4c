@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse rounded-[4px] bg-secondary', className)} />
+  return <div className={cn('bg-secondary', className)} />
 }
 
 /** A few stacked text lines used inside cards, lists and detail headers. */
@@ -18,7 +18,7 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 /** Card-shaped placeholder with a header row and a body of lines. */
 export function SkeletonCard({ lines = 3, className }: { lines?: number; className?: string }) {
   return (
-    <div className={cn('rounded-[4px] border bg-card p-4', className)}>
+    <div className={cn('border bg-card p-4', className)}>
       <Skeleton className="mb-3 h-4 w-1/3" />
       <SkeletonText lines={lines} />
     </div>
@@ -40,10 +40,10 @@ export function SkeletonTable({
   className?: string
 }) {
   return (
-    <div className={cn('rounded-[4px] border bg-card', className)}>
+    <div className={cn('border bg-card', className)}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-xs">
-          <thead className="mono-label sticky top-0 z-10 border-b bg-[#050505] !text-[11px]">
+          <thead className="mono-label sticky top-0 z-10 border-b bg-popover !text-[11px]">
             <tr>
               {Array.from({ length: columns }).map((_, index) => (
                 <th key={index} className="px-4 py-3 font-medium">

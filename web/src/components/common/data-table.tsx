@@ -38,13 +38,13 @@ export function DataTable<T>({
     <>
       <div
         className={cn(
-          'hidden overflow-hidden rounded-[4px] border bg-card md:block',
+          'hidden overflow-hidden border bg-card md:block',
           scrollable && 'max-h-[calc(100vh-18rem)] overflow-y-auto scrollbar-thin',
         )}
       >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-xs">
-            <thead className="mono-label sticky top-0 z-10 border-b bg-[#050505] !text-[11px]">
+            <thead className="mono-label sticky top-0 z-10 border-b bg-popover !text-[11px]">
               <tr>
                 {columns.map((column) => (
                   <th
@@ -64,7 +64,7 @@ export function DataTable<T>({
               {rows.map((row) => (
                 <tr
                   key={rowKey(row)}
-                  className={cn('transition-colors hover:bg-[#111111]', onRowClick && 'cursor-pointer')}
+                  className={cn('hover:bg-accent', onRowClick && 'cursor-pointer')}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   onKeyDown={
                     onRowClick
@@ -102,7 +102,7 @@ export function DataTable<T>({
         {rows.map((row) => (
           <div
             key={rowKey(row)}
-            className={cn('rounded-[4px] border bg-card p-3', onRowClick && 'cursor-pointer')}
+            className={cn('border bg-card p-3', onRowClick && 'cursor-pointer')}
             onClick={onRowClick ? () => onRowClick(row) : undefined}
             onKeyDown={
               onRowClick
