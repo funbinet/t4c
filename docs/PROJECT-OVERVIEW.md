@@ -17,8 +17,8 @@ design decisions behind it, and the exact mechanics of how it does its work.
 | Version | `3.0.0` (`version.txt`, Makefile `VERSION`) |
 | License | MIT (`LICENSE`, `LICENSE.md`), plus an explicit usage disclaimer (`Disclaimer.md`) |
 | Console title | "T4C" (`web/index.html`) |
-| Logo mark | The `t4c.png` logo shown on the login screen, sidebar, and favicon; black terminal hero with neon-green particle field (`--grad-hero`, `.data-grid`, `<ParticleField>`) |
-| Visual language | Dark-first neon-terminal theme: pure-black canvas, one neon-green accent (`#00fa00`), green-tinted hairlines, film grain, glass materials; risk severity uses the green family (critical = error red) for data only, never decoration. See `docs/UI-AUDIT.md` and `docs/superpowers/specs/2026-11-03-palette-comparison-map.md` |
+| Logo mark | The `t4c.png` logo shown on the login screen, sidebar, and favicon, drawn with the theme colors |
+| Visual language | Cutting mat theme: canvas `#090A08`, ink `#2D7B49`, surface `#0F2516`, two ink alpha blends, radius zero, no motion, no shadows, static grid background. See `docs/UI-ENHANCEMENT.md` and `docs/UI-AUDIT.md` |
 | Voice | Authorization-first: authorized use only, evidence, traceability, ownership |
 
 The product positions itself around one rule stated everywhere from the README

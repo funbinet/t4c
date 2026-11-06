@@ -115,7 +115,7 @@ export function severityTone(key: string): string {
     case 'info':
       return 'bg-[rgb(90,160,250)]'
     default:
-      return 'bg-mint'
+      return "bg-ring"
   }
 }
 
@@ -146,7 +146,7 @@ export function Distribution({
                 <div
                   className={cn(
                     'h-full',
-                    toneByKey ? toneByKey(item.key) : 'bg-mint',
+                    toneByKey ? toneByKey(item.key) : "bg-ring",
                   )}
                   style={{ width: `${max ? Math.max(6, Math.round((item.count / max) * 100)) : 0}%` }}
                 />

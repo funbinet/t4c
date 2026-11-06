@@ -6,7 +6,7 @@ export function TabsList({ className, ...props }: TabsPrimitive.TabsListProps) {
   return (
     <TabsPrimitive.List
       className={cn(
-        'inline-flex h-9 items-center border border-border p-1 text-dim',
+        'inline-flex h-9 items-center border border-border p-1 text-muted-foreground',
         className,
       )}
       {...props}

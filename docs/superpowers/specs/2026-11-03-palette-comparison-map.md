@@ -1,3 +1,7 @@
+> Historical record. This blueprint comparison describes the earlier neon terminal
+> theme, which the 2026-11 cutting mat overhaul replaced. The authoritative design
+> system is `docs/UI-ENHANCEMENT.md` and the conformance record is `docs/UI-AUDIT.md`.
+
 # Blueprint Comparison Map — pellete.md + back.md → T4C Console
 
 Audit date: 2026-11-03. Scope: `web/src` only. Blueprint files: `pellete.md` (palette), `back.md` (login hero background).

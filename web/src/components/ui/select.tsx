@@ -8,7 +8,7 @@ export function SelectTrigger({ className, children, ...props }: SelectPrimitive
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        'flex h-9 w-full items-center justify-between border border-input bg-popover px-3 text-sm outline-none focus-visible:border-ring data-[placeholder]:text-dim',
+        'flex h-9 w-full items-center justify-between border border-input bg-popover px-3 text-sm outline-none focus-visible:border-ring data-[placeholder]:text-muted-foreground',
         className,
       )}
       {...props}

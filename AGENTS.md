@@ -8,7 +8,7 @@ T4C is a Go modular monolith with an embedded React console.
 - `internal/app/`, `internal/httpapi/`, `internal/store/`: wiring, REST/SSE/OpenAPI, and PostgreSQL/GORM repositories.
 - `internal/modules/`: identity, discovery, webintel, EASM, PoC, tasking, monitoring, GitHub, and reporting.
 - `internal/platform/`: config, logging, queues, safety, notifications, and ProjectDiscovery helpers.
-- `web/src/`: Vue/TypeScript source; `web/e2e/`: Playwright tests; output goes to `internal/webui/dist`.
+- `web/src/`: React/TypeScript source; `web/e2e/`: Playwright tests; output goes to `internal/webui/dist`.
 - `assets/`: dictionaries, fingerprints, WIH rules, and nuclei templates. `deploy/` and `docs/` contain deployment and design docs.
 
 ## Build, Test, and Development Commands
@@ -31,7 +31,7 @@ Run `./t4c migrate --config config.yaml` before starting; production uses Redis 
 - Put `context.Context` first and propagate cancellation through scanners and workers.
 - Use camelCase JSON/BSON fields such as `taskId` and `scopeId`.
 - Use in-process ProjectDiscovery SDKs pinned in `go.mod`; no CLI wrappers or shell-outs.
-- Vue uses two spaces, `<script setup lang="ts">`, Composition API, and `PascalCase` components.
+- React uses two spaces, function components with hooks, and `PascalCase` component files.
 - Keep `pdtools` as the sole mapping of `netsafe` policy and logs to ProjectDiscovery config.
 - Do not reintroduce Python, Flask, Celery, nmap, massdns, or PhantomJS.
 

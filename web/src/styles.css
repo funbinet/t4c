@@ -41,15 +41,6 @@
   --color-input: var(--surface);
   --color-ring: var(--ink);
 
-  /* compat aliases resolving to the three colors */
-  --color-mint: var(--ink);
-  --color-dim: var(--ink-faint);
-  --color-error: var(--ink);
-  --color-brand: var(--surface);
-  --color-brand-600: var(--surface);
-  --color-accent-600: var(--ink);
-  --color-accent-bright: var(--ink);
-
   /* radius: zero everywhere */
   --radius-sm: 0rem;
   --radius-md: 0rem;

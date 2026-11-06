@@ -369,9 +369,9 @@ function ChainProgressCard({ mode, counts, next }: { mode: Stage; counts: Record
                 className={cn(
                   'grid size-7 shrink-0 place-items-center border',
                   isDone
-                    ? 'border-mint bg-accent text-foreground'
+                    ? 'border-ring bg-accent text-foreground'
                     : isCurrent
-                      ? 'border-mint text-foreground'
+                      ? 'border-ring text-foreground'
                       : 'border-border text-muted-foreground',
                 )}
               >

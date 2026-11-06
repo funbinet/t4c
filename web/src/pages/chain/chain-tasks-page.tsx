@@ -159,7 +159,7 @@ export function ChainTasksPage() {
       cell: (row) => (
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-16 overflow-hidden bg-border">
-            <div className="h-full bg-mint" style={{ width: `${Math.min(100, Math.max(0, row.progress || 0))}%` }} />
+            <div className="h-full bg-ring" style={{ width: `${Math.min(100, Math.max(0, row.progress || 0))}%` }} />
           </div>
           <span className="mono text-[11px] text-muted-foreground">{Math.round(row.progress || 0)}%</span>
         </div>

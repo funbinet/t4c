@@ -67,7 +67,7 @@ export function Breadcrumb({ items }: { items: Array<{ label: string; to?: strin
     <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
       {items.map((item, index) => (
         <span key={index} className="flex min-w-0 items-center gap-2">
-          {index > 0 ? <span className="text-dim">/</span> : null}
+          {index > 0 ? <span className="text-muted-foreground">/</span> : null}
           {item.to ? (
             <Link to={item.to} className="shrink-0 underline-offset-2 hover:underline">
               {item.label}
