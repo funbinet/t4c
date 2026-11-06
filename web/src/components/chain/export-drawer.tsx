@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Check, Download, FileArchive, FileJson, FileSpreadsheet, Loader2 } from 'lucide-react'
+import { CheckCheck, Download, FileArchive, FileJson, FileSpreadsheet, Loader2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api, type Artifact, type Objective } from '@/api'
@@ -131,7 +131,7 @@ export function ExportDrawer({
       <SheetContent>
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <FileArchive className="size-4 text-mint" /> Export Objectives
+            <FileArchive className="size-4 text-foreground" /> Export Objectives
           </SheetTitle>
           <SheetDescription>
             Select collected artifacts and objectives to export as JSON or CSV. Downloads are generated client-side.
@@ -149,12 +149,15 @@ export function ExportDrawer({
             </Button>
           </div>
           <Button
-            size="sm"
+            size="icon"
             variant="ghost"
             className="ml-auto"
             onClick={() => setSelected(new Set(allItems.map((item) => item.id)))}
+            title="Select all"
+            aria-label="Select all"
           >
-            Select all
+            <CheckCheck />
+            <span className="sr-only">Select all</span>
           </Button>
         </div>
 
@@ -167,13 +170,13 @@ export function ExportDrawer({
         <div className="max-h-[52vh] space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
           {artifacts.isLoading || objectives.isLoading ? (
             <div className="flex items-center gap-2 py-8 text-xs text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Loading collected data…
+              <Loader2 className="size-4" /> Loading collected data…
             </div>
           ) : null}
           {allItems.map((item) => (
             <label
               key={item.id}
-              className="flex cursor-pointer items-center gap-3 rounded-[4px] border bg-card px-3 py-2 text-xs hover:border-[rgba(0,250,0,0.35)]"
+              className="flex cursor-pointer items-center gap-3 border bg-card px-3 py-2 text-xs hover:border-ring"
             >
               <Checkbox
                 checked={selected.has(item.id)}
@@ -201,10 +204,9 @@ export function ExportDrawer({
           <span className="text-[11px] text-muted-foreground">
             {chosen.length} item(s) · {format.toUpperCase()}
           </span>
-          <Button size="sm" onClick={doExport} disabled={exporting || !chosen.length}>
-            {exporting ? <Loader2 className="mr-1 size-3.5 animate-spin" /> : <Download className="mr-1 size-3.5" />}
-            Export
-            <Check className="ml-1 size-3.5" />
+          <Button size="icon" onClick={doExport} disabled={exporting || !chosen.length} title="Export" aria-label="Export">
+            <Download />
+            <span className="sr-only">Export</span>
           </Button>
         </div>
       </SheetContent>
@@ -214,9 +216,9 @@ export function ExportDrawer({
 
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[3px] border bg-card px-2 py-1.5 text-center">
+    <div className=" border bg-card px-2 py-1.5 text-center">
       <div className="mono-label">{label}</div>
-      <div className="mono text-sm font-semibold text-mint">{value}</div>
+      <div className="mono text-sm font-semibold text-foreground">{value}</div>
     </div>
   )
 }

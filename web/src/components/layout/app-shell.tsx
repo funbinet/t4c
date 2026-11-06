@@ -253,7 +253,7 @@ export function AppShell() {
             collapsed ? 'justify-center' : 'justify-center gap-3 px-4',
           )}
         >
-          <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain shadow-sm" />
+          <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 object-contain" />
           {!collapsed ? (
             <div className="min-w-0">
               <div className="text-sm font-semibold tracking-wide text-ink">T4C</div>
@@ -278,7 +278,7 @@ export function AppShell() {
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0 bg-popover"
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
           />
@@ -290,7 +290,7 @@ export function AppShell() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3"
               >
-                <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 rounded-[4px] object-contain" />
+                <img src={t4cLogo} alt="T4C logo" className="size-9 shrink-0 object-contain" />
                 <div>
                   <div className="font-semibold">T4C</div>
                 </div>

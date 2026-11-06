@@ -122,7 +122,7 @@ export function APIKeysPage() {
                     <Button
                       size="icon"
                       variant="outline"
-                      className="size-8 text-destructive hover:text-destructive"
+                      className="size-8 text-destructive"
                       title="Revoke"
                       onClick={() => remove.mutate(row.id || '')}
                     >
@@ -153,9 +153,15 @@ export function APIKeysPage() {
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
-            <Button disabled={!name.trim()} onClick={() => create.mutate()}>
+            <Button
+              size="icon"
+              disabled={!name.trim()}
+              onClick={() => create.mutate()}
+              title="Create"
+              aria-label="Create"
+            >
               <Plus />
-              Create
+              <span className="sr-only">Create</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -181,9 +187,9 @@ export function APIKeysPage() {
               <Copy />
               <span className="sr-only">Copy</span>
             </Button>
-            <Button onClick={() => setSecret('')}>
+            <Button size="icon" onClick={() => setSecret('')} title="Done" aria-label="Done">
               <KeyRound />
-              Done
+              <span className="sr-only">Done</span>
             </Button>
           </DialogFooter>
         </DialogContent>

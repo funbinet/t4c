@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Crosshair, Download, FileArchive, Layers, Play, Terminal, Zap } from 'lucide-react'
+import { Crosshair, Download, FileArchive, Layers, Play, Terminal, X, Zap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -300,8 +300,9 @@ export function ChainAssetsPage() {
             }
             action={
               writable ? (
-                <Button size="sm" onClick={() => openTask()}>
-                  Run a stage task
+                <Button size="icon" onClick={() => openTask()} title="Run a stage task" aria-label="Run a stage task">
+                  <Play />
+                  <span className="sr-only">Run a stage task</span>
                 </Button>
               ) : undefined
             }
@@ -342,7 +343,7 @@ export function ChainAssetsPage() {
                 </Badge>
                 <StagePill stage={mode} />
               </div>
-              <dl className="grid grid-cols-2 gap-2 rounded-[4px] border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
                 <Fact label="Key" value={selectedAsset.key || '—'} />
                 <Fact label="Origin" value={selectedAsset.origin || 'scan'} />
                 <Fact label="Confidence" value={confidencePercent(selectedAsset.confidence)} />
@@ -364,7 +365,7 @@ export function ChainAssetsPage() {
               {selectedAsset.notes ? <p className="leading-5 text-muted-foreground">{selectedAsset.notes}</p> : null}
               <div>
                 <div className="mono-label mb-1.5">Enrichment Data</div>
-                <pre className="max-h-56 overflow-auto rounded-[4px] border bg-[#050b05] p-3 font-mono text-[11px] leading-relaxed text-[#9fe89f] scrollbar-thin">
+                <pre className="max-h-56 overflow-auto border bg-accent p-3 font-mono text-[11px] leading-relaxed text-foreground scrollbar-thin">
                   {JSON.stringify(selectedAsset.data || {}, null, 2)}
                 </pre>
               </div>
@@ -443,11 +444,13 @@ export function ChainAssetsPage() {
             </label>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setTaskOpen(false)}>
-              Cancel
+            <Button variant="outline" size="icon" onClick={() => setTaskOpen(false)} title="Cancel" aria-label="Cancel">
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
-            <Button onClick={() => runTask.mutate()} disabled={runTask.isPending}>
-              <Zap className="mr-1 size-3.5" /> {runTask.isPending ? 'Queueing…' : 'Queue task'}
+            <Button size="icon" onClick={() => runTask.mutate()} disabled={runTask.isPending} title="Queue task" aria-label="Queue task">
+              <Zap />
+              <span className="sr-only">Queue task</span>
             </Button>
           </DialogFooter>
         </DialogContent>

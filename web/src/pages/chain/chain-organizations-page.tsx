@@ -117,7 +117,7 @@ export function ChainOrganizationsPage() {
     {
       key: 'exploited',
       header: 'Breached',
-      cell: (row) => <span className="mono font-semibold text-mint">{formatNumber(row.exploited)}</span>,
+      cell: (row) => <span className="mono font-semibold text-foreground">{formatNumber(row.exploited)}</span>,
     },
     {
       key: 'sessions',
@@ -166,7 +166,7 @@ export function ChainOrganizationsPage() {
                 <ArrowRight className="mr-1 size-3.5" /> Advance to {STAGE_META[next].shortLabel}
               </Button>
             ) : (
-              <Badge variant="outline" className="normal-case tracking-normal text-mint">
+              <Badge variant="outline" className="normal-case tracking-normal text-foreground">
                 Terminal stage
               </Badge>
             )}

@@ -83,7 +83,7 @@ export function TasksPage() {
       <ScreenToolbar
         left={
           <>
-            <div className="flex rounded-[4px] bg-muted p-1">
+            <div className="flex bg-muted p-1">
               <Button
                 size="sm"
                 variant={origin === 'surface' ? 'default' : 'ghost'}
@@ -206,7 +206,7 @@ export function TasksPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-8 text-destructive hover:text-destructive"
+                        className="size-8 text-destructive"
                         title="Stop"
                         onClick={() => cancel.mutate(row.id || '')}
                       >

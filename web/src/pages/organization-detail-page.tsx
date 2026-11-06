@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
+  ArrowRight,
   Check,
   Crosshair,
   Download,
@@ -311,7 +312,7 @@ export function OrganizationDetailPage() {
               onClick={() => refreshICP.mutate()}
               disabled={refreshICP.isPending}
             >
-              <Search className={refreshICP.isPending ? 'animate-spin' : undefined} />
+              <Search className="size-4" />
               <span className="sr-only">ICP Lookup</span>
             </Button>
             <Button
@@ -353,7 +354,7 @@ export function OrganizationDetailPage() {
                 <Button
                   size="icon"
                   variant="outline"
-                  className="size-9 text-destructive hover:text-destructive"
+                  className="size-9 text-destructive"
                   title="Delete Organization"
                 >
                   <Trash2 />
@@ -447,7 +448,7 @@ export function OrganizationDetailPage() {
                   }}
                 />
                 {(summary.data?.criticalFindings || 0) > 0 ? (
-                  <div className="rounded-[4px] border border-[rgba(255,77,79,0.35)] bg-[rgba(255,77,79,0.08)] px-3 py-2 text-[11px] text-[#ff9d9d]">
+                  <div className=" border border-ring bg-accent px-3 py-2 text-[11px] text-foreground">
                     {summary.data?.criticalFindings} critical risk(s) require immediate attention.
                   </div>
                 ) : null}
@@ -456,8 +457,15 @@ export function OrganizationDetailPage() {
             <Card>
               <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
                 <CardTitle>Recent Assets</CardTitle>
-                <Button size="sm" variant="ghost" onClick={() => switchTab('assets')}>
-                  View all
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => switchTab('assets')}
+                  title="View all"
+                  aria-label="View all"
+                >
+                  <ArrowRight />
+                  <span className="sr-only">View all</span>
                 </Button>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -468,7 +476,7 @@ export function OrganizationDetailPage() {
                   >
                     <span className="mono truncate">{asset.key}</span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <span className="rounded-[3px] border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                      <span className=" border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
                         {asset.kind || 'asset'}
                       </span>
                       <RiskBadge risk={asset.risk} />
@@ -485,8 +493,15 @@ export function OrganizationDetailPage() {
             <Card>
               <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
                 <CardTitle>Current Risks</CardTitle>
-                <Button size="sm" variant="ghost" onClick={() => switchTab('findings')}>
-                  View all
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => switchTab('findings')}
+                  title="View all"
+                  aria-label="View all"
+                >
+                  <ArrowRight />
+                  <span className="sr-only">View all</span>
                 </Button>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -509,8 +524,15 @@ export function OrganizationDetailPage() {
             <Card className="xl:col-span-2">
               <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
                 <CardTitle>Scan History &amp; Tasks</CardTitle>
-                <Button size="sm" variant="ghost" onClick={() => switchTab('tasks')}>
-                  View all
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => switchTab('tasks')}
+                  title="View all"
+                  aria-label="View all"
+                >
+                  <ArrowRight />
+                  <span className="sr-only">View all</span>
                 </Button>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
@@ -560,9 +582,15 @@ export function OrganizationDetailPage() {
                   <Plus />
                   <span className="sr-only">Add</span>
                 </Button>
-                <Button size="sm" disabled={!selectedDomains.length} onClick={() => confirm.mutate()}>
+                <Button
+                  size="icon"
+                  disabled={!selectedDomains.length}
+                  onClick={() => confirm.mutate()}
+                  title="Confirm"
+                  aria-label="Confirm"
+                >
                   <Check />
-                  Confirm
+                  <span className="sr-only">Confirm</span>
                 </Button>
               </div>
             </CardHeader>
@@ -643,7 +671,7 @@ export function OrganizationDetailPage() {
                                 <Button
                                   size="icon"
                                   variant="outline"
-                                  className="size-8 text-destructive hover:text-destructive"
+                                  className="size-8 text-destructive"
                                   title="Delete"
                                 >
                                   <Trash2 />
@@ -656,7 +684,7 @@ export function OrganizationDetailPage() {
                             <Button
                               size="icon"
                               variant="outline"
-                              className="size-8 text-destructive hover:text-destructive"
+                              className="size-8 text-destructive"
                               title="Remove Candidate"
                               onClick={() => {
                                 setRejectReason('Manually removed')
@@ -719,7 +747,7 @@ export function OrganizationDetailPage() {
           <div className="space-y-2">
             {confirmed.length ? (
               confirmed.map((domain) => (
-                <label key={domain} className="flex items-center gap-2 rounded-[4px] border px-3 py-2 text-xs">
+                <label key={domain} className="flex items-center gap-2 border px-3 py-2 text-xs">
                   <Checkbox
                     checked={scanDomains.includes(domain)}
                     onCheckedChange={(checked) =>
@@ -732,7 +760,7 @@ export function OrganizationDetailPage() {
                 </label>
               ))
             ) : (
-              <div className="space-y-3 rounded-[4px] border bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">
+              <div className="space-y-3 border bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">
                 <div className="font-medium uppercase tracking-[0.04em] text-ink">No confirmed root domains yet</div>
                 <ol className="list-inside list-decimal space-y-1">
                   <li>Add candidate root domains for this organization.</li>
@@ -741,9 +769,15 @@ export function OrganizationDetailPage() {
                   <li>Press Play again to launch the full recon.</li>
                 </ol>
                 <div className="flex gap-2 pt-1">
-                  <Button size="sm" variant="outline" onClick={() => (setScanOpen(false), setAddOpen(true))}>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => (setScanOpen(false), setAddOpen(true))}
+                    title="Add Domain"
+                    aria-label="Add Domain"
+                  >
                     <Plus className="size-4" />
-                    Add Domain
+                    <span className="sr-only">Add Domain</span>
                   </Button>
                   <Button
                     size="sm"
@@ -751,8 +785,8 @@ export function OrganizationDetailPage() {
                     disabled={refreshICP.isPending}
                     onClick={() => refreshICP.mutate()}
                   >
-                    <Search className={`size-4 ${refreshICP.isPending ? 'animate-spin' : ''}`} />
-                    ICP Lookup
+                    <Search className="size-4" />
+                    <span className="sr-only">ICP Lookup</span>
                   </Button>
                 </div>
               </div>
@@ -908,7 +942,7 @@ export function OrganizationDetailPage() {
           <DialogHeader>
             <DialogTitle>Ownership Evidence</DialogTitle>
           </DialogHeader>
-          <pre className="mono max-h-[55vh] overflow-auto rounded-[4px] border border-border bg-black p-3 text-[11px] leading-5 text-mint">
+          <pre className="mono max-h-[55vh] overflow-auto border border-border bg-black p-3 text-[11px] leading-5 text-foreground">
             {JSON.stringify(evidenceView, null, 2)}
           </pre>
         </DialogContent>

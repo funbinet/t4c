@@ -147,8 +147,8 @@ export function OverviewPage() {
                   <button
                     key={org.organizationId}
                     className={cn(
-                      'mb-1 w-full rounded-[4px] border border-transparent px-3 py-2.5 transition-colors hover:bg-muted',
-                      selectedOrg === org.organizationId && 'border-[rgba(0,250,0,0.35)] bg-[rgba(0,250,0,0.08)]',
+                      'mb-1 w-full border border-transparent px-3 py-2.5 hover:bg-accent',
+                      selectedOrg === org.organizationId && 'border-ring bg-accent',
                     )}
                     onClick={() => selectOrg(org.organizationId)}
                   >
@@ -166,10 +166,10 @@ export function OverviewPage() {
               ) : (
                 <div className="flex flex-col items-center gap-3 px-3 py-12 text-center text-xs uppercase tracking-[0.04em] text-muted-foreground">
                   <span>No organization data</span>
-                  <Button asChild variant="outline" size="sm">
+                  <Button asChild variant="outline" size="icon" title="Import CSV" aria-label="Import CSV">
                     <Link to="/organizations">
                       <FileUp />
-                      Import CSV
+                      <span className="sr-only">Import CSV</span>
                     </Link>
                   </Button>
                 </div>
@@ -180,7 +180,7 @@ export function OverviewPage() {
           {/* center: map */}
           <Card className="flex min-h-0 flex-col overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
-              <div className="flex items-center gap-1 rounded-[4px] bg-muted p-1">
+              <div className="flex items-center gap-1 bg-muted p-1">
                 <Button
                   size="sm"
                   variant={visual === 'map' ? 'default' : 'ghost'}
@@ -224,7 +224,7 @@ export function OverviewPage() {
                 map.isLoading ? (
                   <LoadingBlock label="Locating assets…" />
                 ) : map.error ? (
-                  <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
+                  <div className="grid h-full min-h-[360px] place-items-center border bg-card p-6 text-center">
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.06em]">Map unavailable</div>
                       <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
@@ -236,7 +236,7 @@ export function OverviewPage() {
                   <SurfaceMap snapshot={map.data} onSelect={(_id, orgIds) => orgIds[0] && selectOrg(orgIds[0])} />
                 )
               ) : graph.error ? (
-                <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
+                <div className="grid h-full min-h-[360px] place-items-center border bg-card p-6 text-center">
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.06em]">Graph unavailable</div>
                     <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
@@ -249,7 +249,7 @@ export function OverviewPage() {
               ) : graph.isLoading ? (
                 <LoadingBlock label="Loading relationship graph…" />
               ) : !graph.data || (graph.data.nodes?.length || 0) === 0 ? (
-                <div className="grid h-full min-h-[360px] place-items-center rounded-[4px] border bg-card p-6 text-center">
+                <div className="grid h-full min-h-[360px] place-items-center border bg-card p-6 text-center">
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.06em]">No graph data yet</div>
                     <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
@@ -305,10 +305,10 @@ export function OverviewPage() {
                     <Fact label="Tasks" value={summary.data.linkedTasks || 0} />
                   </div>
                 ) : null}
-                <Button asChild className="mt-4 w-full" variant="outline">
+                <Button asChild className="mt-4 w-full" variant="outline" title="Open" aria-label="Open">
                   <Link to={`/organizations/${selectedOrg}`}>
                     <ExternalLink className="size-4" />
-                    Open
+                    <span className="sr-only">Open</span>
                   </Link>
                 </Button>
               </div>
@@ -346,7 +346,7 @@ export function OverviewPage() {
             {(['critical', 'high', 'medium', 'low', 'info'] as const).map((key) => (
               <div key={key} className="flex items-center gap-2 text-xs">
                 <span className={`w-10 shrink-0 risk-${key}`}>{riskLabel(key)}</span>
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                <div className="h-1.5 flex-1 overflow-hidden bg-muted">
                   <div
                     className={`h-full risk-bg-${key}`}
                     style={{
@@ -362,7 +362,7 @@ export function OverviewPage() {
       </div>
 
       {data.truncated ? (
-        <div className="mt-3 rounded-[4px] border bg-card px-3 py-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+        <div className="mt-3 border bg-card px-3 py-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
           Data exceeds the display limit; some organizations are omitted.
         </div>
       ) : null}
@@ -375,9 +375,9 @@ function HealthChip({ label, value }: { label: string; value?: string }) {
   return (
     <span
       title={ok ? 'OK' : (value ?? 'Unknown')}
-      className="inline-flex items-center gap-1 rounded-full border bg-card px-2 py-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground"
+      className="inline-flex items-center gap-1 border bg-card px-2 py-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground"
     >
-      <span className={cn('size-1.5 rounded-full', ok ? 'bg-[#00fa00]' : 'bg-[#3d8c3d]')} />
+      <span className={cn('size-1.5', ok ? 'bg-accent' : 'bg-accent')} />
       {label}
     </span>
   )

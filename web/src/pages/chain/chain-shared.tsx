@@ -164,7 +164,7 @@ export function stageScreenTitle(mode: Stage, screen: string): string {
 // link of the three-stage chain is always visible.
 export function StagePill({ stage }: { stage: Stage }) {
   return (
-    <Badge variant="outline" className="border-[rgba(0,250,0,0.35)] text-mint">
+    <Badge variant="outline" className="border-ring text-foreground">
       {STAGE_META[stage].shortLabel} stage
     </Badge>
   )

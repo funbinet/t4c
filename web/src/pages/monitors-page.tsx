@@ -191,7 +191,7 @@ export function MonitorsPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive hover:text-destructive"
+                          className="size-8 text-destructive"
                           title="Delete"
                         >
                           <Trash2 />

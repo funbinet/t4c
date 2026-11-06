@@ -197,7 +197,7 @@ export function ChainFindingsPage() {
                 <Badge variant="info">{findingKindLabel(selected.kind)}</Badge>
                 <StagePill stage={mode} />
               </div>
-              <dl className="grid grid-cols-2 gap-2 rounded-[4px] border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
                 <Fact label="Target" value={selected.target || '—'} />
                 <Fact label="Plugin" value={selected.pluginName || '—'} />
                 <Fact label="Kind" value={findingKindLabel(selected.kind)} />
@@ -212,7 +212,7 @@ export function ChainFindingsPage() {
               ) : null}
               <div>
                 <div className="mono-label mb-1.5">Evidence</div>
-                <pre className="max-h-64 overflow-auto rounded-[4px] border bg-[#050b05] p-3 font-mono text-[11px] leading-relaxed text-[#9fe89f] scrollbar-thin">
+                <pre className="max-h-64 overflow-auto border bg-accent p-3 font-mono text-[11px] leading-relaxed text-foreground scrollbar-thin">
                   {JSON.stringify(selected.data || {}, null, 2)}
                 </pre>
               </div>

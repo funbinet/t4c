@@ -56,7 +56,7 @@ export function PocPage() {
                 onClick={() => sync.mutate()}
                 disabled={sync.isPending}
               >
-                <RefreshCw className={sync.isPending ? 'animate-spin' : undefined} />
+                <RefreshCw className="size-4" />
                 <span className="sr-only">Sync Metadata</span>
               </Button>
             ) : null}

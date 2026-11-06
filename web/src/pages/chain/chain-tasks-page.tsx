@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CheckCircle2, CircleSlash2, ListChecks, Loader2, Workflow, Zap } from 'lucide-react'
+import { CheckCircle2, CircleSlash2, ListChecks, Loader2, Play, Workflow, X, Zap } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -158,7 +158,7 @@ export function ChainTasksPage() {
       header: 'Progress',
       cell: (row) => (
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-border">
+          <div className="h-1.5 w-16 overflow-hidden bg-border">
             <div className="h-full bg-mint" style={{ width: `${Math.min(100, Math.max(0, row.progress || 0))}%` }} />
           </div>
           <span className="mono text-[11px] text-muted-foreground">{Math.round(row.progress || 0)}%</span>
@@ -256,8 +256,9 @@ export function ChainTasksPage() {
             description={`Create a ${STAGE_META[mode].shortLabel} task to start work in this chain link.`}
             action={
               writable ? (
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  Create task
+                <Button size="icon" onClick={() => setCreateOpen(true)} title="Create task" aria-label="Create task">
+                  <Play />
+                  <span className="sr-only">Create task</span>
                 </Button>
               ) : undefined
             }
@@ -277,7 +278,7 @@ export function ChainTasksPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Workflow className="size-4 text-mint" /> New {STAGE_META[mode].shortLabel} task
+              <Workflow className="size-4 text-foreground" /> New {STAGE_META[mode].shortLabel} task
             </DialogTitle>
             <DialogDescription>
               The engine stamps stage = {mode}, selects the matching SDK registry and routes the steps to the stage
@@ -364,11 +365,13 @@ export function ChainTasksPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+            <Button variant="outline" size="icon" onClick={() => setCreateOpen(false)} title="Cancel" aria-label="Cancel">
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
-            <Button onClick={() => create.mutate()} disabled={create.isPending}>
-              <Zap className="mr-1 size-3.5" /> {create.isPending ? 'Queueing…' : 'Queue task'}
+            <Button size="icon" onClick={() => create.mutate()} disabled={create.isPending} title="Queue task" aria-label="Queue task">
+              <Zap />
+              <span className="sr-only">Queue task</span>
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -68,7 +68,7 @@ export function FindingsPage() {
       <ScreenToolbar
         left={
           <>
-            <div className="flex flex-wrap rounded-[4px] bg-muted p-1">
+            <div className="flex flex-wrap bg-muted p-1">
               {views.map((item) => (
                 <Button
                   key={item.value}
@@ -201,7 +201,7 @@ export function FindingsPage() {
                 <Section title="Linked Root Domains">
                   <div className="flex flex-wrap gap-1.5">
                     {selected.rootDomains.map((item) => (
-                      <span key={item} className="mono rounded border bg-muted px-2 py-1 text-[11px]">
+                      <span key={item} className="mono border bg-muted px-2 py-1 text-[11px]">
                         {item}
                       </span>
                     ))}
@@ -213,7 +213,7 @@ export function FindingsPage() {
                   <div className="space-y-2">
                     {history.slice(0, 10).map((item, index) =>
                       item ? (
-                        <div key={item.id || index} className="rounded-[4px] border p-2.5 text-xs">
+                        <div key={item.id || index} className=" border p-2.5 text-xs">
                           <div className="flex justify-between gap-2">
                             <span className="font-medium">{item.title}</span>
                             <RiskBadge risk={item.severity} />

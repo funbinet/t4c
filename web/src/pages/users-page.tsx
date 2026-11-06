@@ -140,7 +140,7 @@ export function UsersPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-8 text-destructive hover:text-destructive"
+                        className="size-8 text-destructive"
                         title="Delete"
                       >
                         <Trash2 />
@@ -188,9 +188,15 @@ export function UsersPage() {
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
-            <Button disabled={!form.username.trim() || form.password.length < 8} onClick={() => create.mutate()}>
+            <Button
+              size="icon"
+              disabled={!form.username.trim() || form.password.length < 8}
+              onClick={() => create.mutate()}
+              title="Create"
+              aria-label="Create"
+            >
               <Plus />
-              Create
+              <span className="sr-only">Create</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -213,7 +219,7 @@ export function UsersPage() {
                 </SelectContent>
               </Select>
             </Field>
-            <label className="flex items-center gap-2 rounded-[4px] border px-3 py-2.5 text-xs uppercase tracking-[0.04em]">
+            <label className="flex items-center gap-2 border px-3 py-2.5 text-xs uppercase tracking-[0.04em]">
               <Checkbox
                 checked={editForm.disabled}
                 onCheckedChange={(value) => setEditForm({ ...editForm, disabled: Boolean(value) })}

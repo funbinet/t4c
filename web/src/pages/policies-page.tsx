@@ -183,7 +183,7 @@ export function PoliciesPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive hover:text-destructive"
+                          className="size-8 text-destructive"
                           title="Delete"
                         >
                           <Trash2 />
@@ -213,7 +213,7 @@ export function PoliciesPage() {
               {Object.entries(capabilityLabels).map(([key, label]) => (
                 <label
                   key={key}
-                  className="flex items-center gap-2 rounded-[4px] border px-3 py-2.5 text-xs uppercase tracking-[0.04em]"
+                  className="flex items-center gap-2 border px-3 py-2.5 text-xs uppercase tracking-[0.04em]"
                 >
                   <Checkbox
                     checked={options[key as keyof typeof options]}

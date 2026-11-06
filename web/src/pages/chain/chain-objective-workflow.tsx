@@ -130,8 +130,17 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
               placeholder="Describe the action…"
               autoComplete="off"
             />
-            <Button size="sm" variant="outline" disabled={addAction.isPending} onClick={() => addAction.mutate()}>
-              Log
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8"
+              disabled={addAction.isPending}
+              onClick={() => addAction.mutate()}
+              title="Log"
+              aria-label="Log"
+            >
+              <Plus />
+              <span className="sr-only">Log</span>
             </Button>
           </div>
         </div>
@@ -143,13 +152,13 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
         </div>
         <div className="max-h-52 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
           {(actions.data?.items || []).map((action: ObjectiveAction) => (
-            <div key={action.id} className="rounded-[3px] border bg-card px-2.5 py-2">
+            <div key={action.id} className=" border bg-card px-2.5 py-2">
               <div className="flex items-center justify-between gap-2">
                 <Badge variant="outline">{humanize(action.kind)}</Badge>
                 <span className="text-[11px] text-muted-foreground">{formatTime(action.createdAt)}</span>
               </div>
               <div className="mt-1 break-words text-muted-foreground">{action.payload || '—'}</div>
-              {action.result ? <div className="mt-0.5 text-mint">→ {action.result}</div> : null}
+              {action.result ? <div className="mt-0.5 text-foreground">→ {action.result}</div> : null}
               {action.actor ? <div className="mt-0.5 text-[11px] text-muted-foreground">by {action.actor}</div> : null}
             </div>
           ))}

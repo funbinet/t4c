@@ -16,11 +16,10 @@ export function Providers({ children }: { children: ReactNode }) {
             closeButton
             toastOptions={{
               style: {
-                background: 'rgba(10, 10, 10, 0.9)',
-                border: '1px solid rgba(0, 250, 0, 0.2)',
-                color: '#eaffea',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '4px',
+                background: '#0F2516',
+                border: '1px solid #2D7B49',
+                color: '#2D7B49',
+                borderRadius: '0',
               },
             }}
           />

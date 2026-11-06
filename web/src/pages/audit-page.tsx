@@ -38,7 +38,7 @@ export function AuditPage() {
             disabled={audit.isFetching}
             onClick={() => audit.refetch()}
           >
-            <RefreshCw className={audit.isFetching ? 'animate-spin' : undefined} />
+            <RefreshCw className="size-4" />
             <span className="sr-only">Sync Logs</span>
           </Button>
         }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Activity, Boxes, CalendarClock, Plus, Settings2 } from 'lucide-react'
+import { Activity, Boxes, CalendarClock, Plus, Settings2, X } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api, type ChainAutomationItem, type ChainPage } from '@/api'
@@ -113,7 +113,7 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
       {list.error ? <ErrorState error={list.error} retry={() => list.refetch()} /> : null}
 
       <div className="flex items-center gap-2">
-        <Icon className="size-4 text-mint" />
+        <Icon className="size-4 text-foreground" />
         <span className="text-xs text-muted-foreground">
           {formatNumber(list.data?.total ?? items.length)} {config.label.toLowerCase()} assigned to the {mode} stage
         </span>
@@ -136,7 +136,7 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Icon className="size-4 text-mint" /> New {config.label.slice(0, -1)}
+              <Icon className="size-4 text-foreground" /> New {config.label.slice(0, -1)}
             </DialogTitle>
             <DialogDescription>
               The record is created in the {STAGE_META[mode].label} stage and only appears in that mode.
@@ -244,11 +244,13 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
             ) : null}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+            <Button variant="outline" size="icon" onClick={() => setCreateOpen(false)} title="Cancel" aria-label="Cancel">
+              <X />
+              <span className="sr-only">Cancel</span>
             </Button>
-            <Button onClick={() => create.mutate()} disabled={create.isPending}>
-              {create.isPending ? 'Creating…' : 'Create'}
+            <Button size="icon" onClick={() => create.mutate()} disabled={create.isPending} title="Create" aria-label="Create">
+              <Plus />
+              <span className="sr-only">Create</span>
             </Button>
           </DialogFooter>
         </DialogContent>

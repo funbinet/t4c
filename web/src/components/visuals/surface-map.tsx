@@ -14,12 +14,13 @@ if (!registered) {
   registered = true
 }
 
+// Severity as fill weight of ink, never hue.
 const colors: Record<string, string> = {
-  critical: '#ff6b6b',
-  high: '#00fa00',
-  medium: '#00cc00',
-  low: '#66cc66',
-  info: '#3d8c3d',
+  critical: '#2D7B49',
+  high: '#2D7B49',
+  medium: 'rgba(45, 123, 73, 0.62)',
+  low: 'rgba(45, 123, 73, 0.38)',
+  info: '#0F2516',
 }
 
 export function SurfaceMap({
@@ -79,11 +80,11 @@ export function SurfaceMap({
         show: risk === 'critical',
         position: 'top',
         formatter: (params: any) => params.data?.name || '',
-        color: '#eaffea',
+        color: '#2D7B49',
         fontSize: 10,
       },
-      itemStyle: { color, borderColor: '#000500', borderWidth: 1.5, opacity: 0.95 },
-      emphasis: { scale: 1.4, label: { show: true } },
+      itemStyle: { color, borderColor: '#090A08', borderWidth: 1.5, opacity: 0.95 },
+      emphasis: { label: { show: true } },
       data: points
         .filter((point) => (point.risk || 'info') === risk)
         .map((point) => ({
@@ -94,13 +95,13 @@ export function SurfaceMap({
         })),
     }))
     return {
-      animationDuration: 250,
+      animation: false,
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'item',
-        borderColor: 'rgba(0, 250, 0, 0.2)',
-        backgroundColor: '#0a0a0a',
-        textStyle: { color: '#eaffea', fontSize: 11 },
+        borderColor: '#2D7B49',
+        backgroundColor: '#0F2516',
+        textStyle: { color: '#2D7B49', fontSize: 11 },
         formatter: (params: any) => `<b>${params.name}</b><br/>${params.seriesName || ''}`,
       },
       geo: {
@@ -109,8 +110,8 @@ export function SurfaceMap({
         layoutCenter: ['50%', '50%'],
         layoutSize: '115%',
         silent: false,
-        itemStyle: { areaColor: '#003d00', borderColor: 'rgba(0, 250, 0, 0.25)', borderWidth: 0.7 },
-        emphasis: { itemStyle: { areaColor: '#005c00' }, label: { show: false } },
+        itemStyle: { areaColor: '#0F2516', borderColor: 'rgba(45, 123, 73, 0.38)', borderWidth: 0.7 },
+        emphasis: { itemStyle: { areaColor: 'rgba(45, 123, 73, 0.62)' }, label: { show: false } },
         select: { disabled: true },
       },
       series,

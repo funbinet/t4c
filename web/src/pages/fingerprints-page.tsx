@@ -153,7 +153,7 @@ export function FingerprintsPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive hover:text-destructive"
+                          className="size-8 text-destructive"
                           title="Delete"
                         >
                           <Trash2 />
@@ -222,9 +222,15 @@ export function FingerprintsPage() {
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
-            <Button disabled={!content.trim()} onClick={() => importRules.mutate()}>
+            <Button
+              size="icon"
+              disabled={!content.trim()}
+              onClick={() => importRules.mutate()}
+              title="Import"
+              aria-label="Import"
+            >
               <FileUp />
-              Import
+              <span className="sr-only">Import</span>
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -119,12 +119,12 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
   const kinds = kindCounts(assets.data?.items)
 
   return (
-    <Card className="mb-4 border-[rgba(0,250,0,0.25)]">
+    <Card className="mb-4 border-border">
       <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
         <CardTitle className="flex items-center gap-2">
-          <Layers className="size-4 text-mint" />
+          <Layers className="size-4 text-foreground" />
           Chain Progress
-          <span className="mono-label rounded-[3px] border px-1.5 py-0.5 text-[10px] text-mint">
+          <span className="mono-label border px-1.5 py-0.5 text-[10px] text-foreground">
             Current: {STAGE_META[effectiveStage].label}
           </span>
         </CardTitle>
@@ -145,7 +145,7 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
               <ArrowRight className="ml-1 size-3.5" />
             </Button>
           ) : (
-            <span className="mono-label flex items-center gap-1 text-mint">
+            <span className="mono-label flex items-center gap-1 text-foreground">
               <Flag className="size-3.5" /> Terminal stage
             </span>
           )}
@@ -164,19 +164,19 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
                 type="button"
                 onClick={() => setMode(stage)}
                 className={cn(
-                  'flex items-center gap-3 rounded-[4px] border px-3 py-2 text-left transition-colors',
+                  'flex items-center gap-3 border px-3 py-2 text-left',
                   isCurrent
-                    ? 'border-[rgba(0,250,0,0.5)] bg-[rgba(0,250,0,0.06)]'
-                    : 'border-border bg-card hover:border-[rgba(0,250,0,0.3)]',
+                    ? 'border-ring bg-accent'
+                    : 'border-border bg-card hover:border-ring',
                 )}
               >
                 <span
                   className={cn(
-                    'grid size-8 shrink-0 place-items-center rounded-full border',
+                    'grid size-8 shrink-0 place-items-center border',
                     isDone
-                      ? 'border-mint bg-mint/15 text-mint'
+                      ? 'border-mint bg-accent text-foreground'
                       : isCurrent
-                        ? 'border-mint text-mint'
+                        ? 'border-mint text-foreground'
                         : 'border-border text-muted-foreground',
                   )}
                 >
@@ -209,9 +209,9 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
               {stageState.data.history.slice(0, 4).map((item, index) => (
                 <span
                   key={`${item.at}-${index}`}
-                  className="inline-flex items-center gap-1.5 rounded-[3px] border bg-card px-2 py-1 text-[11px]"
+                  className="inline-flex items-center gap-1.5 border bg-card px-2 py-1 text-[11px]"
                 >
-                  <span className="mono font-semibold text-mint">
+                  <span className="mono font-semibold text-foreground">
                     {item.fromStage || '—'} → {item.toStage || '—'}
                   </span>
                   <span className="text-muted-foreground">
@@ -236,11 +236,11 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
                 .map(([kind, count]) => (
                   <span
                     key={kind}
-                    className="inline-flex items-center gap-1 rounded-[3px] border bg-card px-2 py-1 text-[11px]"
+                    className="inline-flex items-center gap-1 border bg-card px-2 py-1 text-[11px]"
                     title={`${KIND_LABELS[kind] || kind} (${kind})`}
                   >
                     <span className="text-muted-foreground">{KIND_LABELS[kind] || kind}</span>
-                    <span className="mono font-semibold text-mint">{count}</span>
+                    <span className="mono font-semibold text-foreground">{count}</span>
                   </span>
                 ))}
             </div>
@@ -265,7 +265,7 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
 
 function QuickStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <div className="flex items-center justify-between rounded-[3px] border bg-card px-2 py-1.5 text-[11px]">
+    <div className="flex items-center justify-between border bg-card px-2 py-1.5 text-[11px]">
       <span className="flex items-center gap-1 text-muted-foreground">
         {icon} {label}
       </span>

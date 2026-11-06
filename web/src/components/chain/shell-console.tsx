@@ -99,10 +99,10 @@ export function ShellConsole({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl border-[rgba(0,250,0,0.3)]">
+      <DialogContent className="max-w-3xl border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Terminal className="size-4 text-mint" />
+            <Terminal className="size-4 text-foreground" />
             Shell Console
             {sess ? (
               <span className="mono text-[11px] font-normal text-muted-foreground">
@@ -141,26 +141,26 @@ export function ShellConsole({
           </div>
         </div>
 
-        <div className="h-80 overflow-y-auto rounded-[4px] border border-[rgba(0,250,0,0.2)] bg-[#050b05] p-3 font-mono text-[12px] leading-relaxed text-[#b8f5b8] scrollbar-thin">
-          <div className="text-[#5a8f5a]">T4C shell session — {sess?.host || 'connecting…'}</div>
-          {history.isLoading ? <div className="text-[#5a8f5a]">Loading command history…</div> : null}
+        <div className="h-80 overflow-y-auto border border-border bg-accent p-3 font-mono text-[12px] leading-relaxed text-foreground scrollbar-thin">
+          <div className="text-foreground">T4C shell session — {sess?.host || 'connecting…'}</div>
+          {history.isLoading ? <div className="text-foreground">Loading command history…</div> : null}
           {history.data?.items?.map((line: ShellCommand) => (
             <div key={line.id} className="whitespace-pre-wrap break-words">
-              <div className="text-[#00fa00]">
-                <span className="text-[#5a8f5a]">[{line.seq}] </span>$ {line.command}
+              <div className="text-foreground">
+                <span className="text-foreground">[{line.seq}] </span>$ {line.command}
               </div>
-              {line.output ? <div className="text-[#9fe89f]">{line.output}</div> : null}
-              {line.exitCode !== 0 ? <div className="text-[#ff9d9d]">exit {line.exitCode}</div> : null}
+              {line.output ? <div className="text-foreground">{line.output}</div> : null}
+              {line.exitCode !== 0 ? <div className="text-foreground">exit {line.exitCode}</div> : null}
             </div>
           ))}
           {!history.isLoading && !history.data?.items?.length ? (
-            <div className="text-[#5a8f5a]">No commands recorded yet. Run a command below.</div>
+            <div className="text-foreground">No commands recorded yet. Run a command below.</div>
           ) : null}
           <div ref={endRef} />
         </div>
 
         <form onSubmit={onSubmit} className="mt-3 flex items-center gap-2">
-          <span className="mono text-[12px] text-mint">$</span>
+          <span className="mono text-[12px] text-foreground">$</span>
           <Input
             value={command}
             onChange={(event) => setCommand(event.target.value)}
@@ -168,7 +168,7 @@ export function ShellConsole({
               canRun ? 'whoami, id, uname -a, ls, cat /etc/passwd…' : 'Session is not open — re-ignite to run commands'
             }
             disabled={!canRun || run.isPending}
-            className="mono border-[rgba(0,250,0,0.25)] bg-[#050b05] text-[#b8f5b8]"
+            className="mono border-border bg-accent text-foreground"
             autoComplete="off"
             spellCheck={false}
           />

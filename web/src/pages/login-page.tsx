@@ -59,7 +59,7 @@ export function LoginPage() {
           <img
             src={t4cLogo}
             alt="T4C logo"
-            className="size-14 shrink-0 rounded-[4px] object-contain transition-transform duration-200 group-hover:scale-105"
+            className="size-14 shrink-0 object-contain"
           />
           <div>
             <div className="text-lg font-semibold tracking-wide">T4C</div>
@@ -67,16 +67,16 @@ export function LoginPage() {
           </div>
         </a>
 
-        <h1 className="hover-juggle mt-8 max-w-md text-center text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
-          Start from the <span className="text-gradient">organization</span> and see every layer of external exposure.
+        <h1 className="mt-8 max-w-md text-center text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+          Start from the organization and see every layer of external exposure.
         </h1>
         <p className="mt-3 max-w-xs text-center text-sm leading-6 text-muted-foreground">
           Map, graph, and evidence in one workspace.
         </p>
 
-        <section className="mt-8 w-full rounded-[4px] border border-border bg-black/55 p-8 backdrop-blur-md sm:p-10">
+        <section className="mt-8 w-full border bg-popover p-8 sm:p-10">
           <div className="mb-7 text-center">
-            <div className="mono-label !text-[11px] !text-mint">Console Sign-In</div>
+            <div className="mono-label !text-[11px] !text-foreground">Console Sign-In</div>
             <h2 className="mt-2 text-xl font-semibold uppercase tracking-[0.06em]">
               Enter The Attack Surface Workspace
             </h2>
@@ -97,13 +97,20 @@ export function LoginPage() {
               ) : null}
             </div>
             {form.formState.errors.root ? (
-              <div className="rounded-[4px] border border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.06)] px-3 py-2 text-xs text-destructive">
+              <div className="border border-ring px-3 py-2 text-xs text-foreground">
                 {form.formState.errors.root.message}
               </div>
             ) : null}
-            <Button className="w-full" size="lg" type="submit" disabled={form.formState.isSubmitting}>
+            <Button
+              className="w-full"
+              size="icon"
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              title="Sign In"
+              aria-label="Sign In"
+            >
               <LogIn />
-              {form.formState.isSubmitting ? 'Signing In…' : 'Sign In'}
+              <span className="sr-only">Sign In</span>
             </Button>
           </form>
         </section>

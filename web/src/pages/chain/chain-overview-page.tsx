@@ -143,7 +143,7 @@ export function ChainOverviewPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
             <CardTitle className="flex items-center gap-2">
-              <Layers className="size-4 text-mint" /> Asset Classification
+              <Layers className="size-4 text-foreground" /> Asset Classification
             </CardTitle>
             <span className="mono-label">{Object.keys(byKind).length} kinds</span>
           </CardHeader>
@@ -154,11 +154,11 @@ export function ChainOverviewPage() {
                 .map(([kind, count]) => (
                   <span
                     key={kind}
-                    className="inline-flex items-center gap-1 rounded-[3px] border bg-card px-2 py-1 text-[11px]"
+                    className="inline-flex items-center gap-1 border bg-card px-2 py-1 text-[11px]"
                     title={kind}
                   >
                     <span className="text-muted-foreground">{KIND_LABELS[kind] || kind}</span>
-                    <span className="mono font-semibold text-mint">{formatNumber(count)}</span>
+                    <span className="mono font-semibold text-foreground">{formatNumber(count)}</span>
                   </span>
                 ))
             ) : (
@@ -173,7 +173,7 @@ export function ChainOverviewPage() {
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
           <CardTitle className="flex items-center gap-2">
-            <ShieldAlert className="size-4 text-mint" /> {STAGE_META[mode].shortLabel} SDK Registry
+            <ShieldAlert className="size-4 text-foreground" /> {STAGE_META[mode].shortLabel} SDK Registry
           </CardTitle>
           <span className="mono-label">{plugins.length} dedicated SDKs · minimum 8</span>
         </CardHeader>
@@ -193,10 +193,13 @@ export function ChainOverviewPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
             <CardTitle className="flex items-center gap-2">
-              <Workflow className="size-4 text-mint" /> Recent {STAGE_META[mode].shortLabel} Tasks
+              <Workflow className="size-4 text-foreground" /> Recent {STAGE_META[mode].shortLabel} Tasks
             </CardTitle>
-            <Button asChild size="sm" variant="ghost">
-              <Link to={`${base}/tasks`}>View all</Link>
+            <Button asChild size="icon" variant="ghost" title="View all" aria-label="View all">
+              <Link to={`${base}/tasks`}>
+                <ArrowRight />
+                <span className="sr-only">View all</span>
+              </Link>
             </Button>
           </CardHeader>
           <CardContent className="space-y-2 pt-4 text-xs">
@@ -223,10 +226,13 @@ export function ChainOverviewPage() {
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
               <CardTitle className="flex items-center gap-2">
-                <Terminal className="size-4 text-mint" /> Recent Shell Sessions
+                <Terminal className="size-4 text-foreground" /> Recent Shell Sessions
               </CardTitle>
-              <Button asChild size="sm" variant="ghost">
-                <Link to={`${base}/assets`}>View assets</Link>
+              <Button asChild size="icon" variant="ghost" title="View assets" aria-label="View assets">
+                <Link to={`${base}/assets`}>
+                  <ArrowRight />
+                  <span className="sr-only">View assets</span>
+                </Link>
               </Button>
             </CardHeader>
             <CardContent className="pt-0">
@@ -247,7 +253,7 @@ export function ChainOverviewPage() {
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
               <CardTitle className="flex items-center gap-2">
-                <Flag className="size-4 text-mint" /> Recent Objectives
+                <Flag className="size-4 text-foreground" /> Recent Objectives
               </CardTitle>
               <Button asChild size="sm" variant="ghost">
                 <Link to={`${base}/assets`}>Open Produce</Link>
@@ -271,7 +277,7 @@ export function ChainOverviewPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
             <CardTitle className="flex items-center gap-2">
-              <FileArchive className="size-4 text-mint" /> Recent Artifacts
+              <FileArchive className="size-4 text-foreground" /> Recent Artifacts
             </CardTitle>
             <span className="mono-label">{formatNumber(artifacts.data?.total)} collected</span>
           </CardHeader>
@@ -290,7 +296,7 @@ export function ChainOverviewPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
             <CardTitle className="flex items-center gap-2">
-              <PieChart className="size-4 text-mint" /> Produce Analytics
+              <PieChart className="size-4 text-foreground" /> Produce Analytics
             </CardTitle>
             <span className="mono-label">
               {formatNumber(summary?.objectives)} objectives · {formatNumber(summary?.exported)} exported ·{' '}
@@ -328,17 +334,17 @@ function ChainProgressCard({ mode, counts, next }: { mode: Stage; counts: Record
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
         <CardTitle className="flex items-center gap-2">
-          <Activity className="size-4 text-mint" /> Chain Progress
+          <Activity className="size-4 text-foreground" /> Chain Progress
         </CardTitle>
         {next ? (
           <Link
             to={`${stageBase(next)}`}
-            className="inline-flex items-center gap-1 text-[11px] text-mint hover:underline"
+            className="inline-flex items-center gap-1 text-[11px] text-foreground hover:underline"
           >
             Next: {STAGE_META[next].shortLabel} <ArrowRight className="size-3" />
           </Link>
         ) : (
-          <span className="mono-label flex items-center gap-1 text-mint">
+          <span className="mono-label flex items-center gap-1 text-foreground">
             <Flag className="size-3.5" /> Terminal stage
           </span>
         )}
@@ -353,19 +359,19 @@ function ChainProgressCard({ mode, counts, next }: { mode: Stage; counts: Record
               key={stage}
               to={stageBase(stage) || '/'}
               className={cn(
-                'flex items-center gap-2 rounded-[4px] border px-3 py-2 transition-colors',
+                'flex items-center gap-2 border px-3 py-2',
                 isCurrent
-                  ? 'border-[rgba(0,250,0,0.5)] bg-[rgba(0,250,0,0.06)]'
-                  : 'border-border bg-card hover:border-[rgba(0,250,0,0.3)]',
+                  ? 'border-ring bg-accent'
+                  : 'border-border bg-card hover:border-ring',
               )}
             >
               <span
                 className={cn(
-                  'grid size-7 shrink-0 place-items-center rounded-full border',
+                  'grid size-7 shrink-0 place-items-center border',
                   isDone
-                    ? 'border-mint bg-mint/15 text-mint'
+                    ? 'border-mint bg-accent text-foreground'
                     : isCurrent
-                      ? 'border-mint text-mint'
+                      ? 'border-mint text-foreground'
                       : 'border-border text-muted-foreground',
                 )}
               >

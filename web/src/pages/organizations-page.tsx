@@ -121,7 +121,7 @@ export function OrganizationsPage() {
                 void orgs.refetch()
               }}
             >
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-mint" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-foreground" />
               <Input
                 autoFocus
                 value={query}
@@ -133,7 +133,7 @@ export function OrganizationsPage() {
                 type="button"
                 title="Close search"
                 aria-label="Close search"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[3px] p-0.5 text-mint transition-colors hover:text-white"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-foreground hover:text-foreground"
                 onClick={() => {
                   setSearchOpen(false)
                   setQuery('')
@@ -197,9 +197,9 @@ export function OrganizationsPage() {
               description="Import a CSV with organization names and root domains, or create a single organization first."
               action={
                 canWrite(role) ? (
-                  <Button variant="outline" onClick={() => setImportOpen(true)}>
+                  <Button variant="outline" size="icon" onClick={() => setImportOpen(true)} title="Import" aria-label="Import">
                     <FileUp />
-                    Import
+                    <span className="sr-only">Import</span>
                   </Button>
                 ) : undefined
               }
@@ -266,7 +266,7 @@ export function OrganizationsPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive hover:text-destructive"
+                          className="size-8 text-destructive"
                           title="Delete"
                         >
                           <Trash2 />
@@ -332,7 +332,7 @@ export function OrganizationsPage() {
               Required column: canonicalName. Optional: aliases, region, uscc, rootDomains.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-[4px] border bg-muted/40 p-3 text-[11px] leading-5 text-muted-foreground">
+          <div className=" border bg-muted/40 p-3 text-[11px] leading-5 text-muted-foreground">
             <div className="mono">canonicalName,aliases,region,uscc,rootDomains</div>
             <div className="mono">Acme College,College A|College B,SH,12510000...,guc.edu.cn;example.edu.cn</div>
           </div>

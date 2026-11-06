@@ -54,7 +54,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="top-20 max-w-2xl translate-y-0 p-0">
+      <DialogContent className="top-20 max-w-2xl p-0">
         <DialogTitle className="sr-only">Global search</DialogTitle>
         <DialogDescription className="sr-only">
           Search organizations, domains, assets, risks, tasks, monitors, and schedules

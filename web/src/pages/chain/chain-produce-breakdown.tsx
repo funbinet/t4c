@@ -60,7 +60,7 @@ export function ProduceBreakdown({
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
           <CardTitle className="flex items-center gap-2">
-            <Boxes className="size-4 text-mint" /> Produce Breakdown
+            <Boxes className="size-4 text-foreground" /> Produce Breakdown
           </CardTitle>
           <span className="mono-label">{objectiveCount + artifacts.length} records</span>
         </CardHeader>
@@ -142,10 +142,10 @@ export function Distribution({
                 </span>
                 <span className="mono text-[11px] font-semibold text-foreground">{formatNumber(item.count)}</span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="h-1.5 w-full overflow-hidden bg-secondary">
                 <div
                   className={cn(
-                    'h-full rounded-full transition-all duration-300',
+                    'h-full',
                     toneByKey ? toneByKey(item.key) : 'bg-mint',
                   )}
                   style={{ width: `${max ? Math.max(6, Math.round((item.count / max) * 100)) : 0}%` }}

@@ -81,7 +81,7 @@ export function ChangePasswordPage() {
               ) : null}
             </div>
             {form.formState.errors.root ? (
-              <div className="rounded-[4px] border border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.06)] px-3 py-2 text-xs text-destructive">
+              <div className=" border border-ring bg-accent px-3 py-2 text-xs text-destructive">
                 {form.formState.errors.root.message}
               </div>
             ) : null}

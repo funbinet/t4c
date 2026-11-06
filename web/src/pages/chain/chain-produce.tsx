@@ -215,7 +215,7 @@ export function ProducePanel({
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
           <CardTitle className="flex items-center gap-2">
-            <Flag className="size-4 text-mint" /> Objectives
+            <Flag className="size-4 text-foreground" /> Objectives
           </CardTitle>
           <span className="mono-label">{formatNumber(objectives.data?.total)} collected</span>
         </CardHeader>
@@ -232,7 +232,7 @@ export function ProducePanel({
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0 border-b py-3">
           <CardTitle className="flex items-center gap-2">
-            <FileArchive className="size-4 text-mint" /> Artifacts
+            <FileArchive className="size-4 text-foreground" /> Artifacts
           </CardTitle>
           <span className="mono-label">{formatNumber(artifacts.data?.total)} files</span>
         </CardHeader>
@@ -262,7 +262,7 @@ export function ProducePanel({
                 <Badge variant={statusVariant(selectedObjective.status)}>{humanize(selectedObjective.status)}</Badge>
               </div>
               <p className="leading-5 text-muted-foreground">{selectedObjective.detail || 'No detail recorded.'}</p>
-              <dl className="grid grid-cols-2 gap-2 rounded-[4px] border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
                 <Fact label="Discovered" value={formatTime(selectedObjective.discoveredAt)} />
                 <Fact label="Asset" value={selectedObjective.assetId || '—'} />
                 <Fact label="Task" value={selectedObjective.taskId || '—'} />
@@ -284,7 +284,7 @@ export function ProducePanel({
           </SheetHeader>
           {selectedArtifact ? (
             <div className="space-y-3 text-xs">
-              <dl className="grid grid-cols-2 gap-2 rounded-[4px] border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
                 <Fact label="Kind" value={humanize(selectedArtifact.kind)} />
                 <Fact label="Size" value={`${formatNumber(selectedArtifact.sizeBytes)} B`} />
                 <Fact label="Storage Path" value={selectedArtifact.storagePath || '—'} />
