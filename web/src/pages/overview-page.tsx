@@ -345,10 +345,10 @@ export function OverviewPage() {
           <CardContent className="flex min-h-0 flex-1 flex-col justify-center space-y-2 p-3 pb-5">
             {(['critical', 'high', 'medium', 'low', 'info'] as const).map((key) => (
               <div key={key} className="flex items-center gap-2 text-xs">
-                <span className={`w-10 shrink-0 risk-${key}`}>{riskLabel(key)}</span>
-                <div className="h-1.5 flex-1 overflow-hidden bg-muted">
+                <span className="w-10 shrink-0">{riskLabel(key)}</span>
+                <div className="h-1.5 flex-1 overflow-hidden bg-accent">
                   <div
-                    className={`h-full risk-bg-${key}`}
+                    className={`h-full ${key === 'critical' || key === 'high' ? 'bg-ring' : 'bg-muted-foreground'}`}
                     style={{
                       width: `${Math.min(100, ((data.severity[key] || 0) / Math.max(1, data.summary.currentFindings || 1)) * 100)}%`,
                     }}

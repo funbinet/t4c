@@ -67,13 +67,6 @@ export function LoginPage() {
           </div>
         </a>
 
-        <h1 className="mt-8 max-w-md text-center text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
-          Start from the organization and see every layer of external exposure.
-        </h1>
-        <p className="mt-3 max-w-xs text-center text-sm leading-6 text-muted-foreground">
-          Map, graph, and evidence in one workspace.
-        </p>
-
         <section className="mt-8 w-full border bg-popover p-8 sm:p-10">
           <div className="mb-7 text-center">
             <div className="mono-label !text-[11px] !text-foreground">Console Sign-In</div>
@@ -115,7 +108,7 @@ export function LoginPage() {
           </form>
         </section>
       </main>
-      <footer className="pb-6 text-center text-[11px] tracking-[0.04em] text-dim">© 2026 T4C · Funbinet</footer>
+      <footer className="pb-6 text-center text-[11px] tracking-[0.04em] text-muted-foreground">© 2026 T4C · Funbinet</footer>
     </div>
   )
 }
