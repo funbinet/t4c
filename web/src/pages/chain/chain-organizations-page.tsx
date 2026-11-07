@@ -1,18 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Boxes, Building2, Crosshair, FileArchive, Package, Play, Zap } from 'lucide-react'
+import { ArrowRight, Boxes, Building2, Crosshair, FileArchive, Package, Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { api, type StageOrganization } from '@/api'
 import { STAGE_META, stageBase, useMode, type Stage } from '@/app/mode'
 import { DataTable, type Column } from '@/components/common/data-table'
-import { ExpandableSearch, FilterDropdown, ScreenToolbar } from '@/components/common/screen-toolbar'
+import { ExpandableSearch, FilterDropdown } from '@/components/common/screen-toolbar'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatNumber, statusLabel } from '@/lib/format'
-import { StagePill, stageScreenTitle, statusVariant } from './chain-shared'
+import { StagePill, statusVariant } from './chain-shared'
 
 const STATUS_FILTERS = [
   { value: '', label: 'All statuses' },
@@ -69,6 +69,13 @@ export function ChainOrganizationsPage() {
     const rows = orgs.data?.items || []
     return status ? rows.filter((row) => row.status === status) : rows
   }, [orgs.data, status])
+
+  // The centered headline counts exploitable organizations across the whole
+  // unfiltered stage list, so the title never shifts with status filtering.
+  const exploitable = useMemo(
+    () => (orgs.data?.items || []).filter((row) => (row.exploited || 0) > 0).length,
+    [orgs.data],
+  )
 
   const totals = useMemo(
     () =>
@@ -153,13 +160,13 @@ export function ChainOrganizationsPage() {
         return (
           <div className="flex justify-end gap-1.5">
             <Button
-            asChild
-            size="icon"
-            variant="ghost"
-            title="Produce"
-            aria-label="Produce"
-          >
-              <Link to={`/assets?organizationId=${row.id}`}>
+              asChild
+              size="icon"
+              variant="outline"
+              title="Produce"
+              aria-label="Produce"
+            >
+              <Link to={`${base}/assets?organizationId=${row.id}`}>
                 <Package />
                 <span className="sr-only">Produce</span>
               </Link>
@@ -187,36 +194,25 @@ export function ChainOrganizationsPage() {
 
   return (
     <div className="space-y-4">
-      <ScreenToolbar
-        left={
-          <div className="flex items-center gap-2">
-            <span className="mono-label">{stageScreenTitle(mode, 'Organizations')}</span>
-            <StagePill stage={mode} />
-            <ExpandableSearch
-              value={search}
-              onChange={setSearch}
-              placeholder="Search organizations…"
-              title="Search organizations"
-            />
-            <FilterDropdown options={STATUS_FILTERS} value={status} onChange={setStatus} label="Filter by status" />
-          </div>
-        }
-        center="Organizations are discovered in recon and shared across all three stages"
-        right={
-          <Button
-            asChild
-            size="icon"
-            variant="outline"
-            title="New task"
-            aria-label="New task"
-          >
-            <Link to={`${base}/tasks?create=1`}>
-              <Zap />
-              <span className="sr-only">New {mode} task</span>
-            </Link>
-          </Button>
-        }
-      />
+      <div className="mb-4 grid grid-cols-[auto_1fr_auto] items-center gap-3">
+        <div className="flex min-w-0 items-center">
+          <ExpandableSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search organizations…"
+            title="Search organizations"
+          />
+        </div>
+        <div className="flex min-w-0 items-baseline justify-center gap-2 truncate">
+          <span className="mono text-xl font-semibold tabular-nums">{formatNumber(exploitable)}</span>
+          <span className="text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+            exploitable organizations
+          </span>
+        </div>
+        <div className="flex items-center justify-end">
+          <FilterDropdown options={STATUS_FILTERS} value={status} onChange={setStatus} label="Filter by status" />
+        </div>
+      </div>
 
       {orgs.isLoading ? <LoadingBlock variant="grid" /> : null}
       {orgs.error ? <ErrorState error={orgs.error} retry={() => orgs.refetch()} /> : null}
