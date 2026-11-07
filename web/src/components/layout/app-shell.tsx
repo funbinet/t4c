@@ -115,14 +115,6 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const { mode } = useMode()
   const groups = buildGroups(mode)
   const allGroups = isAdmin(role) ? [...groups, adminGroup] : groups
-  const modeToggle = (
-    <div className={collapsed ? 'flex w-full flex-col items-center py-2' : 'w-full px-3 pb-2'}>
-      {!collapsed ? <div className="mono-label px-3 pb-1 text-left">MODE</div> : null}
-      <div className="flex w-full justify-center">
-        <ModeToggle collapsed={collapsed} />
-      </div>
-    </div>
-  )
   return (
     <nav
       className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto py-4 scrollbar-thin', collapsed && 'justify-evenly')}
@@ -130,9 +122,6 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
     >
       {allGroups.map((group) => (
         <Fragment key={group.label}>
-          {/* The stage toggle sits above Administration (and thus last among
-              the stage groups) for every user, admin or not. */}
-          {group.label === 'Administration' || !isAdmin(role) ? modeToggle : null}
           <div className={collapsed ? 'contents' : 'flex w-full flex-col gap-1 px-3'}>
             {!collapsed ? <div className="mono-label px-3 pb-1 text-left">{group.label}</div> : null}
             <div className={collapsed ? 'contents' : 'flex w-full flex-col gap-1'}>
@@ -261,6 +250,11 @@ export function AppShell() {
           ) : null}
         </Link>
         <NavContent collapsed={collapsed} />
+        {/* Stage toggle lives at the bottom of the rail, right above the
+            collapse control, so the three modes are one deliberate motion. */}
+        <div className="flex justify-center border-t border-border p-2">
+          <ModeToggle collapsed={collapsed} />
+        </div>
         <div className="border-t border-border p-2">
           <Button
             variant="ghost"
@@ -306,6 +300,9 @@ export function AppShell() {
               </Button>
             </div>
             <NavContent collapsed={false} onNavigate={() => setMobileOpen(false)} />
+            <div className="flex justify-center border-t border-border p-2">
+              <ModeToggle collapsed={false} />
+            </div>
           </aside>
         </div>
       ) : null}

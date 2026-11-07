@@ -48,43 +48,46 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div
+      className="flex min-h-screen flex-col"
+      style={{
+        backgroundImage:
+          'radial-gradient(120% 90% at 50% 0%, rgba(45,123,73,0.32), transparent 60%), linear-gradient(180deg, #0c1f13 0%, #090a08 55%)',
+      }}
+    >
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-5 py-10">
         <a
           href={user ? '/' : '/login'}
           onClick={goHome}
           aria-label="T4C home"
-          className="group flex flex-col items-center gap-3 text-center"
+          className="flex flex-col items-center gap-4 text-center"
         >
-          <img
-            src={t4cLogo}
-            alt="T4C logo"
-            className="size-14 shrink-0 object-contain"
-          />
-          <div>
-            <div className="text-lg font-semibold tracking-wide">T4C</div>
-            <div className="mono-label mt-1 !text-[10px]">Attack Surface Console</div>
-          </div>
+          <img src={t4cLogo} alt="T4C logo" className="size-14 shrink-0 object-contain" />
+          <div className="text-3xl font-semibold tracking-[0.35em] text-foreground">T4C</div>
         </a>
 
         <section className="mt-8 w-full border p-8 sm:p-10">
-          <div className="mb-7 text-center">
-            <div className="mono-label !text-[11px] !text-foreground">Console Sign-In</div>
-            <h2 className="mt-2 text-xl font-semibold uppercase tracking-[0.06em]">
-              Enter The Attack Surface Workspace
-            </h2>
-          </div>
           <form className="space-y-4" onSubmit={form.handleSubmit(submit)}>
             <div className="space-y-1.5">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" autoComplete="username" {...form.register('username')} />
+              <Label htmlFor="username" className="sr-only">
+                Username
+              </Label>
+              <Input id="username" placeholder="Username" autoComplete="username" {...form.register('username')} />
               {form.formState.errors.username ? (
                 <p className="text-[11px] text-destructive">{form.formState.errors.username.message}</p>
               ) : null}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" autoComplete="current-password" {...form.register('password')} />
+              <Label htmlFor="password" className="sr-only">
+                Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                autoComplete="current-password"
+                {...form.register('password')}
+              />
               {form.formState.errors.password ? (
                 <p className="text-[11px] text-destructive">{form.formState.errors.password.message}</p>
               ) : null}
@@ -108,7 +111,6 @@ export function LoginPage() {
           </form>
         </section>
       </main>
-      <footer className="pb-6 text-center text-[11px] tracking-[0.04em] text-muted-foreground">© 2026 T4C · Funbinet</footer>
     </div>
   )
 }
