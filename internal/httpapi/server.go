@@ -232,7 +232,6 @@ func (s *Server) Router() http.Handler {
 				protected.Get(prefix+"/groups", s.handleStageGroups)
 				protected.Post(prefix+"/groups", s.requireWrite(s.handleCreateStageGroup))
 			}
-			_ = stageScreenRoutes
 			stageScreenRoutes(domain.StageExploit)
 			stageScreenRoutes(domain.StageObjectives)
 
