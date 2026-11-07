@@ -210,6 +210,32 @@ func (s *Server) Router() http.Handler {
 			protected.Post("/{stage}/groups", s.requireWrite(s.handleCreateStageGroup))
 
 			// Exploit stage: shell sessions, exploited assets, exploit SDK registry.
+			// The stage screen endpoints below are ALSO pinned as static routes for
+			// both exploit and objectives: chi prefers the static "/objectives"
+			// subtree over the "/{stage}" param, so without these aliases
+			// GET /objectives/overview falls into GET /objectives/{id} and fails
+			// with "invalid object id".
+			stageScreenRoutes := func(stage domain.Stage) {
+				prefix := "/" + string(stage)
+				protected.Get(prefix+"/overview", s.handleStageOverview)
+				protected.Get(prefix+"/tasks", s.handleListStageTasks)
+				protected.Post(prefix+"/tasks", s.requireWrite(s.handleCreateStageTask))
+				protected.Get(prefix+"/organizations", s.handleStageOrganizations)
+				protected.Get(prefix+"/assets", s.handleStageAssets)
+				protected.Get(prefix+"/findings", s.handleStageFindings)
+				protected.Get(prefix+"/monitors", s.handleStageMonitors)
+				protected.Post(prefix+"/monitors", s.requireWrite(s.handleCreateStageMonitor))
+				protected.Get(prefix+"/schedules", s.handleStageSchedules)
+				protected.Post(prefix+"/schedules", s.requireWrite(s.handleCreateStageSchedule))
+				protected.Get(prefix+"/policies", s.handleStagePolicies)
+				protected.Post(prefix+"/policies", s.requireWrite(s.handleCreateStagePolicy))
+				protected.Get(prefix+"/groups", s.handleStageGroups)
+				protected.Post(prefix+"/groups", s.requireWrite(s.handleCreateStageGroup))
+			}
+			_ = stageScreenRoutes
+			stageScreenRoutes(domain.StageExploit)
+			stageScreenRoutes(domain.StageObjectives)
+
 			protected.Get("/exploit/sessions", s.handleListSessions)
 			protected.Get("/exploit/sessions/{id}", s.handleGetSession)
 			protected.Post("/exploit/sessions/{id}/close", s.requireWrite(s.handleCloseSession))

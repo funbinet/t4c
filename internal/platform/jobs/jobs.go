@@ -22,10 +22,17 @@ const (
 var QueueNames = []string{
 	"q.discovery.network",
 	"q.discovery.dns",
+	// Recon broadening (CT, ASN, zone walk, cloud, rDNS, endpoints).
+	"q.discovery.broaden",
 	"q.web.fetch",
 	"q.web.scan",
 	"q.poc.http",
 	"q.poc.service",
+	// Exploit stage: validation plugins and post-exploitation.
+	"q.exploit.http",
+	"q.exploit.postex",
+	// Objectives stage: produce probes.
+	"q.objectives.probe",
 	"q.monitor",
 	"q.github",
 	"q.maintenance",
