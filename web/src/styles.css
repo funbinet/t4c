@@ -10,11 +10,12 @@
 
   Plus two alpha blends of ink (no new hues):
     ink-muted 62%  secondary text
-    ink-faint 38%  placeholders, disabled text, major grid lines
+    ink-faint 38%  placeholders, disabled text
 
   Geometry: radius zero everywhere. Motion: none, ever.
-  Elevation: none, ever. A click target fills with surface, nothing fills
-  at rest.
+  Elevation: none, ever. Nothing carries a background fill at rest: every
+  container is a rectangle drawn with a surface outline on the bare canvas.
+  A click target fills with surface on hover, and that is the only fill.
 */
 
 @theme inline {

@@ -96,7 +96,7 @@ export function OverviewPage() {
           fold so the map is the dominant first-screen surface. */}
       <section className="flex flex-col xl:min-h-[calc(100dvh-7rem)]">
         {/* 5 stat tiles — 2x2 grid + full-width fifth on small screens, 5 across on desktop */}
-        <div className="mb-4 grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="mb-4 grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
           <StatTile
             label="Organizations"
             value={formatNumber(data.summary.organizations)}

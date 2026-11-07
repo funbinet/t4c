@@ -362,7 +362,7 @@ export function OrganizationDetailPage() {
         ) : null}
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-6">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatTile
           label="Confirmed Root Domains"
           value={summary.data?.confirmedDomains || 0}

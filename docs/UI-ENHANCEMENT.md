@@ -1,4 +1,4 @@
-# T4C Console Design System: Cutting Mat
+# T4C Console Design System: Three Color Outline
 
 Single source of truth for the console look. The 2026-11 cutting mat overhaul
 replaced the neon terminal theme everywhere. Every screen, primitive, and
@@ -8,15 +8,14 @@ visual must follow these rules.
 
 | Token | Hex | Role |
 |---|---|---|
-| canvas | `#090A08` | The mat. Page background, selection text, text on ink fills. |
+| canvas | `#090A08` | The page background. Bare canvas, no grid, no texture. Selection text and text on ink fills. |
 | ink | `#2D7B49` | Every glyph. Text, icons, chart drawings, data lines, focus ring, scroll thumb hover. |
-| surface | `#0F2516` | Outlines, hairlines, panels, inputs, dialogs, popovers, hover fills, scroll thumb, chart containers. |
+| surface | `#0F2516` | Outlines, hairlines, hover fills, scroll thumb. Every container is a rectangle drawn with this outline. |
 
 Two alpha blends of ink exist and nothing else:
 
 - `--ink-muted` (62 percent ink) for secondary text and axis labels.
-- `--ink-faint` (38 percent ink) for placeholders, disabled text, and the major
-  background grid lines.
+- `--ink-faint` (38 percent ink) for placeholders and disabled text.
 
 No other hue, tint, white, black, or gray is allowed anywhere, including chart
 configs, toast styles, and favicon-adjacent chrome.
@@ -30,16 +29,22 @@ configs, toast styles, and favicon-adjacent chrome.
    A global guard in `styles.css` kills animation and transition for every
    element. ECharts options set `animation: false`.
 3. **No elevation.** No box shadows, no blur, no backdrop filter, no glow.
-4. **Nothing filled at rest.** Buttons are outlined squares with a transparent
-   body. The only fills are containers (dialogs, inputs, popovers, the map
-   plot), data drawings (bars, progress, pins, nodes), and the hover state.
+4. **Nothing filled at rest.** Nothing carries a background fill at rest: not
+   buttons, not cards, not inputs, not chips, not skeletons, not error boxes.
+   Every container is a rectangle drawn with a surface outline on the bare
+   canvas. The only fills are data drawings (bars, progress, pins, nodes), the
+   map plot area, and the hover state. Overlays (dialogs, sheets, dropdowns,
+   popovers, tooltips) render a canvas body with a hairline border so floating
+   content stays readable while still reading as an empty rectangle.
 5. **Hover law.** The only state change is an instant recolor: outline and
    ghost targets fill with `bg-accent` (surface), and text stays ink. There is
    no text color change on hover and no scale or lift.
 6. **Icon-only actions.** Every button is a lucide glyph with a `title`,
    `aria-label`, and `sr-only` span. No text on buttons, not even single words.
-   `Button` variants all render as outlined squares; ghost has a transparent
-   border.
+   Every icon action button is the same uniform square: `size-9` (36px). No
+   small or large icon variants exist; `Button` variants all render as outlined
+   squares and ghost has a transparent border. Wide submits (sign in, change
+   password) keep their long outline but carry the same single glyph.
 7. **Rows are the click target.** List rows open their detail view through
    `DataTable.onRowClick`. Action cells stop propagation with
    `Column.stopRowClick`.
@@ -47,11 +52,10 @@ configs, toast styles, and favicon-adjacent chrome.
    medium draws 62 percent ink, low draws 38 percent ink, info draws surface.
    This applies to badges (danger variant uses the ink border, everything else
    the hairline border), risk bars, graph nodes, and map pins.
-9. **The mat is always behind everything.** `AppBackground` renders a fixed
-   `.mat-grid` layer: 1px surface hairlines every 32px and 1px faint ink lines
-   every 128px. `background-size` tiles infinitely, so the grid holds at any
-   viewport dimension. Cards sit transparent on the mat; dialogs, inputs, and
-   popovers are solid surface. The overlay for modals is canvas at 80 percent.
+9. **The background is bare canvas.** `AppBackground` renders nothing. There
+   is no mat grid: any hairline lattice behind content made dense screens hard
+   to read. Cards, inputs, and chips sit transparent on the canvas, each one an
+   outlined rectangle. The modal overlay is canvas at 80 percent.
 10. **Centered presentation, symmetric layout.** Stat tiles, card titles, empty
     states, page titles in the header, and the login screen are centered.
     Dense data (table cells, log lines, key value grids) stays left aligned.
@@ -61,15 +65,15 @@ configs, toast styles, and favicon-adjacent chrome.
 
 | Primitive | Rule |
 |---|---|
-| `Button` | Outlined square, transparent body, `border-ring` or `border-border` by variant, `hover:bg-accent`. Icon sizes: 9 for `icon`, 8 for small. |
+| `Button` | Outlined square, transparent body, `border-ring` or `border-border` by variant, `hover:bg-accent`. Icon actions are uniform `size-9` squares. |
 | `Badge` | Outlined chip, transparent body. `danger` variant uses the ink border, all others the hairline. |
-| `Card` | Hairline border, transparent body on the mat. |
-| `Input` / `Textarea` / `SelectTrigger` | Solid surface body, hairline border, ink focus border, `text-dim` placeholder. |
-| `Dialog` / `Sheet` / `Popover` / `Tooltip` / `DropdownMenu` / `SelectContent` | Solid surface body, hairline border, no shadow. |
+| `Card` | Hairline border, transparent body on the canvas. |
+| `Input` / `Textarea` / `SelectTrigger` | Transparent body, hairline border, ink focus border, muted placeholder. |
+| `Dialog` / `Sheet` / `Popover` / `Tooltip` / `DropdownMenu` / `SelectContent` | Canvas body, hairline border, no shadow. |
 | `Progress` | Surface track, ink fill, square ends. |
-| `Tabs` | Hairline bordered list; the active tab fills with surface. |
-| `Checkbox` | Surface body, hairline border, ink border when checked. |
-| `Skeleton` | Surface blocks, no pulse. |
+| `Tabs` | Hairline bordered list; the active tab draws the ink border, no fill. |
+| `Checkbox` | Transparent body, hairline border, ink border when checked. |
+| `Skeleton` | Outlined rectangles, no fill, no pulse. |
 | Toaster | Solid surface, ink border, ink text, square corners. |
 | Scrollbars | Square, canvas track, surface thumb, ink thumb on hover. |
 
