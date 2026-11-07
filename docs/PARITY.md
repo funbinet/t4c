@@ -65,4 +65,14 @@ deliberately absent from the table above:
 - Dedicated chain console screens, shell console, export drawer, objective
   lifecycle workflow and produce breakdown.
 
+### v3.5.0 post-release console fixes
+
+| Area | Fix |
+|---|---|
+| Stage screen routing | Static `/exploit/*` and `/objectives/*` screen routes registered in the router so chi's `/{stage}` prefix cannot shadow them; `GET /objectives/overview` and the other static stage screens no longer fail with an invalid object id. |
+| Stage queues | `q.discovery.broaden`, `q.exploit.http`, `q.exploit.postex` and `q.objectives.probe` are all listed in `QueueNames`, so stage task submission and consumer registration never hit an unknown queue error. |
+| Org-scoped stage data | `GET /exploit/assets`, `/exploit/findings`, `/objectives/assets` and `/objectives/findings` (and the recon aliases) accept `organizationId` and filter strictly: assets through JSONB containment on `organizationId`, findings through the owning task's organization. |
+| OpenAPI | The 17 concrete `/exploit/*` and `/objectives/*` screen paths are listed in `openapi.json`, keeping the route-coverage contract test green. |
+| Console isolation | Organization detail is fully mode-aware: recon mutations only in recon, single stage Play action in exploit/objectives, stage-scoped tables and counters. Login screen minimized and the mode toggle moved to the sidebar bottom.
+
 See [docs/3-5-0.md](3-5-0.md) for the full achievement report.

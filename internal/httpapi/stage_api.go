@@ -189,7 +189,7 @@ func (s *Server) handleStageAssets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	q := httpx.PageQuery(r)
-	assets, total, err := s.Store.ListAssetsByStage(r.Context(), stage, r.URL.Query().Get("kind"), q)
+	assets, total, err := s.Store.ListAssetsByStage(r.Context(), stage, r.URL.Query().Get("kind"), strings.TrimSpace(r.URL.Query().Get("organizationId")), q)
 	if err != nil {
 		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
 		return
@@ -209,7 +209,7 @@ func (s *Server) handleStageFindings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	q := httpx.PageQuery(r)
-	findings, total, err := s.Store.ListFindingsByStage(r.Context(), stage, r.URL.Query().Get("kind"), q)
+	findings, total, err := s.Store.ListFindingsByStage(r.Context(), stage, r.URL.Query().Get("kind"), strings.TrimSpace(r.URL.Query().Get("organizationId")), q)
 	if err != nil {
 		httpx.WriteProblem(w, r, http.StatusInternalServerError, "store_error", err.Error())
 		return

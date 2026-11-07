@@ -24,8 +24,10 @@ func applyStage(db *gorm.DB, stage domain.Stage) *gorm.DB {
 
 // ListAssetsByStage returns classified assets for a chain stage. Exploit and
 // objectives scopes only expose assets that have been successfully breached;
-// recon exposes the full discovered surface (including legacy rows).
-func (s *Store) ListAssetsByStage(ctx context.Context, stage domain.Stage, kind string, q PageQuery) ([]domain.Asset, int64, error) {
+// recon exposes the full discovered surface (including legacy rows). An empty
+// organizationId returns every stage asset; a non-empty one scopes to the
+// assets owned by that organization (plan §0.3: organizations are shared).
+func (s *Store) ListAssetsByStage(ctx context.Context, stage domain.Stage, kind, organizationID string, q PageQuery) ([]domain.Asset, int64, error) {
 	if q.Sort == "" || q.Sort == "createdAt:desc" {
 		q.Sort = "lastSeen:desc"
 	}
@@ -39,6 +41,9 @@ func (s *Store) ListAssetsByStage(ctx context.Context, stage domain.Stage, kind 
 	}
 	if kind != "" {
 		db = db.Where("kind = ?", kind)
+	}
+	if organizationID != "" {
+		db = db.Where("data @> json_build_object('organizationId', ?::text)::jsonb", organizationID)
 	}
 	if q.Search != "" {
 		pattern := ilike(q.Search)
@@ -54,12 +59,17 @@ func (s *Store) ListAssetsByStage(ctx context.Context, stage domain.Stage, kind 
 	return out, total, err
 }
 
-// ListFindingsByStage returns findings scoped to a chain stage.
-func (s *Store) ListFindingsByStage(ctx context.Context, stage domain.Stage, kind string, q PageQuery) ([]domain.Finding, int64, error) {
+// ListFindingsByStage returns findings scoped to a chain stage. Findings
+// belong to an organization through the task that produced them, so the
+// organization filter resolves the task's organization_id.
+func (s *Store) ListFindingsByStage(ctx context.Context, stage domain.Stage, kind, organizationID string, q PageQuery) ([]domain.Finding, int64, error) {
 	q = q.Normalized()
 	db := applyStage(s.db.WithContext(ctx).Model(&domain.Finding{}), stage)
 	if kind != "" {
 		db = db.Where("kind = ?", kind)
+	}
+	if organizationID != "" {
+		db = db.Where("task_id IN (SELECT id FROM tasks WHERE organization_id = ?)", organizationID)
 	}
 	if q.Search != "" {
 		pattern := ilike(q.Search)

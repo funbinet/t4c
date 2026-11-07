@@ -60,6 +60,18 @@ configs, toast styles, and favicon-adjacent chrome.
     states, page titles in the header, and the login screen are centered.
     Dense data (table cells, log lines, key value grids) stays left aligned.
     Toolbars split left and right around a centered middle note.
+11. **One outline everywhere.** Every hoverable or clickable container draws
+    the same hairline: 1px, `--surface`, full opacity. No thicker or thinner
+    borders, no alpha-modified border colors, no shadows standing in for
+    outlines. Alpha blends of ink stay confined to text, map drawings and
+    graph drawings.
+12. **Mode isolation.** The console has three modes (recon, exploit,
+    objectives). Recon interactions (confirm/reject domains, ICP lookups,
+    edit/delete organization, exports, root-domain scans) render only in
+    recon. Exploit and objectives share a single stage action (Play) and
+    stage-scoped queries; sessions belong to exploit, objectives and
+    artifacts to objectives. A recon interaction never appears in a stage
+    screen and vice versa.
 
 ## Primitives contract
 
@@ -82,6 +94,20 @@ configs, toast styles, and favicon-adjacent chrome.
 `components/layout/app-background.tsx` is one static div, no JavaScript. The
 `t4c.png` logo stays: it is drawn with the theme colors on the login screen,
 the sidebar, and the favicon.
+
+## Login screen
+
+The login screen is deliberately minimal: the bare canvas with a single
+black-green radial gradient at the top, the `t4c.png` logo, the `T4C`
+wordmark, username and password fields, and one icon sign-in button. No
+footer, no tagline, no product copy.
+
+## Sidebar
+
+The three-icon mode toggle sits at the bottom of the sidebar (above the
+collapse control on desktop, above the nav on mobile), not mixed into the
+nav groups. Administration stays always-on; Intelligence is hidden in
+exploit and objectives.
 
 ## Charts
 

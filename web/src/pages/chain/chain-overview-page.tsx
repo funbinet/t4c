@@ -18,13 +18,10 @@ import { DataTable, type Column } from '@/components/common/data-table'
 import { EmptyState, ErrorState, LoadingBlock } from '@/components/common/states'
 import { StatTile } from '@/components/common/stat-tile'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatNumber, formatTime, relativeTime } from '@/lib/format'
 import { KIND_LABELS } from './chain-shared'
 import { Distribution, formatBytes, severityTone, toDistribution } from './chain-produce-breakdown'
-
-
 
 /**
  * ChainOverviewPage is the mode-scoped landing screen for the exploit and
@@ -118,11 +115,7 @@ export function ChainOverviewPage() {
             Object.entries(byKind)
               .sort((a, b) => b[1] - a[1])
               .map(([kind, count]) => (
-                <span
-                  key={kind}
-                  className="inline-flex items-center gap-1 border px-2 py-1 text-[11px]"
-                  title={kind}
-                >
+                <span key={kind} className="inline-flex items-center gap-1 border px-2 py-1 text-[11px]" title={kind}>
                   <span className="text-muted-foreground">{KIND_LABELS[kind] || kind}</span>
                   <span className="mono font-semibold text-foreground">{formatNumber(count)}</span>
                 </span>

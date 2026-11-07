@@ -32,6 +32,21 @@ system, audit, login, change password, 404, and the chain screens (overview,
 organizations, tasks, task detail, assets, findings, produce, objective
 workflow, automation, breakdown).
 
+## Mode isolation and shell cleanup sweep
+
+Follow-up sweep after the v3.5.0 chain release, focused on strict stage
+isolation and outline uniformity. Typecheck, unit tests, and the production
+build pass.
+
+| Area | Change |
+|---|---|
+| Login | Stripped to gradient canvas, logo, `T4C` wordmark, two fields, one icon sign-in. Footer and copy removed. |
+| Sidebar | `ModeToggle` moved out of the nav groups to the bottom of the sidebar (desktop and mobile), above the collapse control. |
+| Chain overview | Screen toolbar and chain progress card removed; card titles centered with inline mono counts; arrow and "View all" buttons removed. |
+| Chain organizations | Toolbar replaced by a left search and right filter around a centered exploitable-organization headline; Produce row action links to stage assets. |
+| Organization detail | Reworked to be mode-aware end to end: recon keeps its six workspace counters, full recon mutations and map/graph overview; exploit and objectives render stage-scoped counters, breached assets or objectives, sessions or artifacts, stage findings and stage tasks. Recon-only interactions (confirm domains, ICP, edit, delete, export) never render in stage modes; stage modes expose only Play. All stage queries carry `organizationId`. |
+| Outlines | Verified single 1px `--surface` hairline on every container; no alpha borders, no shadow outlines anywhere. |
+
 ## Known follow-ups
 
 - The temporary compat color tokens in `styles.css` (`mint`, `dim`, `brand`)
