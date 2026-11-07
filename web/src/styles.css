@@ -26,7 +26,7 @@
   --color-foreground: var(--ink);
   --color-card: transparent;
   --color-card-foreground: var(--ink);
-  --color-popover: var(--surface);
+  --color-popover: var(--canvas);
   --color-popover-foreground: var(--ink);
   --color-primary: var(--ink);
   --color-primary-foreground: var(--canvas);
@@ -112,21 +112,6 @@
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--surface) var(--canvas);
-}
-
-/* the mat: minor hairlines every 32px, major every 128px. background-size
-   tiles infinitely so the grid holds at any viewport dimension. */
-.mat-grid {
-  background-image:
-    linear-gradient(to right, var(--ink-faint) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--ink-faint) 1px, transparent 1px),
-    linear-gradient(to right, var(--surface) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--surface) 1px, transparent 1px);
-  background-size:
-    128px 128px,
-    128px 128px,
-    32px 32px,
-    32px 32px;
 }
 
 .mono {

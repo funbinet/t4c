@@ -190,7 +190,6 @@ export function GitHubPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8"
                           title="Edit"
                           onClick={() => editMonitor(row)}
                         >
@@ -206,7 +205,7 @@ export function GitHubPage() {
                             <Button
                               size="icon"
                               variant="outline"
-                              className="size-8 text-destructive"
+                              className="text-destructive"
                               title="Delete"
                             >
                               <Trash2 />
@@ -245,7 +244,7 @@ export function GitHubPage() {
             ) : null}
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -256,7 +255,7 @@ export function GitHubPage() {
               }
             >
               <Save className="size-4" />
-              {editingId ? 'Save' : 'Create'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>

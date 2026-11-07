@@ -122,7 +122,7 @@ export function APIKeysPage() {
                     <Button
                       size="icon"
                       variant="outline"
-                      className="size-8 text-destructive"
+                      className="text-destructive"
                       title="Revoke"
                       onClick={() => remove.mutate(row.id || '')}
                     >
@@ -149,7 +149,7 @@ export function APIKeysPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -177,7 +177,6 @@ export function APIKeysPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Copy"
               onClick={() => {
                 void navigator.clipboard.writeText(secret)

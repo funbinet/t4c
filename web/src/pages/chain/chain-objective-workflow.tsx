@@ -82,7 +82,7 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
         <div className="flex items-center gap-2">
           <Badge variant={statusVariant(objective.status)}>{humanize(objective.status)}</Badge>
           <Select value={status} onValueChange={setStatus} disabled={!writable}>
-            <SelectTrigger className="h-8 flex-1">
+            <SelectTrigger className="h-9 flex-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -95,11 +95,14 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
           </Select>
           {writable ? (
             <Button
-              size="sm"
+              size="icon"
               disabled={status === objective.status || updateStatus.isPending}
               onClick={() => updateStatus.mutate(status)}
-            >
-              <Check className="mr-1 size-3.5" /> Apply
+              title="Apply status"
+              aria-label="Apply status"
+              >
+              <Check />
+              <span className="sr-only">Apply</span>
             </Button>
           ) : null}
         </div>
@@ -112,7 +115,7 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Select value={actionKind} onValueChange={setActionKind}>
-              <SelectTrigger className="h-8 w-32">
+              <SelectTrigger className="h-9 w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -124,7 +127,7 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
               </SelectContent>
             </Select>
             <Input
-              className="h-8 min-w-0 flex-1"
+              className="h-9 min-w-0 flex-1"
               value={payload}
               onChange={(event) => setPayload(event.target.value)}
               placeholder="Describe the action…"
@@ -133,7 +136,6 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               disabled={addAction.isPending}
               onClick={() => addAction.mutate()}
               title="Log"
@@ -152,7 +154,7 @@ export function ObjectiveWorkflow({ objective, writable = true }: { objective: O
         </div>
         <div className="max-h-52 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
           {(actions.data?.items || []).map((action: ObjectiveAction) => (
-            <div key={action.id} className=" border bg-card px-2.5 py-2">
+            <div key={action.id} className=" border px-2.5 py-2">
               <div className="flex items-center justify-between gap-2">
                 <Badge variant="outline">{humanize(action.kind)}</Badge>
                 <span className="text-[11px] text-muted-foreground">{formatTime(action.createdAt)}</span>

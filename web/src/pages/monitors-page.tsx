@@ -156,14 +156,13 @@ export function MonitorsPage() {
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                    <Button size="icon" variant="outline" title="Edit" onClick={() => edit(row)}>
                       <Pencil />
                       <span className="sr-only">Edit</span>
                     </Button>
                     <Button
                       size="icon"
                       variant="outline"
-                      className="size-8"
                       title="Run"
                       onClick={() => action.mutate({ id: row.id || '', action: 'run' })}
                     >
@@ -173,7 +172,6 @@ export function MonitorsPage() {
                     <Button
                       size="icon"
                       variant="outline"
-                      className="size-8"
                       title={row.status === 'active' ? 'Pause' : 'Resume'}
                       onClick={() =>
                         action.mutate({ id: row.id || '', action: row.status === 'active' ? 'pause' : 'resume' })
@@ -191,7 +189,7 @@ export function MonitorsPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive"
+                          className="text-destructive"
                           title="Delete"
                         >
                           <Trash2 />
@@ -274,7 +272,7 @@ export function MonitorsPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -285,7 +283,7 @@ export function MonitorsPage() {
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
               <Save className="size-4" />
-              {editingId ? 'Save' : 'Create'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>

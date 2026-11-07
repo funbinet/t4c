@@ -83,7 +83,7 @@ export function TasksPage() {
       <ScreenToolbar
         left={
           <>
-            <div className="flex bg-muted p-1">
+            <div className="flex p-1">
               <Button
                 size="sm"
                 variant={origin === 'surface' ? 'default' : 'ghost'}
@@ -196,7 +196,7 @@ export function TasksPage() {
                 stopRowClick: true,
                 cell: (row) => (
                   <div className="flex justify-end gap-1">
-                    <Button asChild size="icon" variant="outline" className="size-8" title="Details">
+                    <Button asChild size="icon" variant="outline" title="Details">
                       <Link to={`/tasks/${row.id}`}>
                         <Search className="size-4" />
                         <span className="sr-only">Details</span>
@@ -206,7 +206,7 @@ export function TasksPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-8 text-destructive"
+                        className="text-destructive"
                         title="Stop"
                         onClick={() => cancel.mutate(row.id || '')}
                       >
@@ -284,16 +284,21 @@ export function TasksPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setCreateOpen(false)}
             >
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
-            <Button disabled={!form.target.trim() || create.isPending} onClick={() => create.mutate()}>
+            <Button
+              size="icon"
+              disabled={!form.target.trim() || create.isPending}
+              onClick={() => create.mutate()}
+              title="Create Task"
+              aria-label="Create Task"
+            >
               <Plus />
-              {create.isPending ? 'Creating…' : 'Create'}
+              <span className="sr-only">Create Task</span>
             </Button>
           </DialogFooter>
         </DialogContent>

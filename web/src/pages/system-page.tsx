@@ -62,7 +62,7 @@ export function SystemPage() {
           <CardContent>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {Object.entries(data.scanners || {}).map(([name, version]) => (
-                <div key={name} className=" border bg-card p-3">
+                <div key={name} className=" border p-3">
                   <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{name}</div>
                   <div className="mono mt-1 text-xs font-medium">{String(version)}</div>
                 </div>

@@ -206,8 +206,14 @@ export function ChainTasksPage() {
         center={`${formatNumber(tasks.data?.total ?? overview.data?.counts?.tasks)} tasks recorded in this stage`}
         right={
           writable ? (
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <Zap className="mr-1 size-3.5" /> New {STAGE_META[mode].shortLabel} task
+            <Button
+            size="icon"
+            onClick={() => setCreateOpen(true)}
+            title="New task"
+            aria-label="New task"
+          >
+            <Zap />
+            <span className="sr-only">New {STAGE_META[mode].shortLabel} task</span>
             </Button>
           ) : (
             <span className="mono-label">Read-only access</span>

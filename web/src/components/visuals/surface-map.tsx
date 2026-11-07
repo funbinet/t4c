@@ -140,7 +140,7 @@ export function SurfaceMap({
           },
         }}
       />
-      <div className="pointer-events-none absolute bottom-3 left-3 border bg-popover px-2.5 py-1.5 text-[10px] text-muted-foreground">
+      <div className="pointer-events-none absolute bottom-3 left-3 border px-2.5 py-1.5 text-[10px] text-muted-foreground">
         Coordinates come from asset IPs · unlocated assets are not plotted
       </div>
     </div>

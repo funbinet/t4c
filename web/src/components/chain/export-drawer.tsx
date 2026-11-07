@@ -141,11 +141,25 @@ export function ExportDrawer({
         <div className="mb-4 flex items-center gap-2">
           <span className="mono-label">Format</span>
           <div className="flex gap-1.5">
-            <Button size="sm" variant={format === 'json' ? 'default' : 'outline'} onClick={() => setFormat('json')}>
-              <FileJson className="mr-1 size-3.5" /> JSON
+            <Button
+            size="icon"
+            variant={format === 'json' ? 'default' : 'outline'}
+            title="JSON format"
+            aria-label="JSON format"
+            onClick={() => setFormat('json')}
+          >
+              <FileJson />
+              <span className="sr-only">JSON</span>
             </Button>
-            <Button size="sm" variant={format === 'csv' ? 'default' : 'outline'} onClick={() => setFormat('csv')}>
-              <FileSpreadsheet className="mr-1 size-3.5" /> CSV
+            <Button
+            size="icon"
+            variant={format === 'csv' ? 'default' : 'outline'}
+            title="CSV format"
+            aria-label="CSV format"
+            onClick={() => setFormat('csv')}
+          >
+              <FileSpreadsheet />
+              <span className="sr-only">CSV</span>
             </Button>
           </div>
           <Button
@@ -176,7 +190,7 @@ export function ExportDrawer({
           {allItems.map((item) => (
             <label
               key={item.id}
-              className="flex cursor-pointer items-center gap-3 border bg-card px-3 py-2 text-xs hover:border-ring"
+              className="flex cursor-pointer items-center gap-3 border px-3 py-2 text-xs hover:border-ring"
             >
               <Checkbox
                 checked={selected.has(item.id)}
@@ -216,7 +230,7 @@ export function ExportDrawer({
 
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className=" border bg-card px-2 py-1.5 text-center">
+    <div className=" border px-2 py-1.5 text-center">
       <div className="mono-label">{label}</div>
       <div className="mono text-sm font-semibold text-foreground">{value}</div>
     </div>

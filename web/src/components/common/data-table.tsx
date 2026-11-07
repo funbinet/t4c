@@ -38,7 +38,7 @@ export function DataTable<T>({
     <>
       <div
         className={cn(
-          'hidden overflow-hidden border bg-card md:block',
+          'hidden overflow-hidden border md:block',
           scrollable && 'max-h-[calc(100vh-18rem)] overflow-y-auto scrollbar-thin',
         )}
       >
@@ -102,7 +102,7 @@ export function DataTable<T>({
         {rows.map((row) => (
           <div
             key={rowKey(row)}
-            className={cn('border bg-card p-3', onRowClick && 'cursor-pointer')}
+            className={cn('border p-3', onRowClick && 'cursor-pointer')}
             onClick={onRowClick ? () => onRowClick(row) : undefined}
             onKeyDown={
               onRowClick

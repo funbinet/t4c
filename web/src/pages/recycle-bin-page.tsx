@@ -103,7 +103,6 @@ export function RecycleBinPage() {
                   <Button
                     size="icon"
                     variant="outline"
-                    className="size-8"
                     title="Restore"
                     disabled={restore.isPending}
                     onClick={() => restore.mutate({ type: row.type, id: row.id })}

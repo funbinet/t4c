@@ -18,7 +18,7 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 export function Fact({ label, value, className }: { label: string; value: ReactNode; className?: string }) {
   return (
-    <div className={cn('border bg-card p-3', className)}>
+    <div className={cn('border p-3', className)}>
       <div className="mono-label">{label}</div>
       <div className="mt-1.5 text-xs font-medium">{value}</div>
     </div>

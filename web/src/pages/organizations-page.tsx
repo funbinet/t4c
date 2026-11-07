@@ -250,7 +250,6 @@ export function OrganizationsPage() {
                     <Button
                       size="icon"
                       variant="outline"
-                      className="size-8"
                       title="Edit"
                       onClick={() => editOrganization(row)}
                     >
@@ -266,7 +265,7 @@ export function OrganizationsPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive"
+                          className="text-destructive"
                           title="Delete"
                         >
                           <Trash2 />
@@ -309,7 +308,6 @@ export function OrganizationsPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setCreateOpen(false)}
             >
@@ -332,7 +330,7 @@ export function OrganizationsPage() {
               Required column: canonicalName. Optional: aliases, region, uscc, rootDomains.
             </DialogDescription>
           </DialogHeader>
-          <div className=" border bg-muted/40 p-3 text-[11px] leading-5 text-muted-foreground">
+          <div className=" border p-3 text-[11px] leading-5 text-muted-foreground">
             <div className="mono">canonicalName,aliases,region,uscc,rootDomains</div>
             <div className="mono">Acme College,College A|College B,SH,12510000...,guc.edu.cn;example.edu.cn</div>
           </div>
@@ -348,7 +346,6 @@ export function OrganizationsPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setImportOpen(false)}
             >
@@ -384,13 +381,13 @@ export function OrganizationsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setEditOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
             <Button disabled={!form.canonicalName.trim() || update.isPending} onClick={() => update.mutate()}>
               <Save />
-              {update.isPending ? 'Saving…' : 'Save'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>

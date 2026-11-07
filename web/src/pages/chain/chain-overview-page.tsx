@@ -8,6 +8,7 @@ import {
   Flag,
   Layers,
   ListChecks,
+  Package,
   PieChart,
   Radar,
   ShieldAlert,
@@ -94,14 +95,16 @@ export function ChainOverviewPage() {
         center={overview.data?.description || 'Loading stage telemetry…'}
         right={
           <>
-            <Button asChild size="sm" variant="outline">
+            <Button asChild size="icon" variant="outline" title="Tasks" aria-label="Tasks">
               <Link to={`${base}/tasks`}>
-                <Workflow className="mr-1 size-3.5" /> Tasks
+                <Workflow />
+                <span className="sr-only">Tasks</span>
               </Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="icon" title="New task" aria-label="New task">
               <Link to={`${base}/tasks?create=1`}>
-                <Zap className="mr-1 size-3.5" /> New {STAGE_META[mode].shortLabel} Task
+                <Zap />
+                <span className="sr-only">New {STAGE_META[mode].shortLabel} Task</span>
               </Link>
             </Button>
           </>
@@ -154,7 +157,7 @@ export function ChainOverviewPage() {
                 .map(([kind, count]) => (
                   <span
                     key={kind}
-                    className="inline-flex items-center gap-1 border bg-card px-2 py-1 text-[11px]"
+                    className="inline-flex items-center gap-1 border px-2 py-1 text-[11px]"
                     title={kind}
                   >
                     <span className="text-muted-foreground">{KIND_LABELS[kind] || kind}</span>
@@ -255,8 +258,11 @@ export function ChainOverviewPage() {
               <CardTitle className="flex items-center gap-2">
                 <Flag className="size-4 text-foreground" /> Recent Objectives
               </CardTitle>
-              <Button asChild size="sm" variant="ghost">
-                <Link to={`${base}/assets`}>Open Produce</Link>
+              <Button asChild size="icon" variant="ghost" title="Open produce" aria-label="Open produce">
+                <Link to={`${base}/assets`}>
+                  <Package />
+                  <span className="sr-only">Open produce</span>
+                </Link>
               </Button>
             </CardHeader>
             <CardContent className="pt-0">
@@ -361,15 +367,15 @@ function ChainProgressCard({ mode, counts, next }: { mode: Stage; counts: Record
               className={cn(
                 'flex items-center gap-2 border px-3 py-2',
                 isCurrent
-                  ? 'border-ring bg-accent'
-                  : 'border-border bg-card hover:border-ring',
+                  ? 'border-ring'
+                  : 'border-border hover:border-ring',
               )}
             >
               <span
                 className={cn(
-                  'grid size-7 shrink-0 place-items-center border',
+                  'grid size-9 shrink-0 place-items-center border',
                   isDone
-                    ? 'border-ring bg-accent text-foreground'
+                    ? 'border-ring text-foreground'
                     : isCurrent
                       ? 'border-ring text-foreground'
                       : 'border-border text-muted-foreground',

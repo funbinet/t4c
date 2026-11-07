@@ -67,7 +67,7 @@ export function LoginPage() {
           </div>
         </a>
 
-        <section className="mt-8 w-full border bg-popover p-8 sm:p-10">
+        <section className="mt-8 w-full border p-8 sm:p-10">
           <div className="mb-7 text-center">
             <div className="mono-label !text-[11px] !text-foreground">Console Sign-In</div>
             <h2 className="mt-2 text-xl font-semibold uppercase tracking-[0.06em]">

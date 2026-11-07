@@ -140,7 +140,7 @@ export function FingerprintsPage() {
               cell: (row) =>
                 canWrite(role) ? (
                   <div className="flex justify-end gap-1">
-                    <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                    <Button size="icon" variant="outline" title="Edit" onClick={() => edit(row)}>
                       <Pencil />
                       <span className="sr-only">Edit</span>
                     </Button>
@@ -153,7 +153,7 @@ export function FingerprintsPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8 text-destructive"
+                          className="text-destructive"
                           title="Delete"
                         >
                           <Trash2 />
@@ -185,7 +185,7 @@ export function FingerprintsPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -194,7 +194,7 @@ export function FingerprintsPage() {
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
               <Save className="size-4" />
-              {editingId ? 'Save' : 'Create'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -215,7 +215,6 @@ export function FingerprintsPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setImportOpen(false)}
             >

@@ -148,7 +148,7 @@ export function OverviewPage() {
                     key={org.organizationId}
                     className={cn(
                       'mb-1 w-full border border-transparent px-3 py-2.5 hover:bg-accent',
-                      selectedOrg === org.organizationId && 'border-ring bg-accent',
+                      selectedOrg === org.organizationId && 'border-ring',
                     )}
                     onClick={() => selectOrg(org.organizationId)}
                   >
@@ -180,7 +180,7 @@ export function OverviewPage() {
           {/* center: map */}
           <Card className="flex min-h-0 flex-col overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2.5">
-              <div className="flex items-center gap-1 bg-muted p-1">
+              <div className="flex items-center gap-1 p-1">
                 <Button
                   size="sm"
                   variant={visual === 'map' ? 'default' : 'ghost'}
@@ -209,7 +209,6 @@ export function OverviewPage() {
                   <Button
                     size="icon"
                     variant="outline"
-                    className="size-7"
                     title="Back to global view"
                     onClick={() => selectOrg('')}
                   >
@@ -224,7 +223,7 @@ export function OverviewPage() {
                 map.isLoading ? (
                   <LoadingBlock label="Locating assets…" />
                 ) : map.error ? (
-                  <div className="grid h-full min-h-[360px] place-items-center border bg-card p-6 text-center">
+                  <div className="grid h-full min-h-[360px] place-items-center border p-6 text-center">
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.06em]">Map unavailable</div>
                       <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
@@ -236,7 +235,7 @@ export function OverviewPage() {
                   <SurfaceMap snapshot={map.data} onSelect={(_id, orgIds) => orgIds[0] && selectOrg(orgIds[0])} />
                 )
               ) : graph.error ? (
-                <div className="grid h-full min-h-[360px] place-items-center border bg-card p-6 text-center">
+                <div className="grid h-full min-h-[360px] place-items-center border p-6 text-center">
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.06em]">Graph unavailable</div>
                     <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
@@ -249,7 +248,7 @@ export function OverviewPage() {
               ) : graph.isLoading ? (
                 <LoadingBlock label="Loading relationship graph…" />
               ) : !graph.data || (graph.data.nodes?.length || 0) === 0 ? (
-                <div className="grid h-full min-h-[360px] place-items-center border bg-card p-6 text-center">
+                <div className="grid h-full min-h-[360px] place-items-center border p-6 text-center">
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.06em]">No graph data yet</div>
                     <p className="mt-1 text-xs uppercase tracking-[0.04em] text-muted-foreground">
@@ -362,7 +361,7 @@ export function OverviewPage() {
       </div>
 
       {data.truncated ? (
-        <div className="mt-3 border bg-card px-3 py-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+        <div className="mt-3 border px-3 py-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
           Data exceeds the display limit; some organizations are omitted.
         </div>
       ) : null}
@@ -375,7 +374,7 @@ function HealthChip({ label, value }: { label: string; value?: string }) {
   return (
     <span
       title={ok ? 'OK' : (value ?? 'Unknown')}
-      className="inline-flex items-center gap-1 border bg-card px-2 py-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground"
+      className="inline-flex items-center gap-1 border px-2 py-1 text-[10px] uppercase tracking-[0.04em] text-muted-foreground"
     >
       <span className={cn('size-1.5', ok ? 'bg-accent' : 'bg-accent')} />
       {label}

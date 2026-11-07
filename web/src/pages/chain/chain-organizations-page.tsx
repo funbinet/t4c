@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Boxes, Building2, Crosshair, FileArchive } from 'lucide-react'
+import { ArrowRight, Boxes, Building2, Crosshair, FileArchive, Package, Play, Zap } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -152,8 +152,17 @@ export function ChainOrganizationsPage() {
         const canAdvance = row.canAdvance ?? Boolean(next)
         return (
           <div className="flex justify-end gap-1.5">
-            <Button asChild size="sm" variant="ghost">
-              <Link to={`${base}/assets?organizationId=${row.id}`}>Produce</Link>
+            <Button
+            asChild
+            size="icon"
+            variant="ghost"
+            title="Produce"
+            aria-label="Produce"
+          >
+              <Link to={`/assets?organizationId=${row.id}`}>
+                <Package />
+                <span className="sr-only">Produce</span>
+              </Link>
             </Button>
             {canAdvance && next ? (
               <Button
@@ -194,8 +203,17 @@ export function ChainOrganizationsPage() {
         }
         center="Organizations are discovered in recon and shared across all three stages"
         right={
-          <Button asChild size="sm" variant="outline">
-            <Link to={`${base}/tasks?create=1`}>New {mode} task</Link>
+          <Button
+            asChild
+            size="icon"
+            variant="outline"
+            title="New task"
+            aria-label="New task"
+          >
+            <Link to={`${base}/tasks?create=1`}>
+              <Zap />
+              <span className="sr-only">New {mode} task</span>
+            </Link>
           </Button>
         }
       />
@@ -240,8 +258,11 @@ export function ChainOrganizationsPage() {
             title="No organizations in this stage"
             description="Organizations are discovered by recon tasks and shared across every chain stage."
             action={
-              <Button asChild size="sm">
-                <Link to="/tasks?create=1">Run recon discovery</Link>
+              <Button asChild size="icon" title="Run recon discovery" aria-label="Run recon discovery">
+                <Link to="/tasks?create=1">
+                  <Play />
+                  <span className="sr-only">Run recon discovery</span>
+                </Link>
               </Button>
             }
           />

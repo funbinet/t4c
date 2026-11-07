@@ -100,8 +100,14 @@ export function ChainAutomationPage({ kind }: { kind: AutomationKind }) {
         center={config.description}
         right={
           writable ? (
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-1 size-3.5" /> New {config.label.slice(0, -1)}
+            <Button
+            size="icon"
+            title="New {config.label.slice(0, -1)}"
+            aria-label="New {config.label.slice(0, -1)}"
+            onClick={() => setCreateOpen(true)}
+          >
+              <Plus />
+              <span className="sr-only">New {config.label.slice(0, -1)}</span>
             </Button>
           ) : (
             <span className="mono-label">Read-only access</span>

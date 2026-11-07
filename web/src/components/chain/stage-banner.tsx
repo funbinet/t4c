@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Check, Crosshair, Flag, History, Layers, Radar, Target, Terminal, Zap } from 'lucide-react'
+import { Check, Crosshair, Flag, History, Layers, Radar, Target, Terminal, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/api'
 import { STAGE_META, useMode, type Stage } from '@/app/mode'
@@ -140,9 +140,8 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
               onClick={() => advance.mutate()}
               title={`Advance from ${STAGE_META[effectiveStage].label} to ${STAGE_META[nextStage].label}`}
             >
-              <Zap className="mr-1 size-3.5" />
-              Advance to {STAGE_META[nextStage].shortLabel}
-              <ArrowRight className="ml-1 size-3.5" />
+              <Zap />
+              <span className="sr-only">Advance to {STAGE_META[nextStage].shortLabel}</span>
             </Button>
           ) : (
             <span className="mono-label flex items-center gap-1 text-foreground">
@@ -166,15 +165,15 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
                 className={cn(
                   'flex items-center gap-3 border px-3 py-2 text-left',
                   isCurrent
-                    ? 'border-ring bg-accent'
-                    : 'border-border bg-card hover:border-ring',
+                    ? 'border-ring'
+                    : 'border-border hover:border-ring',
                 )}
               >
                 <span
                   className={cn(
-                    'grid size-8 shrink-0 place-items-center border',
+                    'grid size-9 shrink-0 place-items-center border',
                     isDone
-                      ? 'border-ring bg-accent text-foreground'
+                      ? 'border-ring text-foreground'
                       : isCurrent
                         ? 'border-ring text-foreground'
                         : 'border-border text-muted-foreground',
@@ -209,7 +208,7 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
               {stageState.data.history.slice(0, 4).map((item, index) => (
                 <span
                   key={`${item.at}-${index}`}
-                  className="inline-flex items-center gap-1.5 border bg-card px-2 py-1 text-[11px]"
+                  className="inline-flex items-center gap-1.5 border px-2 py-1 text-[11px]"
                 >
                   <span className="mono font-semibold text-foreground">
                     {item.fromStage || '—'} → {item.toStage || '—'}
@@ -236,7 +235,7 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
                 .map(([kind, count]) => (
                   <span
                     key={kind}
-                    className="inline-flex items-center gap-1 border bg-card px-2 py-1 text-[11px]"
+                    className="inline-flex items-center gap-1 border px-2 py-1 text-[11px]"
                     title={`${KIND_LABELS[kind] || kind} (${kind})`}
                   >
                     <span className="text-muted-foreground">{KIND_LABELS[kind] || kind}</span>
@@ -265,7 +264,7 @@ export function StageBanner({ organizationId }: { organizationId: string }) {
 
 function QuickStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <div className="flex items-center justify-between border bg-card px-2 py-1.5 text-[11px]">
+    <div className="flex items-center justify-between border px-2 py-1.5 text-[11px]">
       <span className="flex items-center gap-1 text-muted-foreground">
         {icon} {label}
       </span>

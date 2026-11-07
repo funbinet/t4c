@@ -68,7 +68,7 @@ export function FindingsPage() {
       <ScreenToolbar
         left={
           <>
-            <div className="flex flex-wrap bg-muted p-1">
+            <div className="flex flex-wrap p-1">
               {views.map((item) => (
                 <Button
                   key={item.value}
@@ -201,7 +201,7 @@ export function FindingsPage() {
                 <Section title="Linked Root Domains">
                   <div className="flex flex-wrap gap-1.5">
                     {selected.rootDomains.map((item) => (
-                      <span key={item} className="mono border bg-muted px-2 py-1 text-[11px]">
+                      <span key={item} className="mono border px-2 py-1 text-[11px]">
                         {item}
                       </span>
                     ))}

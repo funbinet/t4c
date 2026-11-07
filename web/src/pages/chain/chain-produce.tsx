@@ -124,16 +124,26 @@ export function ProducePanel({
       stopRowClick: true,
       cell: (row) => (
         <div className="flex justify-end gap-1.5">
-          <Button size="sm" variant="ghost" onClick={() => setSelectedObjective(row)}>
-            <Eye className="mr-1 size-3.5" /> View
+          <Button
+            size="icon"
+            variant="ghost"
+            title="View objective"
+            aria-label="View objective"
+            onClick={() => setSelectedObjective(row)}
+          >
+            <Eye />
+            <span className="sr-only">View</span>
           </Button>
           <Button
-            size="sm"
+            size="icon"
             variant="outline"
             disabled={row.status === 'exported' || markExported.isPending}
             onClick={() => markExported.mutate(row.id)}
-          >
-            <Check className="mr-1 size-3.5" /> Exported
+            title="Mark exported"
+            aria-label="Mark exported"
+            >
+            <Check />
+            <span className="sr-only">Mark exported</span>
           </Button>
           {writable ? (
             <ConfirmDialog
@@ -164,25 +174,37 @@ export function ProducePanel({
       stopRowClick: true,
       cell: (row) => (
         <div className="flex justify-end gap-1.5">
-          <Button size="sm" variant="ghost" onClick={() => setSelectedArtifact(row)}>
-            <Eye className="mr-1 size-3.5" /> View
+          <Button
+            size="icon"
+            variant="ghost"
+            title="View artifact"
+            aria-label="View artifact"
+            onClick={() => setSelectedArtifact(row)}
+          >
+            <Eye />
+            <span className="sr-only">View</span>
           </Button>
           <Button
-            size="sm"
+            size="icon"
             variant="ghost"
             disabled={downloadArtifact.isPending}
             onClick={() => downloadArtifact.mutate(row)}
-          >
-            <Download className="mr-1 size-3.5" /> Download
+            title="Download artifact"
+            aria-label="Download artifact"
+            >
+            <Download />
+            <span className="sr-only">Download</span>
           </Button>
           {writable ? (
             <Button
-              size="sm"
+              size="icon"
               variant="outline"
               onClick={() => onRunTask(row.assetId)}
               title="Re-run an objective probe"
-            >
-              <RefreshCw className="mr-1 size-3.5" /> Re-run
+              aria-label="Re-run an objective probe"
+              >
+              <RefreshCw />
+              <span className="sr-only">Re-run</span>
             </Button>
           ) : null}
           {writable ? (
@@ -262,7 +284,7 @@ export function ProducePanel({
                 <Badge variant={statusVariant(selectedObjective.status)}>{humanize(selectedObjective.status)}</Badge>
               </div>
               <p className="leading-5 text-muted-foreground">{selectedObjective.detail || 'No detail recorded.'}</p>
-              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border p-3">
                 <Fact label="Discovered" value={formatTime(selectedObjective.discoveredAt)} />
                 <Fact label="Asset" value={selectedObjective.assetId || '—'} />
                 <Fact label="Task" value={selectedObjective.taskId || '—'} />
@@ -284,7 +306,7 @@ export function ProducePanel({
           </SheetHeader>
           {selectedArtifact ? (
             <div className="space-y-3 text-xs">
-              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border p-3">
                 <Fact label="Kind" value={humanize(selectedArtifact.kind)} />
                 <Fact label="Size" value={`${formatNumber(selectedArtifact.sizeBytes)} B`} />
                 <Fact label="Storage Path" value={selectedArtifact.storagePath || '—'} />
@@ -295,11 +317,14 @@ export function ProducePanel({
                 <Fact label="Asset" value={selectedArtifact.assetId || '—'} />
               </dl>
               <Button
-                size="sm"
+                size="icon"
                 disabled={downloadArtifact.isPending}
                 onClick={() => downloadArtifact.mutate(selectedArtifact)}
-              >
-                <Download className="mr-1 size-3.5" /> Download envelope
+                title="Download envelope"
+                aria-label="Download envelope"
+                >
+                <Download />
+                <span className="sr-only">Download envelope</span>
               </Button>
             </div>
           ) : null}

@@ -186,17 +186,38 @@ export function ChainAssetsPage() {
       stopRowClick: true,
       cell: (row) => (
         <div className="flex justify-end gap-1.5">
-          <Button size="sm" variant="ghost" onClick={() => openShell(row)} title="Open shell console">
-            <Terminal className="mr-1 size-3.5" /> Shell
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => openShell(row)}
+            title="Open shell console"
+            aria-label="Open shell console"
+          >
+            <Terminal className="size-3.5" />
+            <span className="sr-only">Open shell console</span>
           </Button>
           {writable ? (
-            <Button size="sm" variant="outline" onClick={() => openTask(row.key)} title="Run a follow-up stage task">
-              <Play className="mr-1 size-3.5" /> {mode === 'objectives' ? 'Probe' : 'Run Task'}
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => openTask(row.key)}
+              title="Run a follow-up stage task"
+              aria-label="Run a follow-up stage task"
+            >
+              <Play className="size-3.5" />
+              <span className="sr-only">Run a follow-up stage task</span>
             </Button>
           ) : null}
           {mode === 'objectives' ? (
-            <Button size="sm" variant="outline" onClick={() => setExportOpen(true)} title="Open export drawer">
-              <Download className="mr-1 size-3.5" /> Export
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => setExportOpen(true)}
+              title="Open export drawer"
+              aria-label="Open export drawer"
+            >
+              <Download className="size-3.5" />
+              <span className="sr-only">Open export drawer</span>
             </Button>
           ) : null}
         </div>
@@ -242,13 +263,21 @@ export function ChainAssetsPage() {
         right={
           <>
             {mode === 'objectives' ? (
-              <Button size="sm" variant="outline" onClick={() => setExportOpen(true)}>
-                <Download className="mr-1 size-3.5" /> Export produce
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => setExportOpen(true)}
+                title="Export produce"
+                aria-label="Export produce"
+              >
+                <Download />
+                <span className="sr-only">Export produce</span>
               </Button>
             ) : null}
             {writable ? (
-              <Button size="sm" onClick={() => openTask()}>
-                <Zap className="mr-1 size-3.5" /> New {STAGE_META[mode].shortLabel} task
+              <Button size="icon" onClick={() => openTask()} title="New stage task" aria-label="New stage task">
+                <Zap />
+                <span className="sr-only">New stage task</span>
               </Button>
             ) : null}
           </>
@@ -343,7 +372,7 @@ export function ChainAssetsPage() {
                 </Badge>
                 <StagePill stage={mode} />
               </div>
-              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border p-3">
                 <Fact label="Key" value={selectedAsset.key || '—'} />
                 <Fact label="Origin" value={selectedAsset.origin || 'scan'} />
                 <Fact label="Confidence" value={confidencePercent(selectedAsset.confidence)} />
@@ -365,13 +394,19 @@ export function ChainAssetsPage() {
               {selectedAsset.notes ? <p className="leading-5 text-muted-foreground">{selectedAsset.notes}</p> : null}
               <div>
                 <div className="mono-label mb-1.5">Enrichment Data</div>
-                <pre className="max-h-56 overflow-auto border bg-accent p-3 font-mono text-[11px] leading-relaxed text-foreground scrollbar-thin">
+                <pre className="max-h-56 overflow-auto border p-3 font-mono text-[11px] leading-relaxed text-foreground scrollbar-thin">
                   {JSON.stringify(selectedAsset.data || {}, null, 2)}
                 </pre>
               </div>
               <div className="flex flex-wrap gap-2 border-t pt-3">
-                <Button size="sm" onClick={() => openShell(selectedAsset)}>
-                  <Terminal className="mr-1 size-3.5" /> Open Shell
+                <Button
+                  size="icon"
+                  onClick={() => openShell(selectedAsset)}
+                  title="Open Shell"
+                  aria-label="Open Shell"
+                >
+                  <Terminal />
+                  <span className="sr-only">Open Shell</span>
                 </Button>
                 {sessionFor(selectedAsset) ? (
                   <span className="mono-label self-center">
@@ -379,13 +414,27 @@ export function ChainAssetsPage() {
                   </span>
                 ) : null}
                 {writable ? (
-                  <Button size="sm" variant="outline" onClick={() => openTask(selectedAsset.key)}>
-                    <Play className="mr-1 size-3.5" /> Run Task
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => openTask(selectedAsset.key)}
+                    title="Run Task"
+                    aria-label="Run Task"
+                  >
+                    <Play />
+                    <span className="sr-only">Run Task</span>
                   </Button>
                 ) : null}
                 {mode === 'objectives' ? (
-                  <Button size="sm" variant="outline" onClick={() => setExportOpen(true)}>
-                    <Download className="mr-1 size-3.5" /> Export
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setExportOpen(true)}
+                    title="Export"
+                    aria-label="Export"
+                  >
+                    <Download />
+                    <span className="sr-only">Export</span>
                   </Button>
                 ) : null}
               </div>

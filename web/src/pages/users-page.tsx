@@ -127,7 +127,7 @@ export function UsersPage() {
               header: 'Actions',
               cell: (row) => (
                 <div className="flex justify-end gap-1">
-                  <Button size="icon" variant="outline" className="size-8" title="Edit" onClick={() => edit(row)}>
+                  <Button size="icon" variant="outline" title="Edit" onClick={() => edit(row)}>
                     <Pencil />
                     <span className="sr-only">Edit</span>
                   </Button>
@@ -140,7 +140,7 @@ export function UsersPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-8 text-destructive"
+                        className="text-destructive"
                         title="Delete"
                       >
                         <Trash2 />
@@ -184,7 +184,7 @@ export function UsersPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -235,7 +235,7 @@ export function UsersPage() {
             </Field>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setEditOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -244,7 +244,7 @@ export function UsersPage() {
               onClick={() => update.mutate()}
             >
               <Save />
-              {update.isPending ? 'Saving…' : 'Save'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>

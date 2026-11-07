@@ -36,14 +36,14 @@ export function ConfirmDialog({
         </div>
         <div className="mt-6 flex items-center justify-end gap-2">
           <AlertDialogCancel
-            className={buttonVariants({ variant: 'outline', size: 'icon', className: 'size-8' })}
+            className={buttonVariants({ variant: 'outline', size: 'icon' })}
             title="Cancel"
           >
             <X />
             <span className="sr-only">Cancel</span>
           </AlertDialogCancel>
           <AlertDialogAction
-            className={buttonVariants({ variant: 'destructive', size: 'icon', className: 'size-8' })}
+            className={buttonVariants({ variant: 'destructive', size: 'icon' })}
             onClick={onConfirm}
             title={confirmLabel}
             aria-label={confirmLabel}

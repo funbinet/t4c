@@ -2,11 +2,11 @@ import { expect, test } from '@playwright/test'
 import { login, trackBrowserErrors } from './support'
 
 const routes = [
-  { path: '/', title: 'External Attack Surface Overview' },
-  { path: '/organizations', title: 'Organization Governance' },
-  { path: '/assets', title: 'Attack Surface Assets' },
-  { path: '/findings', title: 'Current Risks' },
-  { path: '/tasks', title: 'Scan Tasks' },
+  { path: '/', title: 'Overview' },
+  { path: '/organizations', title: 'Organizations' },
+  { path: '/assets', title: 'Assets' },
+  { path: '/findings', title: 'Risks' },
+  { path: '/tasks', title: 'Tasks' },
   { path: '/automation/monitors', title: 'Monitors' },
   { path: '/automation/schedules', title: 'Schedules' },
   { path: '/automation/policies', title: 'Scan Policies' },
@@ -26,7 +26,8 @@ test.describe('console routes', () => {
       await login(page)
       if (route.path !== '/') await page.goto(route.path)
       const errors = trackBrowserErrors(page)
-      await expect(page.getByRole('heading', { name: route.title, exact: true })).toBeVisible()
+      // The header title is the only page title.
+      await expect(page.getByRole('banner').getByText(route.title, { exact: true })).toBeVisible()
       await page.waitForLoadState('networkidle')
       expect(errors).toEqual([])
     })

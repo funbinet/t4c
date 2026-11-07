@@ -127,7 +127,8 @@ export function ShellConsole({
               onClick={() => reignite.mutate()}
               title="Re-ignite a closed session"
             >
-              <RotateCcw className="mr-1 size-3.5" /> Re-ignite
+              <RotateCcw />
+              <span className="sr-only">Re-ignite</span>
             </Button>
             <Button
               size="sm"
@@ -136,12 +137,13 @@ export function ShellConsole({
               onClick={() => close.mutate()}
               title="Close session"
             >
-              <Power className="mr-1 size-3.5" /> Close
+              <Power />
+              <span className="sr-only">Close</span>
             </Button>
           </div>
         </div>
 
-        <div className="h-80 overflow-y-auto border border-border bg-accent p-3 font-mono text-[12px] leading-relaxed text-foreground scrollbar-thin">
+        <div className="h-80 overflow-y-auto border border-border p-3 font-mono text-[12px] leading-relaxed text-foreground scrollbar-thin">
           <div className="text-foreground">T4C shell session — {sess?.host || 'connecting…'}</div>
           {history.isLoading ? <div className="text-foreground">Loading command history…</div> : null}
           {history.data?.items?.map((line: ShellCommand) => (
@@ -168,12 +170,13 @@ export function ShellConsole({
               canRun ? 'whoami, id, uname -a, ls, cat /etc/passwd…' : 'Session is not open — re-ignite to run commands'
             }
             disabled={!canRun || run.isPending}
-            className="mono border-border bg-accent text-foreground"
+            className="mono border-border text-foreground"
             autoComplete="off"
             spellCheck={false}
           />
           <Button type="submit" size="sm" disabled={!canRun || run.isPending || !command.trim()}>
-            <CornerDownLeft className="mr-1 size-3.5" /> Run
+            <CornerDownLeft />
+<span className="sr-only">Run</span>
           </Button>
         </form>
         <DialogFooter className="text-[11px] text-muted-foreground">

@@ -148,9 +148,9 @@ function NavContent({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
                       cn(
                         // Shared hitbox: 36px tall, uniform radius, no outline. The
                         // bottom collapse button is the reference for hover/active.
-                        'flex h-9 items-center text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground',
+                        'flex h-9 items-center border border-transparent text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground',
                         collapsed ? 'w-9 justify-center' : 'w-full gap-2.5 px-3 text-left',
-                        isActive && 'bg-accent text-foreground',
+                        isActive && 'border-ring text-foreground',
                       )
                     }
                   >
@@ -370,11 +370,9 @@ export function AppShell() {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="group max-w-44" title="Account">
-                  <span className="grid size-6 shrink-0 place-items-center border border-border text-foreground">
-                    <UserRound className="size-3.5" />
-                  </span>
-                  <span className="hidden truncate normal-case sm:inline">{user?.username || 'Account'}</span>
+                <Button variant="ghost" size="icon" title="Account" aria-label="Account">
+                  <UserRound />
+                  <span className="sr-only">Account</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

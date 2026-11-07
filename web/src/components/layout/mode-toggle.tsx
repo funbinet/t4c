@@ -29,8 +29,8 @@ export function ModeToggle({ collapsed = false }: { collapsed?: boolean }) {
             aria-pressed={active}
             onClick={() => setMode(stage)}
             className={cn(
-              'flex h-9 w-9 items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground',
-              active && 'bg-accent text-foreground',
+              'flex h-9 w-9 items-center justify-center border border-transparent text-muted-foreground hover:bg-accent hover:text-foreground',
+              active && 'border-ring text-foreground',
             )}
           >
             <Icon className="size-4" />

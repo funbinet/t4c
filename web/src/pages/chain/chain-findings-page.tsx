@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { FileSearch, ShieldAlert, ShieldCheck, Siren } from 'lucide-react'
+import { FileSearch, FileText, ShieldAlert, ShieldCheck, Siren } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api, type ChainFinding } from '@/api'
@@ -92,8 +92,17 @@ export function ChainFindingsPage() {
       stopRowClick: true,
       cell: (row) =>
         row.taskId ? (
-          <Button asChild size="sm" variant="ghost">
-            <Link to={`${base}/tasks/${row.taskId}`}>Task</Link>
+          <Button
+            asChild
+            size="icon"
+            variant="ghost"
+            title="Originating task"
+            aria-label="Originating task"
+          >
+            <Link to={`${base}/tasks/${row.taskId}`}>
+              <FileText />
+              <span className="sr-only">Originating task</span>
+            </Link>
           </Button>
         ) : (
           <span className="text-muted-foreground">—</span>
@@ -197,7 +206,7 @@ export function ChainFindingsPage() {
                 <Badge variant="info">{findingKindLabel(selected.kind)}</Badge>
                 <StagePill stage={mode} />
               </div>
-              <dl className="grid grid-cols-2 gap-2 border bg-card p-3">
+              <dl className="grid grid-cols-2 gap-2 border p-3">
                 <Fact label="Target" value={selected.target || '—'} />
                 <Fact label="Plugin" value={selected.pluginName || '—'} />
                 <Fact label="Kind" value={findingKindLabel(selected.kind)} />
@@ -206,13 +215,22 @@ export function ChainFindingsPage() {
                 <Fact label="Created" value={formatTime(selected.createdAt)} />
               </dl>
               {selected.taskId ? (
-                <Button asChild size="sm" variant="outline">
-                  <Link to={`${base}/tasks/${selected.taskId}`}>Open originating task</Link>
+                <Button
+                  asChild
+                  size="icon"
+                  variant="outline"
+                  title="Open originating task"
+                  aria-label="Open originating task"
+                >
+                  <Link to={`${base}/tasks/${selected.taskId}`}>
+                    <FileText />
+                    <span className="sr-only">Open originating task</span>
+                  </Link>
                 </Button>
               ) : null}
               <div>
                 <div className="mono-label mb-1.5">Evidence</div>
-                <pre className="max-h-64 overflow-auto border bg-accent p-3 font-mono text-[11px] leading-relaxed text-foreground scrollbar-thin">
+                <pre className="max-h-64 overflow-auto border p-3 font-mono text-[11px] leading-relaxed text-foreground scrollbar-thin">
                   {JSON.stringify(selected.data || {}, null, 2)}
                 </pre>
               </div>

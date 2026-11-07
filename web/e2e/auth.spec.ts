@@ -30,12 +30,13 @@ test.describe('authentication', () => {
     expect(access?.httpOnly).toBe(true)
     expect(csrf?.httpOnly).toBe(false)
     await page.reload()
-    await expect(page.getByRole('heading', { name: 'External Attack Surface Overview' })).toBeVisible()
+    // The header title is the only page title; wait for the console shell.
+    await expect(page.getByRole('banner').getByText('Overview', { exact: true })).toBeVisible()
   })
 
   test('signs out and protects console routes again', async ({ page }) => {
     await login(page)
-    await page.getByRole('button', { name: new RegExp(username) }).click()
+    await page.getByRole('button', { name: 'Account' }).click()
     await page.getByText('Sign Out', { exact: true }).click()
     await expect(page).toHaveURL(/\/login$/)
     await page.goto('/tasks')

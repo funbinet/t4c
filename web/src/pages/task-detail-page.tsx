@@ -135,14 +135,13 @@ export function TaskDetailPage() {
         </div>
         {canWrite(role) ? (
           <div className="flex flex-wrap items-center gap-2">
-            <Button size="icon" variant="outline" className="size-8" title="Export" onClick={() => exportTask.mutate()}>
+            <Button size="icon" variant="outline" title="Export" onClick={() => exportTask.mutate()}>
               <Download />
               <span className="sr-only">Export</span>
             </Button>
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Sync"
               onClick={() => action.mutate({ kind: 'sync' })}
             >
@@ -152,7 +151,7 @@ export function TaskDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8 text-destructive"
+              className="text-destructive"
               title="Stop"
               disabled={['succeeded', 'failed', 'canceled', 'partial'].includes(task.status || '')}
               onClick={() => action.mutate({ kind: 'cancel' })}
@@ -183,7 +182,7 @@ export function TaskDetailPage() {
             <Fact label="Policy" value={task.policyId || 'Default'} />
           </div>
           {task.error ? (
-            <div className="mt-3 border border-ring bg-accent px-3 py-2 text-xs text-destructive">
+            <div className="mt-3 border border-ring px-3 py-2 text-xs text-destructive">
               {task.error}
             </div>
           ) : null}

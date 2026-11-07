@@ -1,4 +1,6 @@
-// The cutting mat: a static grid behind every screen. Pure CSS, no motion.
+// Background is the bare canvas: no mat grid, no texture, no fill. Content
+// sits directly on the page so outlined rectangles stay readable at every
+// screen dimension.
 export function AppBackground() {
-  return <div aria-hidden="true" className="mat-grid pointer-events-none fixed inset-0 -z-10" />
+  return null
 }

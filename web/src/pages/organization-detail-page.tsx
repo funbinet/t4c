@@ -307,7 +307,6 @@ export function OrganizationDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-9"
               title="ICP Lookup"
               onClick={() => refreshICP.mutate()}
               disabled={refreshICP.isPending}
@@ -318,7 +317,6 @@ export function OrganizationDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-9"
               title="Add Root Domain"
               onClick={() => setAddOpen(true)}
             >
@@ -328,7 +326,6 @@ export function OrganizationDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-9"
               title="Export Report"
               onClick={() => exportReport.mutate('xlsx')}
             >
@@ -338,7 +335,6 @@ export function OrganizationDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-9"
               title="Edit Organization"
               onClick={openEditOrganization}
             >
@@ -448,7 +444,7 @@ export function OrganizationDetailPage() {
                   }}
                 />
                 {(summary.data?.criticalFindings || 0) > 0 ? (
-                  <div className=" border border-ring bg-accent px-3 py-2 text-[11px] text-foreground">
+                  <div className=" border border-ring px-3 py-2 text-[11px] text-foreground">
                     {summary.data?.criticalFindings} critical risk(s) require immediate attention.
                   </div>
                 ) : null}
@@ -575,7 +571,6 @@ export function OrganizationDetailPage() {
                 <Button
                   size="icon"
                   variant="outline"
-                  className="size-8"
                   title="Add Root Domain"
                   onClick={() => setAddOpen(true)}
                 >
@@ -642,7 +637,6 @@ export function OrganizationDetailPage() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="size-8"
                             title="Evidence"
                             onClick={() => void showEvidence(row)}
                           >
@@ -653,7 +647,6 @@ export function OrganizationDetailPage() {
                             <Button
                               size="icon"
                               variant="outline"
-                              className="size-8"
                               title="Edit Domain"
                               onClick={() => editDomain(row)}
                             >
@@ -671,7 +664,7 @@ export function OrganizationDetailPage() {
                                 <Button
                                   size="icon"
                                   variant="outline"
-                                  className="size-8 text-destructive"
+                                  className="text-destructive"
                                   title="Delete"
                                 >
                                   <Trash2 />
@@ -684,7 +677,7 @@ export function OrganizationDetailPage() {
                             <Button
                               size="icon"
                               variant="outline"
-                              className="size-8 text-destructive"
+                              className="text-destructive"
                               title="Remove Candidate"
                               onClick={() => {
                                 setRejectReason('Manually removed')
@@ -727,7 +720,7 @@ export function OrganizationDetailPage() {
             placeholder="example.edu.cn"
           />
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setAddOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setAddOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -760,7 +753,7 @@ export function OrganizationDetailPage() {
                 </label>
               ))
             ) : (
-              <div className="space-y-3 border bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">
+              <div className="space-y-3 border p-4 text-xs leading-5 text-muted-foreground">
                 <div className="font-medium uppercase tracking-[0.04em] text-ink">No confirmed root domains yet</div>
                 <ol className="list-inside list-decimal space-y-1">
                   <li>Add candidate root domains for this organization.</li>
@@ -793,7 +786,7 @@ export function OrganizationDetailPage() {
             )}
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setScanOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setScanOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -818,7 +811,6 @@ export function OrganizationDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setRejectTarget(null)}
             >
@@ -834,7 +826,7 @@ export function OrganizationDetailPage() {
               }}
             >
               <Trash2 />
-              Remove
+              <span className="sr-only">Remove</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -873,7 +865,7 @@ export function OrganizationDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button size="icon" variant="outline" className="size-8" title="Cancel" onClick={() => setEditOpen(false)}>
+            <Button size="icon" variant="outline" title="Cancel" onClick={() => setEditOpen(false)}>
               <X />
               <span className="sr-only">Cancel</span>
             </Button>
@@ -882,7 +874,7 @@ export function OrganizationDetailPage() {
               onClick={() => updateOrganization.mutate()}
             >
               <Save />
-              {updateOrganization.isPending ? 'Saving…' : 'Save'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -923,7 +915,6 @@ export function OrganizationDetailPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setDomainEditTarget(null)}
             >
@@ -932,7 +923,7 @@ export function OrganizationDetailPage() {
             </Button>
             <Button disabled={updateDomain.isPending} onClick={() => updateDomain.mutate()}>
               <Save />
-              {updateDomain.isPending ? 'Saving…' : 'Save'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1018,7 +1009,6 @@ function FindingTab({ query, organizationId }: { query: ReturnType<typeof useQue
                 <Button
                   size="icon"
                   variant="outline"
-                  className="size-8"
                   title="History"
                   onClick={() => void history(row)}
                 >

@@ -14,7 +14,7 @@ export function RouteError() {
 
   return (
     <div className="grid min-h-screen place-items-center px-6">
-      <div className="w-full max-w-md border bg-popover p-8 text-center">
+      <div className="w-full max-w-md border p-8 text-center">
         <AlertTriangle className="mx-auto size-8 text-destructive" />
         <h1 className="mt-4 text-lg font-semibold uppercase tracking-[0.06em]">Screen error</h1>
         <p className="mt-2 break-words text-xs text-muted-foreground">{message}</p>

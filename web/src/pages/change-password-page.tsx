@@ -81,13 +81,13 @@ export function ChangePasswordPage() {
               ) : null}
             </div>
             {form.formState.errors.root ? (
-              <div className=" border border-ring bg-accent px-3 py-2 text-xs text-destructive">
+              <div className=" border border-ring px-3 py-2 text-xs text-destructive">
                 {form.formState.errors.root.message}
               </div>
             ) : null}
             <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>
               <KeyRound />
-              {form.formState.isSubmitting ? 'Saving…' : 'Change password'}
+              <span className="sr-only">Change password</span>
             </Button>
           </form>
         </CardContent>

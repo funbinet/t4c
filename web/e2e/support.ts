@@ -31,7 +31,8 @@ export async function login(page: Page) {
     await page.waitForURL((url) => url.pathname === '/')
   }
 
-  await expect(page.getByRole('heading', { name: 'External Attack Surface Overview' })).toBeVisible()
+  // The header title is the only page title; wait for the console shell.
+  await expect(page.getByRole('banner').getByText('Overview', { exact: true })).toBeVisible()
 }
 
 export function trackBrowserErrors(page: Page) {

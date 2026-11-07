@@ -57,7 +57,7 @@ export function AssetGraph({ snapshot, onSelect }: { snapshot?: GraphSnapshot; o
   return (
     <div
       data-testid="asset-graph"
-      className="relative h-full min-h-[260px] w-full cursor-grab overflow-hidden border bg-card active:cursor-grabbing"
+      className="relative h-full min-h-[260px] w-full cursor-grab overflow-hidden border active:cursor-grabbing"
     >
       <ReactECharts
         option={option}

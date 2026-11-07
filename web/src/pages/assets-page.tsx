@@ -147,7 +147,7 @@ export function AssetsPage() {
       <ScreenToolbar
         left={
           <>
-            <div className="flex bg-muted p-1">
+            <div className="flex p-1">
               <Button
                 size="sm"
                 variant={view === 'surface' ? 'default' : 'ghost'}
@@ -262,7 +262,6 @@ export function AssetsPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-8"
                         title="Edit"
                         onClick={() => openEdit(row)}
                       >
@@ -278,7 +277,7 @@ export function AssetsPage() {
                           <Button
                             size="icon"
                             variant="outline"
-                            className="size-8 text-destructive"
+                            className="text-destructive"
                             title="Delete"
                           >
                             <Trash2 />
@@ -314,7 +313,6 @@ export function AssetsPage() {
                   <Button
                     size="icon"
                     variant="outline"
-                    className="size-8"
                     title="Edit"
                     onClick={() => openEdit(visible)}
                   >
@@ -330,7 +328,7 @@ export function AssetsPage() {
                       <Button
                         size="icon"
                         variant="outline"
-                        className="size-8 text-destructive"
+                        className="text-destructive"
                         title="Delete"
                       >
                         <Trash2 />
@@ -341,7 +339,7 @@ export function AssetsPage() {
                 </div>
               ) : null}
               {visible.restoreReason === 'scan_rediscovery' && visible.restoredAt ? (
-                <div className=" border border-border bg-accent px-3 py-2 text-xs text-foreground">
+                <div className=" border border-border px-3 py-2 text-xs text-foreground">
                   Re-discovered by a scan and automatically restored on {formatTime(visible.restoredAt)}.
                 </div>
               ) : null}
@@ -354,7 +352,7 @@ export function AssetsPage() {
               </div>
               {visible.displayName || visible.displayUrl || visible.notes || visible.tags?.length ? (
                 <Section title="Maintenance Info">
-                  <div className="space-y-2 border bg-card p-3 text-xs">
+                  <div className="space-y-2 border p-3 text-xs">
                     {visible.displayName ? (
                       <div>
                         <span className="mr-2 text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
@@ -380,7 +378,7 @@ export function AssetsPage() {
                     {visible.tags?.length ? (
                       <div className="flex flex-wrap gap-1.5">
                         {visible.tags.map((tag) => (
-                          <span key={tag} className=" border bg-muted px-2 py-0.5 text-[11px]">
+                          <span key={tag} className=" border px-2 py-0.5 text-[11px]">
                             {tag}
                           </span>
                         ))}
@@ -393,7 +391,7 @@ export function AssetsPage() {
                 <Section title="Linked Root Domains">
                   <div className="flex flex-wrap gap-1.5">
                     {visible.rootDomains.map((domain) => (
-                      <span key={domain} className="mono border bg-muted px-2 py-1 text-[11px]">
+                      <span key={domain} className="mono border px-2 py-1 text-[11px]">
                         {domain}
                       </span>
                     ))}
@@ -472,7 +470,6 @@ export function AssetsPage() {
             <Button
               size="icon"
               variant="outline"
-              className="size-8"
               title="Cancel"
               onClick={() => setEditorOpen(false)}
             >
@@ -484,7 +481,7 @@ export function AssetsPage() {
               onClick={() => (editingId ? update.mutate() : create.mutate())}
             >
               <Save className="size-4" />
-              {create.isPending || update.isPending ? 'Saving…' : editingId ? 'Save' : 'Create'}
+              <span className="sr-only">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>

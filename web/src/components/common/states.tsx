@@ -50,7 +50,7 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="grid min-h-48 place-items-center border border-dashed bg-card px-6 text-center">
+    <div className="grid min-h-48 place-items-center border border-dashed px-6 text-center">
       <div>
         <div className="text-xs font-semibold uppercase tracking-[0.06em]">{title}</div>
         {description ? <p className="mt-1 max-w-md text-xs leading-5 text-muted-foreground">{description}</p> : null}
@@ -63,7 +63,7 @@ export function EmptyState({
 export function ErrorState({ error, retry }: { error: unknown; retry?: () => void }) {
   const message = error instanceof Error ? error.message : 'Request failed. Please try again.'
   return (
-    <div className="border border-ring bg-popover p-4">
+    <div className="border border-ring p-4">
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 size-4 text-foreground" />
         <div className="min-w-0 flex-1">
